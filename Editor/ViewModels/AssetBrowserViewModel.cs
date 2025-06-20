@@ -39,6 +39,9 @@ namespace UnityEditorAssetBrowser.ViewModels
         private readonly SearchViewModel _searchViewModel;
         private string? _lastError;
 
+        /// <summary>ソート処理用のAssetItemヘルパーインスタンス（パフォーマンス最適化）</summary>
+        private static readonly AssetItem _assetItemHelper = new AssetItem();
+
         public string? LastError => _lastError;
 
         public SortMethod CurrentSortMethod => _currentSortMethod;
@@ -118,7 +121,7 @@ namespace UnityEditorAssetBrowser.ViewModels
                         // アセットタイプが0（アバター）のアイテムのみを表示
                         if (EditorPrefs.HasKey(key))
                         {
-                            return EditorPrefs.GetInt(key) == 0;
+                            return EditorPrefs.GetInt(key) == AssetTypeConstants.AVATAR;
                         }
                         return item.Type == "0"; // キーが存在しない場合は従来の判定
                     })
@@ -152,7 +155,7 @@ namespace UnityEditorAssetBrowser.ViewModels
                         // アセットタイプが1（アバター関連アセット）のアイテムのみを表示
                         if (EditorPrefs.HasKey(key))
                         {
-                            return EditorPrefs.GetInt(key) == 1;
+                            return EditorPrefs.GetInt(key) == AssetTypeConstants.AVATAR_RELATED;
                         }
                         // キーが存在しない場合は従来の判定
                         return item.Type != "0"
@@ -195,7 +198,7 @@ namespace UnityEditorAssetBrowser.ViewModels
                         // アセットタイプが2（ワールドオブジェクト）のアイテムのみを表示
                         if (EditorPrefs.HasKey(key))
                         {
-                            return EditorPrefs.GetInt(key) == 2;
+                            return EditorPrefs.GetInt(key) == AssetTypeConstants.WORLD;
                         }
                         // キーが存在しない場合は従来の判定
                         return item.Type != "0"
@@ -242,7 +245,7 @@ namespace UnityEditorAssetBrowser.ViewModels
                     if (EditorPrefs.HasKey(key))
                     {
                         var assetType = EditorPrefs.GetInt(key);
-                        if (assetType == 3) // その他
+                        if (assetType == AssetTypeConstants.OTHER) // その他
                         {
                             items.Add(item);
                         }
@@ -282,10 +285,10 @@ namespace UnityEditorAssetBrowser.ViewModels
                     return items.OrderByDescending(item => GetAuthor(item)).ToList();
                 case SortMethod.BoothIdDesc:
                     return items
-                        .OrderByDescending(item => new AssetItem().GetBoothItemId(item))
+                        .OrderByDescending(item => _assetItemHelper.GetBoothItemId(item))
                         .ToList();
                 case SortMethod.BoothIdAsc:
-                    return items.OrderBy(item => new AssetItem().GetBoothItemId(item)).ToList();
+                    return items.OrderBy(item => _assetItemHelper.GetBoothItemId(item)).ToList();
                 default:
                     return items;
             }
