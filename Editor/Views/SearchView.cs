@@ -17,6 +17,7 @@ namespace UnityEditorAssetBrowser.Views
         private readonly SearchViewModel _searchViewModel;
         private readonly AssetBrowserViewModel _assetBrowserViewModel;
         private readonly PaginationViewModel _paginationViewModel;
+        private int _lastSelectedTab = -1; // 前回選択されていたタブを記録
 
         public SearchView(
             SearchViewModel searchViewModel,
@@ -31,6 +32,9 @@ namespace UnityEditorAssetBrowser.Views
 
         public void DrawSearchField()
         {
+            // タブが変更された場合の処理
+            CheckTabChange();
+            
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
             // 基本検索フィールド
@@ -333,6 +337,26 @@ namespace UnityEditorAssetBrowser.Views
                 3 => _assetBrowserViewModel.GetFilteredOthers(),
                 _ => new System.Collections.Generic.List<object>()
             };
+        }
+
+        /// <summary>
+        /// タブの変更をチェックし、変更された場合は検索欄をリセット
+        /// </summary>
+        private void CheckTabChange()
+        {
+            int currentTab = _paginationViewModel.SelectedTab;
+            
+            // タブが変更された場合
+            if (_lastSelectedTab != -1 && _lastSelectedTab != currentTab)
+            {
+                // 検索条件をクリア
+                _searchViewModel.ClearSearchCriteria();
+                _paginationViewModel.ResetPage();
+                OnSearchResultChanged();
+                GUI.changed = true;
+            }
+            
+            _lastSelectedTab = currentTab;
         }
     }
 }
