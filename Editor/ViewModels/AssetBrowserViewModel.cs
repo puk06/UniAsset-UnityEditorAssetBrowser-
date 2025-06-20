@@ -384,6 +384,14 @@ namespace UnityEditorAssetBrowser.ViewModels
                         .DateTime
                     : (DateTime?)null;
             }
+            else if (item is KonoAssetOtherAssetItem kaOtherAssetItem)
+            {
+                return kaOtherAssetItem.description.createdAt > 0
+                    ? DateTimeOffset
+                        .FromUnixTimeMilliseconds(kaOtherAssetItem.description.createdAt)
+                        .DateTime
+                    : (DateTime?)null;
+            }
             return null;
         }
 
@@ -405,6 +413,10 @@ namespace UnityEditorAssetBrowser.ViewModels
             {
                 return kaWorldObjectItem.description.name ?? "";
             }
+            else if (item is KonoAssetOtherAssetItem kaOtherAssetItem)
+            {
+                return kaOtherAssetItem.description.name ?? "";
+            }
             return "";
         }
 
@@ -425,6 +437,10 @@ namespace UnityEditorAssetBrowser.ViewModels
             else if (item is KonoAssetWorldObjectItem kaWorldObjectItem)
             {
                 return kaWorldObjectItem.description.creator ?? "";
+            }
+            else if (item is KonoAssetOtherAssetItem kaOtherAssetItem)
+            {
+                return kaOtherAssetItem.description.creator ?? "";
             }
             return "";
         }
