@@ -46,6 +46,12 @@ namespace UnityEditorAssetBrowser.Views
             "その他",
         };
 
+        /// <summary>キャッシュされたAEデータベースパス</summary>
+        private string? _cachedAEDatabasePath;
+
+        /// <summary>キャッシュされたKAデータベースパス</summary>
+        private string? _cachedKADatabasePath;
+
         /// <summary>
         /// コンストラクタ
         /// </summary>
@@ -70,6 +76,18 @@ namespace UnityEditorAssetBrowser.Views
             _searchView = searchView;
             _paginationView = paginationView;
             _assetItemView = new AssetItemView(aeDatabase);
+
+            // データベースパスをキャッシュ
+            RefreshDatabasePaths();
+        }
+
+        /// <summary>
+        /// データベースパスを更新してキャッシュ
+        /// </summary>
+        private void RefreshDatabasePaths()
+        {
+            _cachedAEDatabasePath = DatabaseService.GetAEDatabasePath();
+            _cachedKADatabasePath = DatabaseService.GetKADatabasePath();
         }
 
         /// <summary>
@@ -163,8 +181,8 @@ namespace UnityEditorAssetBrowser.Views
             // 表示前に必要な画像のみ読み込み
             ImageServices.Instance.UpdateVisibleImages(
                 pageItems,
-                DatabaseService.GetAEDatabasePath(),
-                DatabaseService.GetKADatabasePath()
+                _cachedAEDatabasePath ?? string.Empty,
+                _cachedKADatabasePath ?? string.Empty
             );
 
             foreach (var item in pageItems)
@@ -192,8 +210,8 @@ namespace UnityEditorAssetBrowser.Views
             // 表示前に必要な画像のみ読み込み
             ImageServices.Instance.UpdateVisibleImages(
                 pageItems,
-                DatabaseService.GetAEDatabasePath(),
-                DatabaseService.GetKADatabasePath()
+                _cachedAEDatabasePath ?? string.Empty,
+                _cachedKADatabasePath ?? string.Empty
             );
 
             foreach (var item in pageItems)
@@ -221,8 +239,8 @@ namespace UnityEditorAssetBrowser.Views
             // 表示前に必要な画像のみ読み込み
             ImageServices.Instance.UpdateVisibleImages(
                 pageItems,
-                DatabaseService.GetAEDatabasePath(),
-                DatabaseService.GetKADatabasePath()
+                _cachedAEDatabasePath ?? string.Empty,
+                _cachedKADatabasePath ?? string.Empty
             );
 
             foreach (var item in pageItems)
@@ -250,8 +268,8 @@ namespace UnityEditorAssetBrowser.Views
             // 表示前に必要な画像のみ読み込み
             ImageServices.Instance.UpdateVisibleImages(
                 pageItems,
-                DatabaseService.GetAEDatabasePath(),
-                DatabaseService.GetKADatabasePath()
+                _cachedAEDatabasePath ?? string.Empty,
+                _cachedKADatabasePath ?? string.Empty
             );
 
             foreach (var item in pageItems)

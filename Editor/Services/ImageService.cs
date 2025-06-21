@@ -285,9 +285,16 @@ namespace UnityEditorAssetBrowser.Services
             // 全テクスチャを適切に解放
             foreach (var texture in imageCache.Values)
             {
-                if (texture != null)
+                if (texture != null && texture != placeholderTexture)
                 {
-                    UnityEngine.Object.DestroyImmediate(texture);
+                    try
+                    {
+                        UnityEngine.Object.DestroyImmediate(texture);
+                    }
+                    catch (System.Exception ex)
+                    {
+                        Debug.LogWarning($"テクスチャの破棄に失敗しました: {ex.Message}");
+                    }
                 }
             }
             imageCache.Clear();
@@ -295,6 +302,32 @@ namespace UnityEditorAssetBrowser.Services
             nodeMap.Clear();
             currentVisibleImages.Clear();
             loadingImages.Clear();
+        }
+
+        /// <summary>
+        /// ImageServiceインスタンスを破棄し、イベントハンドラーをクリーンアップ
+        /// </summary>
+        public void Dispose()
+        {
+            try
+            {
+                EditorApplication.update -= ProcessMainThreadQueue;
+                ClearCache();
+                
+                if (placeholderTexture != null)
+                {
+                    UnityEngine.Object.DestroyImmediate(placeholderTexture);
+                    placeholderTexture = null;
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogWarning($"ImageService dispose中にエラーが発生しました: {ex.Message}");
+            }
+            finally
+            {
+                instance = null;
+            }
         }
 
         /// <summary>
