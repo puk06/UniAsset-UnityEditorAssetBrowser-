@@ -97,3 +97,9 @@ The project uses Unity Package Manager format:
 - `package.json` contains package metadata
 - Version managed manually in package.json  
 - Changes tracked in CHANGELOG.md
+
+### CHANGELOG.md Format
+CHANGELOG.md follows a standardized format with three main sections:
+- **追加** (Added): New features and functionality
+- **変更** (Changed): Changes to existing features or behavior
+- **修正** (Fixed): Bug fixes, performance improvements, optimizations, and refactoring
