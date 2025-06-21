@@ -275,44 +275,46 @@ namespace UnityEditorAssetBrowser.Services
                 }
             }
 
-            // 最適なサムネイル保存先を決定する
-            static string FindBestThumbnailFolder(string folder)
-            {
-                string[] parts = folder.Split('/');
-                // 除外フォルダがパスに含まれる場合は、最初の除外フォルダの1つ上を返す
-                for (int i = 1; i < parts.Length; i++)
-                {
-                    if (ExcludeFolderService.IsExcludedFolder(parts[i]))
-                    {
-                        return string.Join("/", parts.Take(i));
-                    }
-                }
-                // 再帰的に最適な深さを探す
-                string current = folder;
-                while (true)
-                {
-                    var dirs = Directory.GetDirectories(current).ToList();
-                    var files = Directory
-                        .GetFiles(current)
-                        .Where(f => Path.GetExtension(f) != ".meta")
-                        .ToList();
-                    // フォルダが1つだけ、かつ除外フォルダでなく、ファイルが無い場合はさらに深く
-                    if (
-                        dirs.Count == 1
-                        && !ExcludeFolderService.IsExcludedFolder(Path.GetFileName(dirs[0]))
-                        && files.Count == 0
-                    )
-                    {
-                        current = dirs[0];
-                        continue;
-                    }
-                    break;
-                }
-                return current;
-            }
-
             // アセットデータベースを更新して表示を更新
             AssetDatabase.Refresh();
+        }
+
+        /// <summary>
+        /// 最適なサムネイル保存先を決定する
+        /// </summary>
+        private static string FindBestThumbnailFolder(string folder)
+        {
+            string[] parts = folder.Split('/');
+            // 除外フォルダがパスに含まれる場合は、最初の除外フォルダの1つ上を返す
+            for (int i = 1; i < parts.Length; i++)
+            {
+                if (ExcludeFolderService.IsExcludedFolder(parts[i]))
+                {
+                    return string.Join("/", parts.Take(i));
+                }
+            }
+            // 再帰的に最適な深さを探す
+            string current = folder;
+            while (true)
+            {
+                var dirs = Directory.GetDirectories(current).ToList();
+                var files = Directory
+                    .GetFiles(current)
+                    .Where(f => Path.GetExtension(f) != ".meta")
+                    .ToList();
+                // フォルダが1つだけ、かつ除外フォルダでなく、ファイルが無い場合はさらに深く
+                if (
+                    dirs.Count == 1
+                    && !ExcludeFolderService.IsExcludedFolder(Path.GetFileName(dirs[0]))
+                    && files.Count == 0
+                )
+                {
+                    current = dirs[0];
+                    continue;
+                }
+                break;
+            }
+            return current;
         }
 
         // importPackageCompleted 用の一時ハンドラ
