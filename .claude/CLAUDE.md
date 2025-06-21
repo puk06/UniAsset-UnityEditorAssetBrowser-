@@ -27,6 +27,11 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 2. `git commit -m "[descriptive message about changes]` followed by Claude attribution
 3. This ensures all development progress is tracked automatically
 
+**Version Updates**: When updating package version:
+1. Update `package.json` version field
+2. Add corresponding entry to `CHANGELOG.md` following the standardized format
+3. Commit both changes together
+
 ## Architecture Overview
 
 The project follows MVVM pattern with clear separation of concerns:
@@ -67,6 +72,8 @@ The project follows MVVM pattern with clear separation of concerns:
 - Japanese comments mixed with English code
 - Constants defined at class level with descriptive names
 - EditorWindow lifecycle methods (OnEnable, OnDisable, OnGUI)
+- Magic numbers replaced with named constants in dedicated constant classes
+- Methods decomposed into single-responsibility functions for maintainability
 
 ## External Dependencies
 
@@ -85,11 +92,14 @@ This project integrates with and borrows code from:
 - Database path keys: `UnityEditorAssetBrowser_AEDatabasePath`, `UnityEditorAssetBrowser_KADatabasePath`
 - Category mapping pattern: `UnityEditorAssetBrowser_CategoryAssetType_[category]`
 - World category detection: Keywords "ワールド" or "world" in category names
+- Asset type constants: Located in `Models/AssetTypeConstants.cs` (AVATAR=0, AVATAR_RELATED=1, WORLD=2, OTHER=3)
 
 ### Performance Considerations
 - Image cache is cleared on hierarchy changes (`OnHierarchyChanged`)
 - Pagination helps manage large datasets
 - Database reloading triggers on scene changes
+- FolderIconDrawer uses 3-tier caching system (directory, folder icons, textures)
+- AssetBrowserViewModel uses cached AssetItem helper for sorting operations
 
 ## Package Management
 
