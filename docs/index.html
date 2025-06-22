@@ -27,9 +27,14 @@
 
     <main>
         <div class="container">
+            <div class="main-buttons">
+                <a href="vcc://vpm/addRepo?url=https://vpm.sakurayuki.dev/vpm.json" class="btn btn-primary">VCCに追加</a>
+                <a href="https://yukis-gimmick.booth.pm/items/6748191" target="_blank" class="btn btn-secondary">BOOTH</a>
+                <a href="https://discord.gg/pQmhxmXUan" target="_blank" class="btn btn-secondary">Discord</a>
+            </div>
             <section id="hero">
                 <div class="hero-content">
-                    <h2>Avatar ExplorerとKonoAssetを統合したアセット管理ツール</h2>
+                    <h2>Avatar ExplorerとKonoAssetを統合したUnityエディタ上のアセット管理ツール</h2>
                     <p>UnityエディタでVRChatアバターとアセットを効率的に管理・検索・インポートできるツールです。</p>
                     <!-- 画像推奨: メインウィンドウのスクリーンショット（フルサイズ、複数タブが見える状態） -->
                     <div class="hero-image">
@@ -54,39 +59,31 @@
                     </div>
                     <div class="feature-card">
                         <h3>🎯 詳細フィルタ</h3>
-                        <p>タイトル、作者、カテゴリ、対応アバター、タグで詳細な検索が可能。</p>
+                        <p>タイトル、作者、カテゴリ、対応アバター、タグ、メモの内容で詳細な検索が可能。</p>
                         <!-- 画像推奨: 詳細検索フィールドが展開された状態 -->
-                    </div>
-                    <div class="feature-card">
-                        <h3>⚡ 高速表示</h3>
-                        <p>キャッシュシステムによる高速な画像読み込みとスムーズなスクロール。</p>
-                        <!-- 画像推奨: サムネイル一覧が表示されている画面 -->
                     </div>
                     <div class="feature-card">
                         <h3>📦 ワンクリックインポート</h3>
                         <p>Unitypackageの直接インポートとフォルダサムネイル自動設定。</p>
                         <!-- 画像推奨: インポートボタンと結果フォルダのスクリーンショット -->
                     </div>
-                    <div class="feature-card">
-                        <h3>🛒 BOOTH連携</h3>
-                        <p>商品ページへの直接リンクでスムーズな購入体験。</p>
-                        <!-- 画像推奨: BOOTH商品ページボタンがあるアイテム表示 -->
-                    </div>
                 </div>
             </section>
 
             <section id="compatibility">
-                <h2>対応データベース</h2>
+                <h2>対応アセット管理ツール</h2>
                 <div class="compatibility-grid">
                     <div class="compat-item">
-                        <h3>Avatar Explorer</h3>
-                        <p>VRChatアバターの包括的なデータベース</p>
-                        <a href="https://github.com/puk06/VRC-Avatar-Explorer" target="_blank">GitHub</a>
+                        <img src="images/AvatarExplorer_Logo.png" alt="Avatar Explorer Logo" class="compat-logo" />
+                        <h3>VRC Avatar Explorer</h3>
+                        <a href="https://pukorufu.booth.pm/items/6372968" target="_blank">BOOTH</a>
+                        <p class="license-info">Logo: © 2024 pukorufu</p>
                     </div>
                     <div class="compat-item">
+                        <img src="images/KonoAsset_Logo.png" alt="KonoAsset Logo" class="compat-logo" />
                         <h3>KonoAsset</h3>
-                        <p>VRChatアセットの詳細データベース</p>
-                        <a href="https://github.com/KonoSuba-sukimin/KonoAsset" target="_blank">GitHub</a>
+                        <a href="https://silolab.booth.pm/items/6641548" target="_blank">BOOTH</a>
+                        <p class="license-info">Logo: © 2025 Jan_kumaVRC, siloneco, Raifa21, pukorufu and other contributors. Licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0</a></p>
                     </div>
                 </div>
             </section>
@@ -127,7 +124,6 @@
     <footer>
         <div class="container">
             <p>&copy; 2025 yuki-2525. Licensed under MIT License.</p>
-            <p>Avatar Explorer integration based on <a href="https://github.com/puk06/AE-Tools">AE-Tools</a> (MIT License)</p>
         </div>
     </footer>
 </body>
