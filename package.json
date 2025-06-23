@@ -5,11 +5,11 @@
     "author": {
         "name": "sakurayuki",
         "email": "2525sakurayuki@gmail.com",
-        "url": "https://x.com/yuk1_vrc"
+        "url": "https://x.com/sakurayuki_dev"
     },
     "description": "AvatarExplorerとKonoAssetのデータベースを統合して表示するUnity Editor拡張",
     "url": "https://github.com/yuki-2525/UniAsset-UnityEditorAssetBrowser-",
     "repo": "https://vpm.sakurayuki.dev/vpm.json",
     "license": "MIT",
-    "changelogUrl": "https://github.com/yuki-2525/UnityEditorAssetBrowser/blob/main/CHANGELOG.md"
+    "changelogUrl": "https://uniasset.sakurayuki.dev/changelog/"
 }
