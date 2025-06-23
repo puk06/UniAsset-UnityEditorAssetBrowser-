@@ -150,8 +150,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const detailsElement = document.querySelector('#legacy-changelog details');
     detailsElement.addEventListener('toggle', function() {
-        console.log('Details toggled, open:', this.open, 'loading:', legacyChangelogLoading);
-        if (this.open && !legacyChangelogLoading && document.getElementById('legacy-changelog-content').innerHTML === '') {
+        const contentElement = document.getElementById('legacy-changelog-content');
+        const contentEmpty = contentElement.innerHTML.trim() === '';
+        console.log('Details toggled, open:', this.open, 'loading:', legacyChangelogLoading, 'content empty:', contentEmpty);
+        console.log('Content innerHTML length:', contentElement.innerHTML.length);
+        
+        if (this.open && !legacyChangelogLoading && contentEmpty) {
+            console.log('Starting legacy changelog load...');
             legacyChangelogLoading = true;
             loadLegacyChangelog().finally(() => {
                 legacyChangelogLoading = false;
