@@ -1,0 +1,22 @@
+title: "UniAsset -Unity Editor Asset Browser-"
+description: "VRChatアバター・アセット管理ツール"
+url: "https://yuki-2525.github.io"
+baseurl: "/UniAsset-UnityEditorAssetBrowser-"
+
+markdown: kramdown
+highlighter: rouge
+
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+
+defaults:
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "default"
+
+exclude:
+  - README.md
+  - .gitignore
