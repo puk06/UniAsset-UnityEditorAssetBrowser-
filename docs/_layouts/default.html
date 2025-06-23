@@ -23,10 +23,10 @@
     <nav>
         <div class="container">
             <ul>
-                <li><a href="{{ '/#home' | relative_url }}">ホーム</a></li>
-                <li><a href="{{ '/intro/' | relative_url }}">導入方法</a></li>
-                <li><a href="{{ '/tutorial/' | relative_url }}">使い方</a></li>
-                <li><a href="{{ '/changelog/' | relative_url }}">更新履歴</a></li>
+                <li><a href="{{ '/#home' | relative_url }}" {% if page.url == '/' %}class="active"{% endif %}>ホーム</a></li>
+                <li><a href="{{ '/intro/' | relative_url }}" {% if page.url contains '/intro/' %}class="active"{% endif %}>導入方法</a></li>
+                <li><a href="{{ '/tutorial/' | relative_url }}" {% if page.url contains '/tutorial/' %}class="active"{% endif %}>使い方</a></li>
+                <li><a href="{{ '/changelog/' | relative_url }}" {% if page.url contains '/changelog/' %}class="active"{% endif %}>更新履歴</a></li>
                 <li><a href="https://github.com/yuki-2525/UniAsset-UnityEditorAssetBrowser-">GitHub</a></li>
             </ul>
         </div>
