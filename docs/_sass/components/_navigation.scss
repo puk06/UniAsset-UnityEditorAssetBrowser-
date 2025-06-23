@@ -42,16 +42,16 @@ nav {
 // Theme Switch
 .theme-switch {
   display: inline-block;
-  margin: 0 4px;
+  margin: 0 8px;
 
   input[type="checkbox"] {
     -webkit-appearance: none;
     appearance: none;
     background-color: #0c0c0d1a;
     border: 1px solid #0c0c0d4d;
-    border-radius: 8px;
-    height: 16px;
-    width: 32px;
+    border-radius: 14px;
+    height: 28px;
+    width: 56px;
     color: #737373;
     cursor: pointer;
 
@@ -75,22 +75,22 @@ nav {
 
     &::before {
       background-color: currentColor;
-      border-radius: 6px;
+      border-radius: 10px;
       content: "☀️";
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 12px;
-      margin-left: 1px;
-      margin-top: 1px;
+      height: 20px;
+      margin-left: 3px;
+      margin-top: 3px;
       transition: margin-left .2s cubic-bezier(.07, .95, 0, 1);
-      width: 12px;
-      font-size: 8px;
+      width: 20px;
+      font-size: 14px;
     }
 
     &:checked::before {
       background-color: #ffffff;
-      margin-left: 17px;
+      margin-left: 31px;
       content: "🌙";
     }
   }
