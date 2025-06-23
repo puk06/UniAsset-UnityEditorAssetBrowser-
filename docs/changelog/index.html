@@ -86,12 +86,14 @@ async function loadLegacyChangelog() {
     const errorDiv = document.getElementById('legacy-changelog-error');
     
     try {
-        const response = await fetch('https://raw.githubusercontent.com/yuki-2525/UnityEditorAssetBrowser/main/CHANGELOG.md');
+        // GitHub API経由で試す
+        const response = await fetch('https://api.github.com/repos/yuki-2525/UnityEditorAssetBrowser/contents/CHANGELOG.md');
         if (!response.ok) {
-            throw new Error('ファイルの読み込みに失敗しました');
+            throw new Error('GitHub API request failed');
         }
         
-        const markdown = await response.text();
+        const data = await response.json();
+        const markdown = atob(data.content);
         const html = marked.parse(markdown);
         
         // 読み込み完了後の表示切り替え
@@ -101,8 +103,27 @@ async function loadLegacyChangelog() {
         
     } catch (error) {
         console.error('Error loading legacy changelog:', error);
-        loadingDiv.style.display = 'none';
-        errorDiv.style.display = 'block';
+        // GitHub API失敗時はrawファイルを試す
+        try {
+            const response = await fetch('https://raw.githubusercontent.com/yuki-2525/UnityEditorAssetBrowser/main/CHANGELOG.md', {
+                mode: 'cors'
+            });
+            if (!response.ok) {
+                throw new Error('Raw file request failed');
+            }
+            
+            const markdown = await response.text();
+            const html = marked.parse(markdown);
+            
+            loadingDiv.style.display = 'none';
+            contentDiv.innerHTML = html;
+            contentDiv.style.display = 'block';
+            
+        } catch (fallbackError) {
+            console.error('Fallback error:', fallbackError);
+            loadingDiv.style.display = 'none';
+            errorDiv.style.display = 'block';
+        }
     }
 }
 
