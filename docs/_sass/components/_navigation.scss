@@ -74,7 +74,7 @@ nav {
     }
 
     &::before {
-      background-color: currentColor;
+      background-color: #ffffff;
       border-radius: 10px;
       content: "☀️";
       display: flex;
@@ -89,7 +89,7 @@ nav {
     }
 
     &:checked::before {
-      background-color: #ffffff;
+      background-color: #2d3748;
       margin-left: 31px;
       content: "🌙";
     }
