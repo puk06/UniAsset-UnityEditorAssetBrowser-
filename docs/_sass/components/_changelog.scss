@@ -87,3 +87,72 @@
     }
   }
 }
+
+// Legacy changelog section
+#legacy-changelog {
+  margin-top: 3rem;
+  border-top: 2px solid var(--border-color);
+  padding-top: 2rem;
+
+  details {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+
+    summary {
+      cursor: pointer;
+      font-weight: bold;
+      margin-bottom: 0;
+      padding: 0.5rem;
+      border-radius: 4px;
+      transition: background-color $transition-base;
+
+      &:hover {
+        background-color: var(--hover-bg);
+      }
+
+      h3 {
+        display: inline;
+        margin: 0;
+        color: var(--text-color);
+      }
+    }
+
+    &[open] summary {
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+  }
+
+  #legacy-changelog-content {
+    h1, h2, h3 {
+      color: var(--text-color);
+    }
+
+    h2 {
+      background: linear-gradient(135deg, #6b7280, #9ca3af);
+      color: white;
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 2rem 0 1rem 0;
+
+      &::before {
+        content: "📜";
+        margin-right: 0.5rem;
+      }
+    }
+
+    ul {
+      margin: $spacing-unit 0;
+    }
+
+    li {
+      margin: 0.5rem 0;
+      padding: 0.5rem $spacing-unit;
+      background: var(--section-bg);
+      border-radius: 4px;
+      border-left: 3px solid #6b7280;
+    }
+  }
+}
