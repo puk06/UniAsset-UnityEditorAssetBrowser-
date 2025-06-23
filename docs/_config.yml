@@ -1,7 +1,7 @@
 title: "UniAsset -Unity Editor Asset Browser-"
 description: "VRChatアバター・アセット管理ツール"
 url: "https://yuki-2525.github.io"
-baseurl: "/UniAsset-UnityEditorAssetBrowser-"
+baseurl: ""
 
 markdown: kramdown
 highlighter: rouge
