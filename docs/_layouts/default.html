@@ -43,21 +43,13 @@
         // Check for saved theme preference or default to light mode
         const currentTheme = localStorage.getItem('theme') || 'light';
         body.setAttribute('data-theme', currentTheme);
-        updateThemeIcon(currentTheme);
+        themeToggle.checked = currentTheme === 'dark';
 
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = body.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            
+        themeToggle.addEventListener('change', () => {
+            const newTheme = themeToggle.checked ? 'dark' : 'light';
             body.setAttribute('data-theme', newTheme);
             localStorage.setItem('theme', newTheme);
-            updateThemeIcon(newTheme);
         });
-
-        function updateThemeIcon(theme) {
-            themeToggle.setAttribute('aria-checked', theme === 'dark' ? 'true' : 'false');
-            themeToggle.title = theme === 'dark' ? 'ライトテーマに切り替え' : 'ダークテーマに切り替え';
-        }
     </script>
 </body>
 </html>
