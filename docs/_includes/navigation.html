@@ -6,7 +6,18 @@
             <li><a href="{{ '/tutorial/' | relative_url }}" {% if page.url contains '/tutorial/' %}class="active"{% endif %}>使い方</a></li>
             <li><a href="{{ '/changelog/' | relative_url }}" {% if page.url contains '/changelog/' %}class="active"{% endif %}>更新履歴</a></li>
             <li><a href="https://github.com/yuki-2525/UniAsset-UnityEditorAssetBrowser-"><i class="fab fa-github"></i> GitHub</a></li>
-            <li><button id="theme-toggle" class="theme-toggle" aria-label="テーマ切り替え">🌙</button></li>
+            <li>
+                <button class="theme-switch" type="button" role="switch" title="テーマ切り替え" aria-checked="false" id="theme-toggle">
+                    <span class="switch-track">
+                        <span class="switch-handle">
+                            <span class="switch-icons">
+                                <i class="fas fa-sun sun-icon"></i>
+                                <i class="fas fa-moon moon-icon"></i>
+                            </span>
+                        </span>
+                    </span>
+                </button>
+            </li>
         </ul>
     </div>
 </nav>
