@@ -1,15 +1,15 @@
 {
-    "name": "com.yuki-2525.unityeditorassetbrowser",
-    "displayName": "Unity Editor Asset Browser",
+    "name": "dev.sakurayuki.uniasset",
+    "displayName": "UniAsset -Unity Editor Asset Browser-",
     "version": "1.3.2",
     "author": {
-        "name": "yuki-2525",
+        "name": "sakurayuki",
         "email": "2525sakurayuki@gmail.com",
         "url": "https://x.com/yuk1_vrc"
     },
     "description": "AvatarExplorerとKonoAssetのデータベースを統合して表示するUnity Editor拡張",
-    "url": "https://github.com/yuki-2525/UnityEditorAssetBrowser.zip",
-    "repo": "https://yuki-2525.github.io/vpm/index.json",
+    "url": "https://github.com/yuki-2525/UniAsset-UnityEditorAssetBrowser-",
+    "repo": "https://vpm.sakurayuki.dev/vpm.json",
     "license": "MIT",
     "changelogUrl": "https://github.com/yuki-2525/UnityEditorAssetBrowser/blob/main/CHANGELOG.md"
 }

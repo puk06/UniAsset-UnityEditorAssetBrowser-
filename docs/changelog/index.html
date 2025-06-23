@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>更新履歴 - Unity Editor Asset Browser</title>
+    <link rel="stylesheet" href="../style.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>UniAsset -Unity Editor Asset Browser-</h1>
+            <p class="subtitle">VRChatアバター・アセット管理ツール</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="../#home">ホーム</a></li>
+                <li><a href="../intro/">導入方法</a></li>
+                <li><a href="../tutorial/">使い方</a></li>
+                <li><a href="#changelog">更新履歴</a></li>
+                <li><a href="https://github.com/yuki-2525/UniAsset-UnityEditorAssetBrowser-">GitHub</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <div class="container">
+            <section id="changelog">
+                <div id="changelog-content">
+                    <p>更新履歴を読み込み中...</p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 yuki-2525. Licensed under MIT License.</p>
+        </div>
+    </footer>
+
+    <script>
+        async function loadChangelog() {
+            try {
+                const response = await fetch('https://raw.githubusercontent.com/yuki-2525/UniAsset-UnityEditorAssetBrowser-/main/CHANGELOG.md');
+                if (!response.ok) {
+                    throw new Error('ファイルの読み込みに失敗しました');
+                }
+                const markdown = await response.text();
+                const html = marked.parse(markdown);
+                document.getElementById('changelog-content').innerHTML = html;
+            } catch (error) {
+                console.error('Error loading changelog:', error);
+                document.getElementById('changelog-content').innerHTML = 
+                    '<p>更新履歴の読み込みに失敗しました。GitHub で<a href="https://github.com/yuki-2525/UniAsset-UnityEditorAssetBrowser-/blob/main/CHANGELOG.md" target="_blank">直接確認</a>してください。</p>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadChangelog);
+    </script>
+</body>
+</html>
