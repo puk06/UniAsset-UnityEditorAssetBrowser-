@@ -27,8 +27,7 @@
       "Bash(npm remove:*)",
       "Bash(psql:*)",
       "Bash(mysql:*)",
-      "Bash(mongod:*)",
-      "mcp__supabase__execute_sql"
+      "Bash(mongod:*)"
     ]
   }
 }
