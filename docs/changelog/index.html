@@ -104,7 +104,10 @@ async function loadLegacyChangelog() {
         
         const data = await response.json();
         console.log('GitHub API data received, decoding...');
-        const markdown = atob(data.content);
+        // UTF-8対応のbase64デコード
+        const binaryString = atob(data.content);
+        const bytes = Uint8Array.from(binaryString, c => c.charCodeAt(0));
+        const markdown = new TextDecoder('utf-8').decode(bytes);
         const html = marked.parse(markdown);
         
         console.log('Markdown parsed successfully');
