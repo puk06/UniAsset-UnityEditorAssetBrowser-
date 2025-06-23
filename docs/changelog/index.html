@@ -85,60 +85,48 @@ async function loadLegacyChangelog() {
     const contentDiv = document.getElementById('legacy-changelog-content');
     const errorDiv = document.getElementById('legacy-changelog-error');
     
-    console.log('Starting legacy changelog load...');
-    
     // タイムアウトを設定
     const timeoutPromise = new Promise((_, reject) => 
         setTimeout(() => reject(new Error('Request timeout')), 10000)
     );
     
     try {
-        console.log('Trying GitHub API...');
         const fetchPromise = fetch('https://api.github.com/repos/yuki-2525/UnityEditorAssetBrowser/contents/CHANGELOG.md');
         const response = await Promise.race([fetchPromise, timeoutPromise]);
         
-        console.log('GitHub API response status:', response.status);
         if (!response.ok) {
             throw new Error(`GitHub API request failed: ${response.status}`);
         }
         
         const data = await response.json();
-        console.log('GitHub API data received, decoding...');
         // UTF-8対応のbase64デコード
         const binaryString = atob(data.content);
         const bytes = Uint8Array.from(binaryString, c => c.charCodeAt(0));
         const markdown = new TextDecoder('utf-8').decode(bytes);
         const html = marked.parse(markdown);
         
-        console.log('Markdown parsed successfully');
         // 読み込み完了後の表示切り替え
         loadingDiv.style.display = 'none';
         contentDiv.innerHTML = html;
         contentDiv.style.display = 'block';
         
     } catch (error) {
-        console.error('Primary error:', error);
-        // 直接rawファイルを試す（シンプルなアプローチ）
+        // 直接rawファイルを試す
         try {
-            console.log('Trying direct raw file...');
             const response = await fetch('https://raw.githubusercontent.com/yuki-2525/UnityEditorAssetBrowser/main/CHANGELOG.md');
-            console.log('Raw file response status:', response.status);
             
             if (!response.ok) {
                 throw new Error(`Raw file request failed: ${response.status}`);
             }
             
             const markdown = await response.text();
-            console.log('Raw file text received, parsing...');
             const html = marked.parse(markdown);
             
-            console.log('Raw file parsed successfully');
             loadingDiv.style.display = 'none';
             contentDiv.innerHTML = html;
             contentDiv.style.display = 'block';
             
         } catch (fallbackError) {
-            console.error('Fallback error:', fallbackError);
             loadingDiv.style.display = 'none';
             errorDiv.style.display = 'block';
         }
@@ -155,11 +143,8 @@ document.addEventListener('DOMContentLoaded', () => {
     detailsElement.addEventListener('toggle', function() {
         const contentElement = document.getElementById('legacy-changelog-content');
         const contentEmpty = contentElement.innerHTML.trim() === '';
-        console.log('Details toggled, open:', this.open, 'loading:', legacyChangelogLoading, 'content empty:', contentEmpty);
-        console.log('Content innerHTML length:', contentElement.innerHTML.length);
         
         if (this.open && !legacyChangelogLoading && contentEmpty) {
-            console.log('Starting legacy changelog load...');
             legacyChangelogLoading = true;
             loadLegacyChangelog().finally(() => {
                 legacyChangelogLoading = false;
