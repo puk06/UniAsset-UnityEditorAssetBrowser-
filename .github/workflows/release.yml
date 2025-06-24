@@ -2,8 +2,8 @@ name: Build Release
 
 on: 
   workflow_dispatch:
-#  push:
-#    branches: "main"
+  push:
+    branches: "main"
 
 jobs:
 
@@ -113,7 +113,3 @@ jobs:
             -H "Accept: application/vnd.github.v3+json" \
             https://api.github.com/repos/yuki-2525/vpm_sakurayuki_dev/dispatches \
             -d '{"event_type":"automatic-web-update","client_payload":{"env": "dev"}}'
-
-      # Generate repository json
-      - name: Generate repository json
-        run: curl "https://vpm-ci-worker.2525sakurayuki.workers.dev"
