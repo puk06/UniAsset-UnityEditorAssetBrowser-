@@ -1,5 +1,5 @@
 {
-    "name": "com.yuki-2525.unityeditorassetbrowser.editor",
+    "name": "dev.sakurayuki.uniasset.editor",
     "references": [],
     "includePlatforms": [
         "Editor"
