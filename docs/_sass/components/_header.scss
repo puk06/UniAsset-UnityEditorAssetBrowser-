@@ -9,6 +9,7 @@ header {
     align-items: center;
     justify-content: center;
     gap: 2rem;
+    position: relative;
   }
 
   .header-text {
@@ -16,9 +17,11 @@ header {
   }
 
   .site-logo {
-    height: calc(2.5rem + 1.2rem + 0.5rem + 1.5rem);
+    height: calc(2.5rem + 1.2rem + 0.5rem + 2rem);
     width: auto;
     object-fit: contain;
+    position: absolute;
+    left: 0;
   }
 
   h1 {
@@ -39,8 +42,9 @@ header {
     }
 
     .site-logo {
-      height: calc(2rem + 1rem + 0.5rem + 1rem);
+      height: calc(2rem + 1rem + 0.5rem + 1.5rem);
       width: auto;
+      position: static;
     }
 
     h1 {
