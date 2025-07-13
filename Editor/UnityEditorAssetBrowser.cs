@@ -127,7 +127,18 @@ namespace UnityEditorAssetBrowser
             InitializeViewModels();
             InitializeViews();
             RegisterEventHandlers();
-        }
+void OnEnable()
+{
+    // バージョンチェックを実行
+    try
+    {
+        VersionUpdateService.CheckForUpdates();
+    }
+    catch (Exception ex)
+    {
+        Debug.LogWarning($"Version check failed: {ex.Message}");
+    }
+}
 
         /// <summary>
         /// サービスの初期化
