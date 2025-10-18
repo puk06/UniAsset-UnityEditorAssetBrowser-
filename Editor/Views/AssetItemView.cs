@@ -354,7 +354,7 @@ namespace UnityEditorAssetBrowser.Views
         {
             if (aeDatabase != null)
             {
-                var item = aeDatabase.Items.FirstOrDefault(i => i.Title == title);
+                var item = aeDatabase.Items.Where(x => x.Category == "アバター").FirstOrDefault(i => i.Title == title);
                 GUILayout.Label(
                     item != null ? $"カテゴリ: {item.GetAECategoryName()}" : $"カテゴリ: {category}"
                 );
@@ -386,10 +386,11 @@ namespace UnityEditorAssetBrowser.Views
         /// <returns>対応アバターの表示テキスト</returns>
         private string GetAESupportedAvatarsText(string[] supportedAvatars)
         {
-            var supportedAvatarNames = supportedAvatars.Select(avatarPath =>
+            /// <param name="avatarTitle">空白が詰められたアバタータイトル</param>
+            var supportedAvatarNames = supportedAvatars.Select(avatarTitle =>
             {
-                var avatarItem = aeDatabase?.Items.FirstOrDefault(x => x.ItemPath == avatarPath);
-                return avatarItem?.Title ?? Path.GetFileName(avatarPath);
+                var avatarItem = aeDatabase?.Items.Where(x => x.Category == "アバター").FirstOrDefault(x => x.Title.Replace(" ", "") == avatarTitle);
+                return avatarItem?.Title ?? Path.GetFileName(avatarTitle);
             });
 
             return "対応アバター: " + string.Join(", ", supportedAvatarNames);
