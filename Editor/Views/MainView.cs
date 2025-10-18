@@ -2,6 +2,7 @@
 
 #nullable enable
 
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEditorAssetBrowser.Models;
 using UnityEditorAssetBrowser.Services;
@@ -101,8 +102,9 @@ namespace UnityEditorAssetBrowser.Views
             _searchView.DrawDatabaseButtons();
             DrawTabBar();
             _searchView.DrawSearchField();
-            _searchView.DrawSearchResultCount();
-            DrawContentArea();
+
+            var totalItems = _searchView.GetAndDrawSearchResult();
+            DrawContentArea(totalItems);
 
             EditorGUILayout.EndVertical();
         }
@@ -126,10 +128,10 @@ namespace UnityEditorAssetBrowser.Views
         /// <summary>
         /// コンテンツエリアの描画
         /// </summary>
-        private void DrawContentArea()
+        private void DrawContentArea(List<object> totalItems)
         {
             GUILayout.BeginVertical();
-            DrawScrollView();
+            DrawScrollView(totalItems);
             _paginationView.DrawPaginationButtons();
             GUILayout.EndVertical();
         }
@@ -137,34 +139,34 @@ namespace UnityEditorAssetBrowser.Views
         /// <summary>
         /// スクロールビューの描画
         /// </summary>
-        private void DrawScrollView()
+        private void DrawScrollView(List<object> totalItems)
         {
             scrollPosition = EditorGUILayout.BeginScrollView(
                 scrollPosition,
                 GUILayout.ExpandHeight(true)
             );
-            DrawCurrentTabContent();
+            DrawCurrentTabContent(totalItems);
             EditorGUILayout.EndScrollView();
         }
 
         /// <summary>
         /// 現在のタブのコンテンツを描画
         /// </summary>
-        private void DrawCurrentTabContent()
+        private void DrawCurrentTabContent(List<object> totalItems)
         {
             switch (_paginationViewModel.SelectedTab)
             {
                 case 0:
-                    ShowAvatarsContent();
+                    ShowAvatarsContent(totalItems);
                     break;
                 case 1:
-                    ShowItemsContent();
+                    ShowItemsContent(totalItems);
                     break;
                 case 2:
-                    ShowWorldObjectsContent();
+                    ShowWorldObjectsContent(totalItems);
                     break;
                 case 3:
-                    ShowOthersContent();
+                    ShowOthersContent(totalItems);
                     break;
             }
         }
@@ -172,11 +174,11 @@ namespace UnityEditorAssetBrowser.Views
         /// <summary>
         /// アバターコンテンツの表示
         /// </summary>
-        private void ShowAvatarsContent()
+        private void ShowAvatarsContent(List<object> totalItems)
         {
-            var filteredSortedItems = _assetBrowserViewModel.GetFilteredAvatars();
+            // var filteredSortedItems = _assetBrowserViewModel.GetFilteredAvatars();
             // var sortedItems = _assetBrowserViewModel.SortItems(filteredSortedItems);
-            var pageItems = _paginationViewModel.GetCurrentPageItems(filteredSortedItems);
+            var pageItems = _paginationViewModel.GetCurrentPageItems(totalItems);
 
             // 表示前に必要な画像のみ読み込み
             ImageServices.Instance.UpdateVisibleImages(
@@ -201,11 +203,11 @@ namespace UnityEditorAssetBrowser.Views
         /// <summary>
         /// アバター関連アセットコンテンツの表示
         /// </summary>
-        private void ShowItemsContent()
+        private void ShowItemsContent(List<object> totalItems)
         {
-            var filteredSortedItems = _assetBrowserViewModel.GetFilteredItems();
+            // var filteredItems = _assetBrowserViewModel.GetFilteredItems();
             // var sortedItems = _assetBrowserViewModel.SortItems(filteredItems);
-            var pageItems = _paginationViewModel.GetCurrentPageItems(filteredSortedItems);
+            var pageItems = _paginationViewModel.GetCurrentPageItems(totalItems);
 
             // 表示前に必要な画像のみ読み込み
             ImageServices.Instance.UpdateVisibleImages(
@@ -230,11 +232,11 @@ namespace UnityEditorAssetBrowser.Views
         /// <summary>
         /// ワールドアセットコンテンツの表示
         /// </summary>
-        private void ShowWorldObjectsContent()
+        private void ShowWorldObjectsContent(List<object> totalItems)
         {
-            var filteredSortedItems = _assetBrowserViewModel.GetFilteredWorldObjects();
+            // var filteredSortedItems = _assetBrowserViewModel.GetFilteredWorldObjects();
             // var sortedItems = _assetBrowserViewModel.SortItems(filteredItems);
-            var pageItems = _paginationViewModel.GetCurrentPageItems(filteredSortedItems);
+            var pageItems = _paginationViewModel.GetCurrentPageItems(totalItems);
 
             // 表示前に必要な画像のみ読み込み
             ImageServices.Instance.UpdateVisibleImages(
@@ -259,11 +261,11 @@ namespace UnityEditorAssetBrowser.Views
         /// <summary>
         /// その他コンテンツの表示
         /// </summary>
-        private void ShowOthersContent()
+        private void ShowOthersContent(List<object> totalItems)
         {
-            var filteredSortedItems = _assetBrowserViewModel.GetFilteredOthers();
+            // var filteredSortedItems = _assetBrowserViewModel.GetFilteredOthers();
             // var sortedItems = _assetBrowserViewModel.SortItems(filteredItems);
-            var pageItems = _paginationViewModel.GetCurrentPageItems(filteredSortedItems);
+            var pageItems = _paginationViewModel.GetCurrentPageItems(totalItems);
 
             // 表示前に必要な画像のみ読み込み
             ImageServices.Instance.UpdateVisibleImages(

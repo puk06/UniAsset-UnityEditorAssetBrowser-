@@ -265,16 +265,19 @@ namespace UnityEditorAssetBrowser.Views
             EditorGUILayout.EndVertical();
         }
 
-        public void DrawSearchResultCount()
+        public List<object> GetAndDrawSearchResult()
         {
-            int totalItems = _paginationViewModel.GetCurrentTabItemCount(
+            List<object> totalItems = _paginationViewModel.GetCurrentTabItems(
                 () => _assetBrowserViewModel.GetFilteredAvatars(),
                 () => _assetBrowserViewModel.GetFilteredItems(),
                 () => _assetBrowserViewModel.GetFilteredWorldObjects(),
                 () => _assetBrowserViewModel.GetFilteredOthers()
             );
-            EditorGUILayout.LabelField($"検索結果: {totalItems}件");
+
+            EditorGUILayout.LabelField($"検索結果: {totalItems.Count}件");
             EditorGUILayout.Space(10);
+
+            return totalItems;
         }
 
         public void DrawDatabaseButtons()
