@@ -354,7 +354,7 @@ namespace UnityEditorAssetBrowser.Views
         {
             if (aeDatabase != null)
             {
-                var item = aeDatabase.Items.FirstOrDefault(i => i.Title == title);
+                var item = aeDatabase.Items.Where(x => x.Category == "アバター").FirstOrDefault(i => i.Title == title);
                 GUILayout.Label(
                     item != null ? $"カテゴリ: {item.GetAECategoryName()}" : $"カテゴリ: {category}"
                 );
@@ -389,7 +389,7 @@ namespace UnityEditorAssetBrowser.Views
             /// <param name="avatarTitle">空白が詰められたアバタータイトル</param>
             var supportedAvatarNames = supportedAvatars.Select(avatarTitle =>
             {
-                var avatarItem = aeDatabase?.Items.FirstOrDefault(x => x.Title.Replace(" ", "") == avatarTitle);
+                var avatarItem = aeDatabase?.Items.Where(x => x.Category == "アバター").FirstOrDefault(x => x.Title.Replace(" ", "") == avatarTitle);
                 return avatarItem?.Title ?? Path.GetFileName(avatarTitle);
             });
 
