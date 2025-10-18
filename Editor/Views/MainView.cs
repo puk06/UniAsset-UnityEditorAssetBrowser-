@@ -203,9 +203,9 @@ namespace UnityEditorAssetBrowser.Views
         /// </summary>
         private void ShowItemsContent()
         {
-            var filteredItems = _assetBrowserViewModel.GetFilteredItems();
-            var sortedItems = _assetBrowserViewModel.SortItems(filteredItems);
-            var pageItems = _paginationViewModel.GetCurrentPageItems(sortedItems);
+            var filteredSortedItems = _assetBrowserViewModel.GetFilteredItems();
+            // var sortedItems = _assetBrowserViewModel.SortItems(filteredItems);
+            var pageItems = _paginationViewModel.GetCurrentPageItems(filteredSortedItems);
 
             // 表示前に必要な画像のみ読み込み
             ImageServices.Instance.UpdateVisibleImages(
@@ -232,9 +232,9 @@ namespace UnityEditorAssetBrowser.Views
         /// </summary>
         private void ShowWorldObjectsContent()
         {
-            var filteredItems = _assetBrowserViewModel.GetFilteredWorldObjects();
-            var sortedItems = _assetBrowserViewModel.SortItems(filteredItems);
-            var pageItems = _paginationViewModel.GetCurrentPageItems(sortedItems);
+            var filteredSortedItems = _assetBrowserViewModel.GetFilteredWorldObjects();
+            // var sortedItems = _assetBrowserViewModel.SortItems(filteredItems);
+            var pageItems = _paginationViewModel.GetCurrentPageItems(filteredSortedItems);
 
             // 表示前に必要な画像のみ読み込み
             ImageServices.Instance.UpdateVisibleImages(
@@ -261,9 +261,9 @@ namespace UnityEditorAssetBrowser.Views
         /// </summary>
         private void ShowOthersContent()
         {
-            var filteredItems = _assetBrowserViewModel.GetFilteredOthers();
-            var sortedItems = _assetBrowserViewModel.SortItems(filteredItems);
-            var pageItems = _paginationViewModel.GetCurrentPageItems(sortedItems);
+            var filteredSortedItems = _assetBrowserViewModel.GetFilteredOthers();
+            // var sortedItems = _assetBrowserViewModel.SortItems(filteredItems);
+            var pageItems = _paginationViewModel.GetCurrentPageItems(filteredSortedItems);
 
             // 表示前に必要な画像のみ読み込み
             ImageServices.Instance.UpdateVisibleImages(
