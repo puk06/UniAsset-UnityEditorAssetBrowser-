@@ -3,10 +3,8 @@
 #nullable enable
 
 using System;
-using System.IO;
 using System.Linq;
 using UnityEditorAssetBrowser.Models;
-using UnityEngine;
 
 namespace UnityEditorAssetBrowser.Services
 {
@@ -89,7 +87,7 @@ namespace UnityEditorAssetBrowser.Services
                     matchesKeyword = true;
                 }
 
-                // カテゴリ（アバタータブはスキップ＝matchesKeywordをtrueにしない）
+                // カテゴリ（アバタータブはスキップ = matchesKeywordをtrueにしない）
                 if (tabIndex != 0)
                 {
                     if (IsCategoryMatch(item, new[] { keyword }))
@@ -237,23 +235,9 @@ namespace UnityEditorAssetBrowser.Services
                 // すべてのキーワードが少なくとも1つの対応アバターに含まれていることを確認
                 /// <param name="avatarTitle">空白が詰められたアバタータイトル</param>
                 return keywords.All(keyword =>
-                    aeItem.SupportedAvatars.Any(avatarPath =>
-                    {
-                        var avatarItem = aeDatabase?.Items
-                            .Where(x => x.Category == "アバター")
-                            .FirstOrDefault(x => x.ItemPath == avatarPath);
-
-                        if (avatarItem != null)
-                        {
-                            return avatarItem.Title.Contains(
-                                keyword,
-                                StringComparison.InvariantCultureIgnoreCase
-                            );
-                        }
-                        
-                        return Path.GetFileName(avatarPath)
-                            .Contains(keyword, StringComparison.InvariantCultureIgnoreCase);
-                    })
+                    aeItem.SupportedAvatars.Any(avatar =>
+                        avatar.Contains(keyword, StringComparison.InvariantCultureIgnoreCase)
+                    )
                 );
             }
             else if (

@@ -39,7 +39,7 @@ namespace UnityEditorAssetBrowser.Views
         private Vector2 scrollPosition;
 
         /// <summary>タブのラベル</summary>
-        private readonly string[] tabs =
+        private static readonly string[] Tabs =
         {
             "アバター",
             "アバター関連アセット",
@@ -114,7 +114,7 @@ namespace UnityEditorAssetBrowser.Views
         /// </summary>
         private void DrawTabBar()
         {
-            var newTab = GUILayout.Toolbar(_paginationViewModel.SelectedTab, tabs);
+            var newTab = GUILayout.Toolbar(_paginationViewModel.SelectedTab, Tabs);
             if (newTab != _paginationViewModel.SelectedTab)
             {
                 _paginationViewModel.SelectedTab = newTab;
@@ -174,7 +174,7 @@ namespace UnityEditorAssetBrowser.Views
                     _assetItemView.ShowKonoAssetItem(kaItem);
                 }
             }
-            
+
             // switch (_paginationViewModel.SelectedTab)
             // {
             //     case 0:

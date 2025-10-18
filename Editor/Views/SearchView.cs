@@ -131,7 +131,7 @@ namespace UnityEditorAssetBrowser.Views
                         )
                 );
                 menu.AddItem(
-                    new GUIContent("BOOTHID順（新しい順）"),
+                    new GUIContent("Booth Id順（新しい順）"),
                     _assetBrowserViewModel.CurrentSortMethod
                         == AssetBrowserViewModel.SortMethod.BoothIdDesc,
                     () =>
@@ -140,7 +140,7 @@ namespace UnityEditorAssetBrowser.Views
                         )
                 );
                 menu.AddItem(
-                    new GUIContent("BOOTHID順（古い順）"),
+                    new GUIContent("Booth Id順（古い順）"),
                     _assetBrowserViewModel.CurrentSortMethod
                         == AssetBrowserViewModel.SortMethod.BoothIdAsc,
                     () =>

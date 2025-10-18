@@ -76,6 +76,11 @@ namespace UnityEditorAssetBrowser.Helper
                     var items = JsonConvert.DeserializeObject<AvatarExplorerItem[]>(json, settings);
                     if (items != null)
                     {
+                        foreach (var item in items)
+                        {
+                            item.SupportedAvatar = ConvertSupportedAvatarPaths(items, item.SupportedAvatars);
+                        }
+                    
                         return new AvatarExplorerDatabase(items);
                     }
                 }
@@ -83,6 +88,14 @@ namespace UnityEditorAssetBrowser.Helper
                 {
                     // オブジェクト形式の場合は、そのままAvatarExplorerDatabaseとしてデシリアライズ
                     var database = JsonConvert.DeserializeObject<AvatarExplorerDatabase>(json, settings);
+
+                    if (database != null)
+                    {
+                        foreach (var item in database.Items)
+                        {
+                            item.SupportedAvatar = ConvertSupportedAvatarPaths(database.Items.ToArray(), item.SupportedAvatars);
+                        }
+                    }
 
                     return database;
                 }
@@ -133,7 +146,7 @@ namespace UnityEditorAssetBrowser.Helper
                 var avatarData = items.FirstOrDefault(x => x.ItemPath == avatar);
                 if (avatarData != null)
                 {
-                    supportedAvatarNames.Add(avatarData.Title.Replace(" ", ""));
+                    supportedAvatarNames.Add(avatarData.Title);
                 }
             }
             return supportedAvatarNames.ToArray();

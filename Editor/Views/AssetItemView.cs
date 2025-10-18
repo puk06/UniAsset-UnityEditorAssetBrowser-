@@ -380,10 +380,7 @@ namespace UnityEditorAssetBrowser.Views
         /// <param name="supportedAvatars">対応アバターのパス配列</param>
         private void DrawSupportedAvatars(string[] supportedAvatars)
         {
-            string supportedAvatarsText =
-                aeDatabase != null
-                    ? GetAESupportedAvatarsText(supportedAvatars)
-                    : $"対応アバター: {string.Join(", ", supportedAvatars)}";
+            string supportedAvatarsText = $"対応アバター: {string.Join(", ", supportedAvatars)}";
 
             GUILayout.Label(supportedAvatarsText, EditorStyles.wordWrappedLabel);
         }
