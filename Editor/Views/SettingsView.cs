@@ -1,3 +1,5 @@
+// Copyright (c) 2025 sakurayuki
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +22,7 @@ namespace UnityEditorAssetBrowser.Views
         private bool _showDatabaseSettings;
         private bool _showCategorySettings;
         private bool _showFolderThumbnailSettings = false;
+        private bool _showImportSettings = false;
         private List<string> _userExcludeFolders;
         private HashSet<string> _enabledDefaultExcludeFolders;
         private string _newExcludeFolder = "";
@@ -69,6 +72,7 @@ namespace UnityEditorAssetBrowser.Views
         private const string PREFS_KEY_GENERATE_FOLDER_THUMBNAIL =
             "UnityEditorAssetBrowser_GenerateFolderThumbnail";
         private const string PREFS_KEY_EXCLUDE_FOLDERS = "UnityEditorAssetBrowser_ExcludeFolders";
+        private const string PREFS_KEY_IMPORT_TO_CATEGORY_FOLDER = "UnityEditorAssetBrowser_ImportToCategoryFolder";
 
         // 初期設定リスト（abc順）
         private static readonly List<string> _allDefaultExcludeFolders = ExcludeFolderService
@@ -505,6 +509,39 @@ namespace UnityEditorAssetBrowser.Views
                     EditorGUILayout.EndVertical();
                 }
                 EditorGUILayout.EndScrollView();
+
+                EditorGUILayout.EndVertical();
+            }
+
+            // インポート設定セクション
+            EditorGUILayout.Space(10);
+            _showImportSettings = EditorGUILayout.Foldout(
+                _showImportSettings,
+                "インポート設定",
+                true
+            );
+            if (_showImportSettings)
+            {
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
+                bool importToCategoryFolder = EditorPrefs.GetBool(PREFS_KEY_IMPORT_TO_CATEGORY_FOLDER, false);
+                bool newValue = EditorGUILayout.ToggleLeft(
+                    "UnityPackageをカテゴリ名のフォルダの下にインポート",
+                    importToCategoryFolder
+                );
+                EditorGUILayout.HelpBox("・インポート時間が長くなる可能性があります\n・前提アセットがある場合に正常に動作しない可能性があります", MessageType.Warning);
+
+                if (newValue != importToCategoryFolder)
+                {
+                    if (newValue)
+                    {
+                        EditorPrefs.SetBool(PREFS_KEY_IMPORT_TO_CATEGORY_FOLDER, true);
+                    }
+                    else
+                    {
+                        EditorPrefs.SetBool(PREFS_KEY_IMPORT_TO_CATEGORY_FOLDER, false);
+                    }
+                }
 
                 EditorGUILayout.EndVertical();
             }
