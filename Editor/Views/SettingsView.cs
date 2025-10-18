@@ -59,7 +59,7 @@ namespace UnityEditorAssetBrowser.Views
         /// <summary>
         /// カテゴリごとのアセットタイプ設定を保持する辞書
         /// </summary>
-        private Dictionary<string, int> _categoryAssetTypes = new Dictionary<string, int>();
+        private readonly Dictionary<string, int> _categoryAssetTypes = new Dictionary<string, int>();
 
         /// <summary>
         /// EditorPrefsに保存する際のキーのプレフィックス
@@ -67,10 +67,8 @@ namespace UnityEditorAssetBrowser.Views
         private const string PREFS_KEY_PREFIX = "UnityEditorAssetBrowser_CategoryAssetType_";
 
         // EditorPrefsキー
-        private const string PREFS_KEY_SHOW_FOLDER_THUMBNAIL =
-            "UnityEditorAssetBrowser_ShowFolderThumbnail";
-        private const string PREFS_KEY_GENERATE_FOLDER_THUMBNAIL =
-            "UnityEditorAssetBrowser_GenerateFolderThumbnail";
+        private const string PREFS_KEY_SHOW_FOLDER_THUMBNAIL = "UnityEditorAssetBrowser_ShowFolderThumbnail";
+        private const string PREFS_KEY_GENERATE_FOLDER_THUMBNAIL = "UnityEditorAssetBrowser_GenerateFolderThumbnail";
         private const string PREFS_KEY_EXCLUDE_FOLDERS = "UnityEditorAssetBrowser_ExcludeFolders";
         private const string PREFS_KEY_IMPORT_TO_CATEGORY_FOLDER = "UnityEditorAssetBrowser_ImportToCategoryFolder";
 

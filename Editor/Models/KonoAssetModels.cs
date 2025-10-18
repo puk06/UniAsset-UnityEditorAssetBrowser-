@@ -5,13 +5,7 @@
 #nullable enable
 
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using Newtonsoft.Json;
-using UnityEditor;
-using UnityEditorAssetBrowser.Models;
-using UnityEngine;
 
 namespace UnityEditorAssetBrowser.Models
 {
@@ -25,12 +19,14 @@ namespace UnityEditorAssetBrowser.Models
         /// <summary>
         /// データベースのバージョン
         /// </summary>
-        public int version { get; set; }
+        [JsonProperty("version")]
+        public int Version { get; set; }
 
         /// <summary>
         /// アイテムのリスト
         /// </summary>
-        public object[] data { get; set; } = Array.Empty<object>();
+        [JsonProperty("data")]
+        public object[] Data { get; set; } = Array.Empty<object>();
     }
     #endregion
 
@@ -44,7 +40,7 @@ namespace UnityEditorAssetBrowser.Models
         /// <summary>
         /// アバターアイテムのリスト
         /// </summary>
-        public new KonoAssetAvatarItem[] data { get; set; } = Array.Empty<KonoAssetAvatarItem>();
+        public new KonoAssetAvatarItem[] Data { get; set; } = Array.Empty<KonoAssetAvatarItem>();
     }
 
     /// <summary>
@@ -56,7 +52,7 @@ namespace UnityEditorAssetBrowser.Models
         /// <summary>
         /// ウェアラブルアイテムのリスト
         /// </summary>
-        public new KonoAssetWearableItem[] data { get; set; } =
+        public new KonoAssetWearableItem[] Data { get; set; } =
             Array.Empty<KonoAssetWearableItem>();
     }
 
@@ -69,7 +65,7 @@ namespace UnityEditorAssetBrowser.Models
         /// <summary>
         /// ワールドオブジェクトアイテムのリスト
         /// </summary>
-        public new KonoAssetWorldObjectItem[] data { get; set; } =
+        public new KonoAssetWorldObjectItem[] Data { get; set; } =
             Array.Empty<KonoAssetWorldObjectItem>();
     }
 
@@ -82,7 +78,7 @@ namespace UnityEditorAssetBrowser.Models
         /// <summary>
         /// その他アセットアイテムのリスト
         /// </summary>
-        public new KonoAssetOtherAssetItem[] data { get; set; } =
+        public new KonoAssetOtherAssetItem[] Data { get; set; } =
             Array.Empty<KonoAssetOtherAssetItem>();
     }
     #endregion
@@ -97,22 +93,27 @@ namespace UnityEditorAssetBrowser.Models
         /// <summary>
         /// アイテムのID
         /// </summary>
-        public string id { get; set; } = "";
+
+        [JsonProperty("id")]
+        public string Id { get; set; } = "";
 
         /// <summary>
         /// アイテムの詳細情報
         /// </summary>
-        public KonoAssetDescription description { get; set; } = new KonoAssetDescription();
+        [JsonProperty("description")]
+        public KonoAssetDescription Description { get; set; } = new KonoAssetDescription();
 
         /// <summary>
         /// アイテムのカテゴリー
         /// </summary>
-        public string category { get; set; } = "";
+        [JsonProperty("category")]
+        public string Category { get; set; } = "";
 
         /// <summary>
         /// 対応アバターのリスト
         /// </summary>
-        public string[] supportedAvatars { get; set; } = Array.Empty<string>();
+        [JsonProperty("supportedAvatars")]
+        public string[] SupportedAvatars { get; set; } = Array.Empty<string>();
     }
 
     /// <summary>
@@ -124,12 +125,14 @@ namespace UnityEditorAssetBrowser.Models
         /// <summary>
         /// アバターのID
         /// </summary>
-        public string id { get; set; } = "";
+        [JsonProperty("id")]
+        public string Id { get; set; } = "";
 
         /// <summary>
         /// アバターの詳細情報
         /// </summary>
-        public KonoAssetDescription description { get; set; } = new KonoAssetDescription();
+        [JsonProperty("description")]
+        public KonoAssetDescription Description { get; set; } = new KonoAssetDescription();
     }
 
     /// <summary>
@@ -141,17 +144,20 @@ namespace UnityEditorAssetBrowser.Models
         /// <summary>
         /// オブジェクトのID
         /// </summary>
-        public string id { get; set; } = "";
+        [JsonProperty("id")]
+        public string Id { get; set; } = "";
 
         /// <summary>
         /// オブジェクトの詳細情報
         /// </summary>
-        public KonoAssetDescription description { get; set; } = new KonoAssetDescription();
+        [JsonProperty("description")]
+        public KonoAssetDescription Description { get; set; } = new KonoAssetDescription();
 
         /// <summary>
         /// オブジェクトのカテゴリー
         /// </summary>
-        public string category { get; set; } = "";
+        [JsonProperty("category")]
+        public string Category { get; set; } = "";
     }
 
     /// <summary>
@@ -163,17 +169,20 @@ namespace UnityEditorAssetBrowser.Models
         /// <summary>
         /// アセットのID
         /// </summary>
-        public string id { get; set; } = "";
+        [JsonProperty("id")]
+        public string Id { get; set; } = "";
 
         /// <summary>
         /// アセットの詳細情報
         /// </summary>
-        public KonoAssetDescription description { get; set; } = new KonoAssetDescription();
+        [JsonProperty("description")]
+        public KonoAssetDescription Description { get; set; } = new KonoAssetDescription();
 
         /// <summary>
         /// アセットのカテゴリー
         /// </summary>
-        public string category { get; set; } = "";
+        [JsonProperty("category")]
+        public string Category { get; set; } = "";
     }
     #endregion
 
@@ -187,47 +196,56 @@ namespace UnityEditorAssetBrowser.Models
         /// <summary>
         /// アイテムの名前
         /// </summary>
-        public string name { get; set; } = "";
+        [JsonProperty("name")]
+        public string Name { get; set; } = "";
 
         /// <summary>
         /// 作者名
         /// </summary>
-        public string creator { get; set; } = "";
+        [JsonProperty("creator")]
+        public string Creator { get; set; } = "";
 
         /// <summary>
         /// 画像ファイル名
         /// </summary>
-        public string imageFilename { get; set; } = "";
+        [JsonProperty("imageFileName")]
+        public string ImageFilename { get; set; } = "";
 
         /// <summary>
         /// タグのリスト
         /// </summary>
-        public string[] tags { get; set; } = Array.Empty<string>();
+        [JsonProperty("tags")]
+        public string[] Tags { get; set; } = Array.Empty<string>();
 
         /// <summary>
         /// メモ
         /// </summary>
-        public string? memo { get; set; }
+        [JsonProperty("memo")]
+        public string? Memo { get; set; }
 
         /// <summary>
         /// BOOTHのアイテムID
         /// </summary>
-        public int? boothItemId { get; set; }
+        [JsonProperty("boothItemId")]
+        public int? BoothItemId { get; set; }
 
         /// <summary>
         /// 依存アイテムのリスト
         /// </summary>
-        public string[] dependencies { get; set; } = Array.Empty<string>();
+        [JsonProperty("dependencies")]
+        public string[] Dependencies { get; set; } = Array.Empty<string>();
 
         /// <summary>
         /// 作成日時（UnixTimeMilliseconds）
         /// </summary>
-        public long createdAt { get; set; }
+        [JsonProperty("createdAt")]
+        public long CreatedAt { get; set; }
 
         /// <summary>
         /// 公開日時（UnixTimeMilliseconds）
         /// </summary>
-        public long? publishedAt { get; set; }
+        [JsonProperty("publishedAt")]
+        public long? PublishedAt { get; set; }
     }
     #endregion
 }

@@ -36,16 +36,17 @@ namespace UnityEditorAssetBrowser.Models
             }
             else if (item is KonoAssetWearableItem wearableItem)
             {
-                return wearableItem.category;
+                return wearableItem.Category;
             }
             else if (item is KonoAssetWorldObjectItem worldItem)
             {
-                return worldItem.category;
+                return worldItem.Category;
             }
             else if (item is KonoAssetOtherAssetItem otherItem)
             {
-                return otherItem.category;
+                return otherItem.Category;
             }
+
             return string.Empty;
         }
 
@@ -72,20 +73,21 @@ namespace UnityEditorAssetBrowser.Models
             }
             else if (item is KonoAssetAvatarItem kaItem)
             {
-                return kaItem.description.name;
+                return kaItem.Description.Name;
             }
             else if (item is KonoAssetWearableItem wearableItem)
             {
-                return wearableItem.description.name;
+                return wearableItem.Description.Name;
             }
             else if (item is KonoAssetWorldObjectItem worldItem)
             {
-                return worldItem.description.name;
+                return worldItem.Description.Name;
             }
             else if (item is KonoAssetOtherAssetItem otherItem)
             {
-                return otherItem.description.name;
+                return otherItem.Description.Name;
             }
+
             return string.Empty;
         }
 
@@ -102,20 +104,21 @@ namespace UnityEditorAssetBrowser.Models
             }
             else if (item is KonoAssetAvatarItem kaItem)
             {
-                return kaItem.description.creator;
+                return kaItem.Description.Creator;
             }
             else if (item is KonoAssetWearableItem wearableItem)
             {
-                return wearableItem.description.creator;
+                return wearableItem.Description.Creator;
             }
             else if (item is KonoAssetWorldObjectItem worldItem)
             {
-                return worldItem.description.creator;
+                return worldItem.Description.Creator;
             }
             else if (item is KonoAssetOtherAssetItem otherItem)
             {
-                return otherItem.description.creator;
+                return otherItem.Description.Creator;
             }
+
             return string.Empty;
         }
 
@@ -139,20 +142,21 @@ namespace UnityEditorAssetBrowser.Models
             }
             else if (item is KonoAssetAvatarItem kaItem)
             {
-                return kaItem.description.createdAt;
+                return kaItem.Description.CreatedAt;
             }
             else if (item is KonoAssetWearableItem wearableItem)
             {
-                return wearableItem.description.createdAt;
+                return wearableItem.Description.CreatedAt;
             }
             else if (item is KonoAssetWorldObjectItem worldItem)
             {
-                return worldItem.description.createdAt;
+                return worldItem.Description.CreatedAt;
             }
             else if (item is KonoAssetOtherAssetItem otherItem)
             {
-                return otherItem.description.createdAt;
+                return otherItem.Description.CreatedAt;
             }
+
             return 0;
         }
 
@@ -169,20 +173,21 @@ namespace UnityEditorAssetBrowser.Models
             }
             else if (item is KonoAssetAvatarItem kaItem)
             {
-                return kaItem.description.memo ?? string.Empty;
+                return kaItem.Description.Memo ?? string.Empty;
             }
             else if (item is KonoAssetWearableItem wearableItem)
             {
-                return wearableItem.description.memo ?? string.Empty;
+                return wearableItem.Description.Memo ?? string.Empty;
             }
             else if (item is KonoAssetWorldObjectItem worldItem)
             {
-                return worldItem.description.memo ?? string.Empty;
+                return worldItem.Description.Memo ?? string.Empty;
             }
             else if (item is KonoAssetOtherAssetItem otherItem)
             {
-                return otherItem.description.memo ?? string.Empty;
+                return otherItem.Description.Memo ?? string.Empty;
             }
+
             return string.Empty;
         }
 
@@ -211,39 +216,40 @@ namespace UnityEditorAssetBrowser.Models
             else if (item is KonoAssetAvatarItem kaItem)
             {
                 return (
-                    kaItem.description.boothItemId.HasValue
-                    && kaItem.description.boothItemId.Value > 0
+                    kaItem.Description.BoothItemId.HasValue
+                    && kaItem.Description.BoothItemId.Value > 0
                 )
-                    ? kaItem.description.boothItemId.Value
+                    ? kaItem.Description.BoothItemId.Value
                     : 0;
             }
             else if (item is KonoAssetWearableItem wearableItem)
             {
                 return (
-                    wearableItem.description.boothItemId.HasValue
-                    && wearableItem.description.boothItemId.Value > 0
+                    wearableItem.Description.BoothItemId.HasValue
+                    && wearableItem.Description.BoothItemId.Value > 0
                 )
-                    ? wearableItem.description.boothItemId.Value
+                    ? wearableItem.Description.BoothItemId.Value
                     : 0;
             }
             else if (item is KonoAssetWorldObjectItem worldItem)
             {
                 return (
-                    worldItem.description.boothItemId.HasValue
-                    && worldItem.description.boothItemId.Value > 0
+                    worldItem.Description.BoothItemId.HasValue
+                    && worldItem.Description.BoothItemId.Value > 0
                 )
-                    ? worldItem.description.boothItemId.Value
+                    ? worldItem.Description.BoothItemId.Value
                     : 0;
             }
             else if (item is KonoAssetOtherAssetItem otherItem)
             {
                 return (
-                    otherItem.description.boothItemId.HasValue
-                    && otherItem.description.boothItemId.Value > 0
+                    otherItem.Description.BoothItemId.HasValue
+                    && otherItem.Description.BoothItemId.Value > 0
                 )
-                    ? otherItem.description.boothItemId.Value
+                    ? otherItem.Description.BoothItemId.Value
                     : 0;
             }
+            
             return 0;
         }
     }

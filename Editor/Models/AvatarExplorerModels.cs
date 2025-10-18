@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-using UnityEditorAssetBrowser.Models;
 
 namespace UnityEditorAssetBrowser.Models
 {
@@ -51,57 +50,57 @@ namespace UnityEditorAssetBrowser.Models
         /// <summary>
         /// アバター
         /// </summary>
-        Avatar = 0,
+        Avatar,
 
         /// <summary>
         /// 衣装
         /// </summary>
-        Clothing = 1,
+        Clothing,
 
         /// <summary>
         /// テクスチャ
         /// </summary>
-        Texture = 2,
+        Texture,
 
         /// <summary>
         /// ギミック
         /// </summary>
-        Gimmick = 3,
+        Gimmick,
 
         /// <summary>
         /// アクセサリー
         /// </summary>
-        Accessory = 4,
+        Accessory,
 
         /// <summary>
         /// 髪型
         /// </summary>
-        HairStyle = 5,
+        HairStyle,
 
         /// <summary>
         /// アニメーション
         /// </summary>
-        Animation = 6,
+        Animation,
 
         /// <summary>
         /// ツール
         /// </summary>
-        Tool = 7,
+        Tool,
 
         /// <summary>
         /// シェーダー
         /// </summary>
-        Shader = 8,
+        Shader,
 
         /// <summary>
         /// カスタムカテゴリー
         /// </summary>
-        Custom = 9,
+        Custom,
 
         /// <summary>
         /// 不明
         /// </summary>
-        Unknown = 10,
+        Unknown,
     }
 
     /// <summary>
@@ -254,7 +253,7 @@ namespace UnityEditorAssetBrowser.Models
                 AvatarExplorerItemType.Tool => "ツール",
                 AvatarExplorerItemType.Shader => "シェーダー",
                 AvatarExplorerItemType.Custom => CustomCategory,
-                _ => "不明",
+                _ => "不明"
             };
         }
     }

@@ -71,8 +71,7 @@ namespace UnityEditorAssetBrowser.Helper
                 if (File.Exists(wearablesPath))
                 {
                     var json = File.ReadAllText(wearablesPath);
-                    result.wearablesDatabase =
-                        JsonConvert.DeserializeObject<KonoAssetWearablesDatabase>(json);
+                    result.wearablesDatabase = JsonConvert.DeserializeObject<KonoAssetWearablesDatabase>(json);
                 }
 
                 // worldObjects.jsonの読み込み
@@ -89,8 +88,7 @@ namespace UnityEditorAssetBrowser.Helper
                 if (File.Exists(otherAssetsPath))
                 {
                     var json = File.ReadAllText(otherAssetsPath);
-                    result.otherAssetsDatabase =
-                        JsonConvert.DeserializeObject<KonoAssetOtherAssetsDatabase>(json);
+                    result.otherAssetsDatabase = JsonConvert.DeserializeObject<KonoAssetOtherAssetsDatabase>(json);
                 }
             }
             catch (Exception ex)
@@ -112,10 +110,7 @@ namespace UnityEditorAssetBrowser.Helper
             try
             {
                 var metadataPath = Path.Combine(path, "metadata");
-                if (!Directory.Exists(metadataPath))
-                {
-                    Directory.CreateDirectory(metadataPath);
-                }
+                if (!Directory.Exists(metadataPath)) Directory.CreateDirectory(metadataPath);
 
                 var jsonPath = Path.Combine(metadataPath, "database.json");
                 var json = JsonConvert.SerializeObject(database, JsonSettings.Settings);

@@ -119,19 +119,17 @@ namespace UnityEditorAssetBrowser.ViewModels
                         var key = "UnityEditorAssetBrowser_CategoryAssetType_" + category;
 
                         // アセットタイプが0（アバター）のアイテムのみを表示
-                        if (EditorPrefs.HasKey(key))
-                        {
-                            return EditorPrefs.GetInt(key) == AssetTypeConstants.AVATAR;
-                        }
+                        if (EditorPrefs.HasKey(key)) return EditorPrefs.GetInt(key) == (int)AssetTypeConstants.AVATAR;
+
                         return item.Type == "0"; // キーが存在しない場合は従来の判定
                     })
                 );
             }
 
             // KAのアバターを追加
-            if (_kaAvatarsDatabase?.data != null)
+            if (_kaAvatarsDatabase?.Data != null)
             {
-                items.AddRange(_kaAvatarsDatabase.data);
+                items.AddRange(_kaAvatarsDatabase.Data);
             }
 
             return SortItems(items.Where(_searchViewModel.IsItemMatchSearch).ToList());
@@ -153,26 +151,19 @@ namespace UnityEditorAssetBrowser.ViewModels
                         var key = "UnityEditorAssetBrowser_CategoryAssetType_" + category;
 
                         // アセットタイプが1（アバター関連アセット）のアイテムのみを表示
-                        if (EditorPrefs.HasKey(key))
-                        {
-                            return EditorPrefs.GetInt(key) == AssetTypeConstants.AVATAR_RELATED;
-                        }
+                        if (EditorPrefs.HasKey(key)) return EditorPrefs.GetInt(key) == (int)AssetTypeConstants.AVATAR_RELATED;
+
                         // キーが存在しない場合は従来の判定
                         return item.Type != "0"
-                            && !item.CustomCategory.Contains(
-                                "ワールド",
-                                StringComparison.OrdinalIgnoreCase
-                            )
-                            && !item.CustomCategory.Contains(
-                                "world",
-                                StringComparison.OrdinalIgnoreCase
-                            );
+                            && !item.CustomCategory.Contains("ワールド", StringComparison.OrdinalIgnoreCase)
+                            && !item.CustomCategory.Contains("world", StringComparison.OrdinalIgnoreCase);
                     })
                 );
             }
+            
             if (_kaWearablesDatabase != null)
             {
-                items.AddRange(_kaWearablesDatabase.data);
+                items.AddRange(_kaWearablesDatabase.Data);
             }
 
             return SortItems(items.Where(_searchViewModel.IsItemMatchSearch).ToList());
@@ -196,30 +187,22 @@ namespace UnityEditorAssetBrowser.ViewModels
                         var key = "UnityEditorAssetBrowser_CategoryAssetType_" + category;
 
                         // アセットタイプが2（ワールドオブジェクト）のアイテムのみを表示
-                        if (EditorPrefs.HasKey(key))
-                        {
-                            return EditorPrefs.GetInt(key) == AssetTypeConstants.WORLD;
-                        }
+                        if (EditorPrefs.HasKey(key)) return EditorPrefs.GetInt(key) == (int)AssetTypeConstants.WORLD;
+
                         // キーが存在しない場合は従来の判定
                         return item.Type != "0"
                             && (
-                                item.CustomCategory.Contains(
-                                    "ワールド",
-                                    StringComparison.OrdinalIgnoreCase
-                                )
-                                || item.CustomCategory.Contains(
-                                    "world",
-                                    StringComparison.OrdinalIgnoreCase
-                                )
+                                item.CustomCategory.Contains("ワールド",StringComparison.OrdinalIgnoreCase)
+                                || item.CustomCategory.Contains("world",StringComparison.OrdinalIgnoreCase)
                             );
                     })
                 );
             }
 
             // KAのワールドオブジェクトを追加
-            if (_kaWorldObjectsDatabase?.data != null)
+            if (_kaWorldObjectsDatabase?.Data != null)
             {
-                items.AddRange(_kaWorldObjectsDatabase.data);
+                items.AddRange(_kaWorldObjectsDatabase.Data);
             }
 
             return SortItems(items.Where(_searchViewModel.IsItemMatchSearch).ToList());
@@ -245,7 +228,7 @@ namespace UnityEditorAssetBrowser.ViewModels
                     if (EditorPrefs.HasKey(key))
                     {
                         var assetType = EditorPrefs.GetInt(key);
-                        if (assetType == AssetTypeConstants.OTHER) // その他
+                        if (assetType == (int)AssetTypeConstants.OTHER) // その他
                         {
                             items.Add(item);
                         }
@@ -254,9 +237,9 @@ namespace UnityEditorAssetBrowser.ViewModels
             }
 
             // KAのその他アセットを追加
-            if (_kaOtherAssetsDatabase?.data != null)
+            if (_kaOtherAssetsDatabase?.Data != null)
             {
-                items.AddRange(_kaOtherAssetsDatabase.data);
+                items.AddRange(_kaOtherAssetsDatabase.Data);
             }
 
             return SortItems(items.Where(_searchViewModel.IsItemMatchSearch).ToList());
@@ -365,35 +348,35 @@ namespace UnityEditorAssetBrowser.ViewModels
             }
             else if (item is KonoAssetAvatarItem kaAvatarItem)
             {
-                return kaAvatarItem.description.createdAt > 0
+                return kaAvatarItem.Description.CreatedAt > 0
                     ? DateTimeOffset
-                        .FromUnixTimeMilliseconds(kaAvatarItem.description.createdAt)
+                        .FromUnixTimeMilliseconds(kaAvatarItem.Description.CreatedAt)
                         .DateTime
-                    : (DateTime?)null;
+                    : null;
             }
             else if (item is KonoAssetWearableItem kaWearableItem)
             {
-                return kaWearableItem.description.createdAt > 0
+                return kaWearableItem.Description.CreatedAt > 0
                     ? DateTimeOffset
-                        .FromUnixTimeMilliseconds(kaWearableItem.description.createdAt)
+                        .FromUnixTimeMilliseconds(kaWearableItem.Description.CreatedAt)
                         .DateTime
-                    : (DateTime?)null;
+                    : null;
             }
             else if (item is KonoAssetWorldObjectItem kaWorldObjectItem)
             {
-                return kaWorldObjectItem.description.createdAt > 0
+                return kaWorldObjectItem.Description.CreatedAt > 0
                     ? DateTimeOffset
-                        .FromUnixTimeMilliseconds(kaWorldObjectItem.description.createdAt)
+                        .FromUnixTimeMilliseconds(kaWorldObjectItem.Description.CreatedAt)
                         .DateTime
-                    : (DateTime?)null;
+                    : null;
             }
             else if (item is KonoAssetOtherAssetItem kaOtherAssetItem)
             {
-                return kaOtherAssetItem.description.createdAt > 0
+                return kaOtherAssetItem.Description.CreatedAt > 0
                     ? DateTimeOffset
-                        .FromUnixTimeMilliseconds(kaOtherAssetItem.description.createdAt)
+                        .FromUnixTimeMilliseconds(kaOtherAssetItem.Description.CreatedAt)
                         .DateTime
-                    : (DateTime?)null;
+                    : null;
             }
             return null;
         }
@@ -406,20 +389,21 @@ namespace UnityEditorAssetBrowser.ViewModels
             }
             else if (item is KonoAssetAvatarItem kaAvatarItem)
             {
-                return kaAvatarItem.description.name ?? "";
+                return kaAvatarItem.Description.Name ?? "";
             }
             else if (item is KonoAssetWearableItem kaWearableItem)
             {
-                return kaWearableItem.description.name ?? "";
+                return kaWearableItem.Description.Name ?? "";
             }
             else if (item is KonoAssetWorldObjectItem kaWorldObjectItem)
             {
-                return kaWorldObjectItem.description.name ?? "";
+                return kaWorldObjectItem.Description.Name ?? "";
             }
             else if (item is KonoAssetOtherAssetItem kaOtherAssetItem)
             {
-                return kaOtherAssetItem.description.name ?? "";
+                return kaOtherAssetItem.Description.Name ?? "";
             }
+
             return "";
         }
 
@@ -431,20 +415,21 @@ namespace UnityEditorAssetBrowser.ViewModels
             }
             else if (item is KonoAssetAvatarItem kaAvatarItem)
             {
-                return kaAvatarItem.description.creator ?? "";
+                return kaAvatarItem.Description.Creator ?? "";
             }
             else if (item is KonoAssetWearableItem kaWearableItem)
             {
-                return kaWearableItem.description.creator ?? "";
+                return kaWearableItem.Description.Creator ?? "";
             }
             else if (item is KonoAssetWorldObjectItem kaWorldObjectItem)
             {
-                return kaWorldObjectItem.description.creator ?? "";
+                return kaWorldObjectItem.Description.Creator ?? "";
             }
             else if (item is KonoAssetOtherAssetItem kaOtherAssetItem)
             {
-                return kaOtherAssetItem.description.creator ?? "";
+                return kaOtherAssetItem.Description.Creator ?? "";
             }
+
             return "";
         }
         #endregion

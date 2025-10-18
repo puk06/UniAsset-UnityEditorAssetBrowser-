@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEditor;
-using UnityEditorAssetBrowser.Helper;
 using UnityEditorAssetBrowser.Models;
 using UnityEditorAssetBrowser.Services;
 using UnityEngine;
@@ -30,6 +29,17 @@ namespace UnityEditorAssetBrowser.Views
         private readonly Dictionary<string, bool> unityPackageFoldouts = new();
 
         private readonly AssetItem assetItemHelper = new AssetItem();
+
+        // 色を循環させる（赤、青、緑、黄、紫、水色）
+        private static readonly Color[] LineColors = new Color[]
+        {
+            new Color(1f, 0f, 0f, 0.5f), // 赤
+            new Color(0f, 0f, 1f, 0.5f), // 青
+            new Color(0f, 1f, 0f, 0.5f), // 緑
+            new Color(1f, 1f, 0f, 0.5f), // 黄
+            new Color(1f, 0f, 1f, 0.5f), // 紫
+            new Color(0f, 1f, 1f, 0.5f), // 水色
+        };
 
         /// <summary>
         /// コンストラクタ
@@ -60,6 +70,7 @@ namespace UnityEditorAssetBrowser.Views
                     imagePath.Replace("Datas\\", "")
                 );
             }
+
             return Path.Combine(DatabaseService.GetKADatabasePath(), "images", imagePath);
         }
 
@@ -95,32 +106,32 @@ namespace UnityEditorAssetBrowser.Views
         {
             GUILayout.BeginVertical(EditorStyles.helpBox);
             var itemPath = Path.GetFullPath(
-                Path.Combine(DatabaseService.GetKADatabasePath(), "data", item.id)
+                Path.Combine(DatabaseService.GetKADatabasePath(), "data", item.Id)
             );
             DateTime? createdDate = null;
-            if (item.description.createdAt > 0)
+            if (item.Description.CreatedAt > 0)
             {
                 createdDate = DateTimeOffset
-                    .FromUnixTimeMilliseconds(item.description.createdAt)
+                    .FromUnixTimeMilliseconds(item.Description.CreatedAt)
                     .DateTime;
             }
             int boothItemId = assetItemHelper.GetBoothItemId(item);
             DrawItemHeader(
-                item.description.name,
-                item.description.creator,
-                item.description.imageFilename,
+                item.Description.Name,
+                item.Description.Creator,
+                item.Description.ImageFilename,
                 itemPath,
                 createdDate,
                 null,
                 null,
-                item.description.tags,
-                item.description.memo,
+                item.Description.Tags,
+                item.Description.Memo,
                 boothItemId
             );
             DrawUnityPackageSection(
                 itemPath,
-                item.description.name,
-                item.description.imageFilename,
+                item.Description.Name,
+                item.Description.ImageFilename,
                 "アバター"
             );
             GUILayout.EndVertical();
@@ -134,33 +145,33 @@ namespace UnityEditorAssetBrowser.Views
         {
             GUILayout.BeginVertical(EditorStyles.helpBox);
             var itemPath = Path.GetFullPath(
-                Path.Combine(DatabaseService.GetKADatabasePath(), "data", item.id)
+                Path.Combine(DatabaseService.GetKADatabasePath(), "data", item.Id)
             );
             DateTime? createdDate = null;
-            if (item.description.createdAt > 0)
+            if (item.Description.CreatedAt > 0)
             {
                 createdDate = DateTimeOffset
-                    .FromUnixTimeMilliseconds(item.description.createdAt)
+                    .FromUnixTimeMilliseconds(item.Description.CreatedAt)
                     .DateTime;
             }
             int boothItemId = assetItemHelper.GetBoothItemId(item);
             DrawItemHeader(
-                item.description.name,
-                item.description.creator,
-                item.description.imageFilename,
+                item.Description.Name,
+                item.Description.Creator,
+                item.Description.ImageFilename,
                 itemPath,
                 createdDate,
-                item.category,
-                item.supportedAvatars,
-                item.description.tags,
-                item.description.memo,
+                item.Category,
+                item.SupportedAvatars,
+                item.Description.Tags,
+                item.Description.Memo,
                 boothItemId
             );
             DrawUnityPackageSection(
                 itemPath,
-                item.description.name,
-                item.description.imageFilename,
-                item.category
+                item.Description.Name,
+                item.Description.ImageFilename,
+                item.Category
             );
             GUILayout.EndVertical();
         }
@@ -173,33 +184,33 @@ namespace UnityEditorAssetBrowser.Views
         {
             GUILayout.BeginVertical(EditorStyles.helpBox);
             var itemPath = Path.GetFullPath(
-                Path.Combine(DatabaseService.GetKADatabasePath(), "data", item.id)
+                Path.Combine(DatabaseService.GetKADatabasePath(), "data", item.Id)
             );
             DateTime? createdDate = null;
-            if (item.description.createdAt > 0)
+            if (item.Description.CreatedAt > 0)
             {
                 createdDate = DateTimeOffset
-                    .FromUnixTimeMilliseconds(item.description.createdAt)
+                    .FromUnixTimeMilliseconds(item.Description.CreatedAt)
                     .DateTime;
             }
             int boothItemId = assetItemHelper.GetBoothItemId(item);
             DrawItemHeader(
-                item.description.name,
-                item.description.creator,
-                item.description.imageFilename,
+                item.Description.Name,
+                item.Description.Creator,
+                item.Description.ImageFilename,
                 itemPath,
                 createdDate,
-                item.category,
+                item.Category,
                 null,
-                item.description.tags,
-                item.description.memo,
+                item.Description.Tags,
+                item.Description.Memo,
                 boothItemId
             );
             DrawUnityPackageSection(
                 itemPath,
-                item.description.name,
-                item.description.imageFilename,
-                item.category
+                item.Description.Name,
+                item.Description.ImageFilename,
+                item.Category
             );
             GUILayout.EndVertical();
         }
@@ -212,33 +223,33 @@ namespace UnityEditorAssetBrowser.Views
         {
             GUILayout.BeginVertical(EditorStyles.helpBox);
             var itemPath = Path.GetFullPath(
-                Path.Combine(DatabaseService.GetKADatabasePath(), "data", item.id)
+                Path.Combine(DatabaseService.GetKADatabasePath(), "data", item.Id)
             );
             DateTime? createdDate = null;
-            if (item.description.createdAt > 0)
+            if (item.Description.CreatedAt > 0)
             {
                 createdDate = DateTimeOffset
-                    .FromUnixTimeMilliseconds(item.description.createdAt)
+                    .FromUnixTimeMilliseconds(item.Description.CreatedAt)
                     .DateTime;
             }
             int boothItemId = assetItemHelper.GetBoothItemId(item);
             DrawItemHeader(
-                item.description.name,
-                item.description.creator,
-                item.description.imageFilename,
+                item.Description.Name,
+                item.Description.Creator,
+                item.Description.ImageFilename,
                 itemPath,
                 createdDate,
-                item.category,
+                item.Category,
                 null,
-                item.description.tags,
-                item.description.memo,
+                item.Description.Tags,
+                item.Description.Memo,
                 boothItemId
             );
             DrawUnityPackageSection(
                 itemPath,
-                item.description.name,
-                item.description.imageFilename,
-                item.category
+                item.Description.Name,
+                item.Description.ImageFilename,
+                item.Category
             );
             GUILayout.EndVertical();
         }
@@ -354,10 +365,8 @@ namespace UnityEditorAssetBrowser.Views
         {
             if (aeDatabase != null)
             {
-                var item = aeDatabase.Items.Where(x => x.Category == "アバター").FirstOrDefault(i => i.Title == title);
-                GUILayout.Label(
-                    item != null ? $"カテゴリ: {item.GetAECategoryName()}" : $"カテゴリ: {category}"
-                );
+                var item = aeDatabase.Items.FirstOrDefault(i => i.Title == title);
+                GUILayout.Label(item != null ? $"カテゴリ: {item.GetAECategoryName()}" : $"カテゴリ: {category}");
             }
             else
             {
@@ -387,10 +396,13 @@ namespace UnityEditorAssetBrowser.Views
         private string GetAESupportedAvatarsText(string[] supportedAvatars)
         {
             /// <param name="avatarTitle">空白が詰められたアバタータイトル</param>
-            var supportedAvatarNames = supportedAvatars.Select(avatarTitle =>
+            var supportedAvatarNames = supportedAvatars.Select(avatarPath =>
             {
-                var avatarItem = aeDatabase?.Items.Where(x => x.Category == "アバター").FirstOrDefault(x => x.Title.Replace(" ", "") == avatarTitle);
-                return avatarItem?.Title ?? Path.GetFileName(avatarTitle);
+                var avatarItem = aeDatabase?.Items
+                    .Where(x => x.Category == "アバター")
+                    .FirstOrDefault(x => x.ItemPath == avatarPath);
+
+                return avatarItem?.Title ?? Path.GetFileName(avatarPath);
             });
 
             return "対応アバター: " + string.Join(", ", supportedAvatarNames);
@@ -413,10 +425,7 @@ namespace UnityEditorAssetBrowser.Views
             var startY = startRect.y;
             var boxRect = EditorGUILayout.GetControlRect(false, EditorGUIUtility.singleLineHeight);
 
-            if (
-                Event.current.type == EventType.MouseDown
-                && boxRect.Contains(Event.current.mousePosition)
-            )
+            if (Event.current.type == EventType.MouseDown && boxRect.Contains(Event.current.mousePosition))
             {
                 memoFoldouts[memoKey] = !memoFoldouts[memoKey];
                 GUI.changed = true;
@@ -471,7 +480,7 @@ namespace UnityEditorAssetBrowser.Views
         /// <param name="itemPath">アイテムパス</param>
         private void DrawExplorerOpenButton(string itemPath)
         {
-            string fullPath = itemPath;
+            string fullPath;
             if (itemPath.StartsWith("Datas\\"))
             {
                 string normalizedItemPath = itemPath.Replace(
@@ -514,6 +523,7 @@ namespace UnityEditorAssetBrowser.Views
                     "UnityEditorAssetBrowser_GenerateFolderThumbnail",
                     true
                 );
+
                 if (generateFolderThumbnail)
                 {
                     // サムネイルも生成する
@@ -525,6 +535,7 @@ namespace UnityEditorAssetBrowser.Views
                     AssetDatabase.ImportPackage(package, true);
                 }
             }
+
             GUILayout.EndHorizontal();
         }
 
@@ -555,10 +566,7 @@ namespace UnityEditorAssetBrowser.Views
             }
 
             var unityPackages = UnityPackageServices.FindUnityPackages(fullPath);
-            if (!unityPackages.Any())
-            {
-                return;
-            }
+            if (!unityPackages.Any()) return;
 
             // フォールドアウトの状態を初期化（キーが存在しない場合）
             if (!unityPackageFoldouts.ContainsKey(itemName))
@@ -616,17 +624,7 @@ namespace UnityEditorAssetBrowser.Views
                         if (i < unityPackages.Count() - 1)
                         {
                             var lineRect = EditorGUILayout.GetControlRect(false, 1);
-                            // 色を循環させる（赤、青、緑、黄、紫、水色）
-                            Color[] colors = new Color[]
-                            {
-                                new Color(1f, 0f, 0f, 0.5f), // 赤
-                                new Color(0f, 0f, 1f, 0.5f), // 青
-                                new Color(0f, 1f, 0f, 0.5f), // 緑
-                                new Color(1f, 1f, 0f, 0.5f), // 黄
-                                new Color(1f, 0f, 1f, 0.5f), // 紫
-                                new Color(0f, 1f, 1f, 0.5f), // 水色
-                            };
-                            Color lineColor = colors[i % colors.Length];
+                            Color lineColor = LineColors[i % LineColors.Length];
                             EditorGUI.DrawRect(lineRect, lineColor);
                         }
                     }
@@ -639,22 +637,22 @@ namespace UnityEditorAssetBrowser.Views
             EditorGUILayout.EndVertical();
         }
 
-        /// <summary>
-        /// アイテムヘッダー情報を保持するクラス
-        /// </summary>
-        private class ItemHeaderInfo
-        {
-            public string Title { get; set; } = string.Empty;
-            public string Author { get; set; } = string.Empty;
-            public string ImagePath { get; set; } = string.Empty;
-            public string ItemPath { get; set; } = string.Empty;
-            public DateTime? CreatedDate { get; set; }
-            public string? Category { get; set; }
-            public string[]? SupportedAvatars { get; set; }
-            public string[]? Tags { get; set; }
-            public string? Memo { get; set; }
-            public bool ShowCategory { get; set; } = true;
-            public bool ShowSupportedAvatars { get; set; }
-        }
+        // /// <summary>
+        // /// アイテムヘッダー情報を保持するクラス
+        // /// </summary>
+        // private class ItemHeaderInfo
+        // {
+        //     public string Title { get; set; } = string.Empty;
+        //     public string Author { get; set; } = string.Empty;
+        //     public string ImagePath { get; set; } = string.Empty;
+        //     public string ItemPath { get; set; } = string.Empty;
+        //     public DateTime? CreatedDate { get; set; }
+        //     public string? Category { get; set; }
+        //     public string[]? SupportedAvatars { get; set; }
+        //     public string[]? Tags { get; set; }
+        //     public string? Memo { get; set; }
+        //     public bool ShowCategory { get; set; } = true;
+        //     public bool ShowSupportedAvatars { get; set; }
+        // }
     }
 }

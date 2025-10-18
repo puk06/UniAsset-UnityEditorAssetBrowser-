@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEditor;
@@ -16,8 +15,7 @@ namespace UnityEditorAssetBrowser.Services
     public static class ExcludeFolderService
     {
         private const string PREFS_KEY_EXCLUDE_FOLDERS = "UnityEditorAssetBrowser_ExcludeFolders";
-        private const string PREFS_KEY_EXCLUDE_FOLDERS_COMBINED =
-            "UnityEditorAssetBrowser_ExcludeFolders_Combined";
+        private const string PREFS_KEY_EXCLUDE_FOLDERS_COMBINED = "UnityEditorAssetBrowser_ExcludeFolders_Combined";
 
         // デフォルト除外フォルダ（s?付き正規表現）
         private static readonly List<string> DefaultExcludePatterns = new List<string>
@@ -50,34 +48,32 @@ namespace UnityEditorAssetBrowser.Services
         {
             var patterns = GetCombinedExcludePatterns();
             string normFolderName = Normalize(folderName);
+
             foreach (var pattern in patterns)
             {
-                if (string.IsNullOrEmpty(pattern))
-                    continue;
+                if (string.IsNullOrEmpty(pattern)) continue;
+
                 string normPattern = Normalize(pattern);
+
                 try
                 {
                     if (IsRegexPattern(normPattern))
                     {
                         if (Regex.IsMatch(normFolderName, normPattern, RegexOptions.IgnoreCase))
+                        {
                             return true;
+                        }
                     }
-                    else
+                    else if (string.Equals(normFolderName, normPattern, StringComparison.OrdinalIgnoreCase))
                     {
-                        if (
-                            string.Equals(
-                                normFolderName,
-                                normPattern,
-                                StringComparison.OrdinalIgnoreCase
-                            )
-                        )
-                            return true;
+                        return true;
                     }
                 }
                 catch
                 { /* 無効な正規表現は無視 */
                 }
             }
+
             return false;
         }
 
@@ -110,8 +106,7 @@ namespace UnityEditorAssetBrowser.Services
         /// </summary>
         private static string Normalize(string s)
         {
-            if (s == null)
-                return "";
+            if (s == null) return "";
             return s.Replace(" ", "").Replace("　", "").Replace("_", "");
         }
 
@@ -152,14 +147,17 @@ namespace UnityEditorAssetBrowser.Services
                         updated = true;
                     }
                 }
-                var toRemove = data
-                    .enabledDefaults.Where(x => !DefaultExcludePatterns.Contains(x))
+
+                var toRemove = data.enabledDefaults
+                    .Where(x => !DefaultExcludePatterns.Contains(x))
                     .ToList();
+
                 foreach (var rem in toRemove)
                 {
                     data.enabledDefaults.Remove(rem);
                     updated = true;
                 }
+
                 if (updated)
                 {
                     string json = JsonUtility.ToJson(data);

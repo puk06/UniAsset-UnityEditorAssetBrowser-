@@ -61,7 +61,6 @@ namespace UnityEditorAssetBrowser.Models
         public IEnumerable<object> GetCurrentPageItems(List<object> items)
         {
             int startIndex = CurrentPage * ItemsPerPage;
-            int endIndex = Mathf.Min(startIndex + ItemsPerPage, items.Count);
             return items.Skip(startIndex).Take(ItemsPerPage);
         }
 
@@ -85,6 +84,7 @@ namespace UnityEditorAssetBrowser.Models
                 CurrentPage++;
                 return true;
             }
+
             return false;
         }
 
@@ -99,6 +99,7 @@ namespace UnityEditorAssetBrowser.Models
                 CurrentPage--;
                 return true;
             }
+
             return false;
         }
 
@@ -115,6 +116,7 @@ namespace UnityEditorAssetBrowser.Models
                 CurrentPage = page;
                 return true;
             }
+            
             return false;
         }
     }

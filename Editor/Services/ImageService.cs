@@ -268,10 +268,10 @@ namespace UnityEditorAssetBrowser.Services
             return item switch
             {
                 AvatarExplorerItem aeItem => aeItem.ImagePath,
-                KonoAssetAvatarItem kaItem => kaItem.description.imageFilename,
-                KonoAssetWearableItem wearableItem => wearableItem.description.imageFilename,
-                KonoAssetWorldObjectItem worldItem => worldItem.description.imageFilename,
-                KonoAssetOtherAssetItem otherItem => otherItem.description.imageFilename,
+                KonoAssetAvatarItem kaItem => kaItem.Description.ImageFilename,
+                KonoAssetWearableItem wearableItem => wearableItem.Description.ImageFilename,
+                KonoAssetWorldObjectItem worldItem => worldItem.Description.ImageFilename,
+                KonoAssetOtherAssetItem otherItem => otherItem.Description.ImageFilename,
                 _ => string.Empty,
             };
         }

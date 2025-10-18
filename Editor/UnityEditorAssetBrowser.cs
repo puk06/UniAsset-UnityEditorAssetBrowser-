@@ -268,15 +268,15 @@ namespace UnityEditorAssetBrowser
             // 初期値の設定
             var defaultTypes = new Dictionary<string, int>
             {
-                { "アバター", AssetTypeConstants.AVATAR },
-                { "衣装", AssetTypeConstants.AVATAR_RELATED },
-                { "テクスチャ", AssetTypeConstants.AVATAR_RELATED },
-                { "ギミック", AssetTypeConstants.AVATAR_RELATED },
-                { "アクセサリー", AssetTypeConstants.AVATAR_RELATED },
-                { "髪型", AssetTypeConstants.AVATAR_RELATED },
-                { "アニメーション", AssetTypeConstants.AVATAR_RELATED },
-                { "ツール", AssetTypeConstants.OTHER },
-                { "シェーダー", AssetTypeConstants.OTHER },
+                { "アバター", (int)AssetTypeConstants.AVATAR },
+                { "衣装", (int)AssetTypeConstants.AVATAR_RELATED },
+                { "テクスチャ", (int)AssetTypeConstants.AVATAR_RELATED },
+                { "ギミック", (int)AssetTypeConstants.AVATAR_RELATED },
+                { "アクセサリー", (int)AssetTypeConstants.AVATAR_RELATED },
+                { "髪型", (int)AssetTypeConstants.AVATAR_RELATED },
+                { "アニメーション", (int)AssetTypeConstants.AVATAR_RELATED },
+                { "ツール", (int)AssetTypeConstants.OTHER },
+                { "シェーダー", (int)AssetTypeConstants.OTHER },
             };
 
             // 指定された順序のカテゴリの初期化
@@ -306,8 +306,8 @@ namespace UnityEditorAssetBrowser
             var aeDatabase = DatabaseService.GetAEDatabase();
             if (aeDatabase != null)
             {
-                var otherCategories = aeDatabase
-                    .Items.Select(item => item.GetAECategoryName())
+                var otherCategories = aeDatabase.Items
+                    .Select(item => item.GetAECategoryName())
                     .Distinct()
                     .Where(category => !orderedCategories.Contains(category))
                     .OrderBy(category => category);
@@ -331,11 +331,7 @@ namespace UnityEditorAssetBrowser
         /// <returns>デフォルトのアセットタイプのインデックス</returns>
         private int GetDefaultAssetTypeForCategory(string category)
         {
-            if (category.Contains("ワールド") || category.Contains("world"))
-            {
-                return AssetTypeConstants.WORLD;
-            }
-            return AssetTypeConstants.OTHER;
+            return IsWorldCategory(category) ? (int)AssetTypeConstants.WORLD : (int)AssetTypeConstants.OTHER;
         }
         #endregion
 

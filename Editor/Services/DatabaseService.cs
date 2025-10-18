@@ -4,16 +4,11 @@
 
 #nullable enable
 
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using UnityEditor;
 using UnityEditorAssetBrowser.Helper;
 using UnityEditorAssetBrowser.Models;
 using UnityEditorAssetBrowser.ViewModels;
-using UnityEngine;
 
 namespace UnityEditorAssetBrowser.Services
 {

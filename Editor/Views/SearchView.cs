@@ -2,9 +2,8 @@
 
 #nullable enable
 
-using System;
+using System.Collections.Generic;
 using UnityEditor;
-using UnityEditorAssetBrowser.Models;
 using UnityEditorAssetBrowser.Services;
 using UnityEditorAssetBrowser.ViewModels;
 using UnityEditorAssetBrowser.Windows;
@@ -34,7 +33,7 @@ namespace UnityEditorAssetBrowser.Views
         {
             // タブが変更された場合の処理
             CheckTabChange();
-            
+
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
             // 基本検索フィールド
@@ -327,7 +326,7 @@ namespace UnityEditorAssetBrowser.Views
         /// <summary>
         /// 現在のタブのフィルターされたアイテムを取得
         /// </summary>
-        private System.Collections.Generic.List<object> GetCurrentTabFilteredItems()
+        private List<object> GetCurrentTabFilteredItems()
         {
             return _paginationViewModel.SelectedTab switch
             {
@@ -335,7 +334,7 @@ namespace UnityEditorAssetBrowser.Views
                 1 => _assetBrowserViewModel.GetFilteredItems(),
                 2 => _assetBrowserViewModel.GetFilteredWorldObjects(),
                 3 => _assetBrowserViewModel.GetFilteredOthers(),
-                _ => new System.Collections.Generic.List<object>()
+                _ => new List<object>()
             };
         }
 
@@ -345,7 +344,7 @@ namespace UnityEditorAssetBrowser.Views
         private void CheckTabChange()
         {
             int currentTab = _paginationViewModel.SelectedTab;
-            
+
             // タブが変更された場合
             if (_lastSelectedTab != -1 && _lastSelectedTab != currentTab)
             {
@@ -355,7 +354,7 @@ namespace UnityEditorAssetBrowser.Views
                 OnSearchResultChanged();
                 GUI.changed = true;
             }
-            
+
             _lastSelectedTab = currentTab;
         }
     }

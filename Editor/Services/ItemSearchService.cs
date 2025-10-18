@@ -237,11 +237,12 @@ namespace UnityEditorAssetBrowser.Services
                 // すべてのキーワードが少なくとも1つの対応アバターに含まれていることを確認
                 /// <param name="avatarTitle">空白が詰められたアバタータイトル</param>
                 return keywords.All(keyword =>
-                    aeItem.SupportedAvatars.Any(avatarTitle =>
+                    aeItem.SupportedAvatars.Any(avatarPath =>
                     {
-                        var avatarItem = aeDatabase?.Items.FirstOrDefault(x =>
-                            x.Title.Replace(" ", "") == avatarTitle
-                        );
+                        var avatarItem = aeDatabase?.Items
+                            .Where(x => x.Category == "アバター")
+                            .FirstOrDefault(x => x.ItemPath == avatarPath);
+
                         if (avatarItem != null)
                         {
                             return avatarItem.Title.Contains(
@@ -249,19 +250,20 @@ namespace UnityEditorAssetBrowser.Services
                                 StringComparison.InvariantCultureIgnoreCase
                             );
                         }
-                        return Path.GetFileName(avatarTitle)
+                        
+                        return Path.GetFileName(avatarPath)
                             .Contains(keyword, StringComparison.InvariantCultureIgnoreCase);
                     })
                 );
             }
             else if (
                 item is KonoAssetWearableItem wearableItem
-                && wearableItem.supportedAvatars != null
+                && wearableItem.SupportedAvatars != null
             )
             {
                 // すべてのキーワードが少なくとも1つの対応アバターに含まれていることを確認
                 return keywords.All(keyword =>
-                    wearableItem.supportedAvatars.Any(avatar =>
+                    wearableItem.SupportedAvatars.Any(avatar =>
                         avatar.Contains(keyword, StringComparison.InvariantCultureIgnoreCase)
                     )
                 );
@@ -280,13 +282,13 @@ namespace UnityEditorAssetBrowser.Services
             string[]? tags = null;
 
             if (item is KonoAssetAvatarItem kaItem)
-                tags = kaItem.description.tags;
+                tags = kaItem.Description.Tags;
             else if (item is KonoAssetWearableItem wearableItem)
-                tags = wearableItem.description.tags;
+                tags = wearableItem.Description.Tags;
             else if (item is KonoAssetWorldObjectItem worldItem)
-                tags = worldItem.description.tags;
+                tags = worldItem.Description.Tags;
             else if (item is KonoAssetOtherAssetItem otherItem)
-                tags = otherItem.description.tags;
+                tags = otherItem.Description.Tags;
 
             if (tags == null || tags.Length == 0)
                 return false;

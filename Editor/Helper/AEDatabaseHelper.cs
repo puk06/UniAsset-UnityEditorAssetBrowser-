@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using UnityEditorAssetBrowser.Models;
 using UnityEngine;
 
@@ -77,41 +76,14 @@ namespace UnityEditorAssetBrowser.Helper
                     var items = JsonConvert.DeserializeObject<AvatarExplorerItem[]>(json, settings);
                     if (items != null)
                     {
-                        // 対応アバターのパスを変換
-                        foreach (var item in items)
-                        {
-                            if (item.SupportedAvatar != null && item.SupportedAvatar.Length > 0)
-                            {
-                                item.SupportedAvatar = ConvertSupportedAvatarPaths(
-                                    items,
-                                    item.SupportedAvatar
-                                );
-                            }
-                        }
                         return new AvatarExplorerDatabase(items);
                     }
                 }
                 else
                 {
                     // オブジェクト形式の場合は、そのままAvatarExplorerDatabaseとしてデシリアライズ
-                    var database = JsonConvert.DeserializeObject<AvatarExplorerDatabase>(
-                        json,
-                        settings
-                    );
-                    if (database?.Items != null)
-                    {
-                        // 対応アバターのパスを変換
-                        foreach (var item in database.Items)
-                        {
-                            if (item.SupportedAvatar != null && item.SupportedAvatar.Length > 0)
-                            {
-                                item.SupportedAvatar = ConvertSupportedAvatarPaths(
-                                    database.Items.ToArray(),
-                                    item.SupportedAvatar
-                                );
-                            }
-                        }
-                    }
+                    var database = JsonConvert.DeserializeObject<AvatarExplorerDatabase>(json, settings);
+
                     return database;
                 }
 
