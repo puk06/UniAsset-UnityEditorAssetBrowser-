@@ -1,3 +1,5 @@
+// Copyright (c) 2025 sakurayuki
+
 #nullable enable
 
 using UnityEditor;

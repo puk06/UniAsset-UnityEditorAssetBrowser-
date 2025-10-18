@@ -1,3 +1,5 @@
+// Copyright (c) 2025 sakurayuki
+
 using UnityEditor;
 using UnityEditorAssetBrowser.Services;
 using UnityEditorAssetBrowser.ViewModels;

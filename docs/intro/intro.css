@@ -4,41 +4,6 @@
     background-color: #34495e !important;
 }
 
-.requirement-box {
-    background: white;
-    padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    margin-top: 1rem;
-}
-
-.requirement-box h3 {
-    color: #2c3e50;
-    margin-bottom: 1rem;
-    border-bottom: 2px solid #667eea;
-    padding-bottom: 0.5rem;
-}
-
-.requirement-box ul {
-    list-style: none;
-    padding: 0;
-}
-
-.requirement-box li {
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #eee;
-}
-
-.requirement-box li:last-child {
-    border-bottom: none;
-}
-
-.requirement-box strong {
-    color: #2c3e50;
-    display: inline-block;
-    width: 120px;
-}
-
 .install-method {
     background: white;
     padding: 2rem;

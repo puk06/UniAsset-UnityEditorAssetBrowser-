@@ -1,11 +1,14 @@
-// Copyright (c) 2025 yuki-2525
+// Copyright (c) 2025 sakurayuki
 
 #nullable enable
 
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEditorAssetBrowser.Services;
 using UnityEditorAssetBrowser.Views;
@@ -19,6 +22,8 @@ namespace UnityEditorAssetBrowser.Services
     /// </summary>
     public static class UnityPackageServices
     {
+        private const string PREFS_KEY_IMPORT_TO_CATEGORY_FOLDER = "UnityEditorAssetBrowser_ImportToCategoryFolder";
+
         /// <summary>
         /// 指定されたディレクトリ内のUnityPackageファイルを検索する
         /// サブディレクトリも再帰的に検索する
@@ -62,50 +67,148 @@ namespace UnityEditorAssetBrowser.Services
         /// </summary>
         /// <param name="packagePath">パッケージパス</param>
         /// <param name="imagePath">サムネイル画像パス</param>
-        public static void ImportPackageAndSetThumbnails(string packagePath, string imagePath)
+        /// <param name="category">カテゴリ</param>
+        public static void ImportPackageAndSetThumbnails(string packagePath, string imagePath, string? category)
         {
-            // インポート前のフォルダ一覧を取得
             var beforeFolders = GetAssetFolders();
 
-            // インポート処理を実行（完了時のコールバックを指定）
-            AssetDatabase.ImportPackage(packagePath, true);
-
-            // 既存のハンドラが残っていると多重実行になるため、一旦解除
-            if (_importCompletedHandler != null)
+            try
             {
-                AssetDatabase.importPackageCompleted -= _importCompletedHandler;
-            }
+                bool importToCategoryFolder = EditorPrefs.GetBool(PREFS_KEY_IMPORT_TO_CATEGORY_FOLDER, false);
+                
+                AssetDatabase.ImportPackage(packagePath, true);
 
-            _importCompletedHandler = packageName =>
-            {
-                // アセットデータベースを更新
-                AssetDatabase.Refresh();
-
-                // インポート後のフォルダ一覧を取得
-                var afterFolders = GetAssetFolders();
-
-                // 新しく追加されたフォルダを特定
-                var newFolders = afterFolders.Except(beforeFolders).ToList();
-                if (newFolders.Any())
-                {
-                    // サムネイル設定を実行
-                    SetFolderThumbnails(newFolders, imagePath);
-                }
-                else
-                {
-                    Debug.LogWarning("[UnityPackageService] 新規フォルダが見つかりませんでした");
-                }
-
-                // ハンドラを使い捨てにする
+                // インポート完了後の処理を設定
                 if (_importCompletedHandler != null)
                 {
                     AssetDatabase.importPackageCompleted -= _importCompletedHandler;
-                    _importCompletedHandler = null;
                 }
-            };
 
-            AssetDatabase.importPackageCompleted += _importCompletedHandler;
+                _importCompletedHandler = packageName =>
+                {
+                    try
+                    {
+                        // アセットデータベースを更新
+                        AssetDatabase.Refresh();
+
+                        // インポート後のフォルダ一覧を取得
+                        var afterFolders = GetAssetFolders();
+
+                        // 新しく追加されたフォルダを特定
+                        var newFolders = afterFolders.Except(beforeFolders).ToList();
+
+                        // サムネイルの設定
+                        if (newFolders.Any())
+                        {
+                            SetFolderThumbnails(newFolders, imagePath);
+                        }
+                        else
+                        {
+                            Debug.LogWarning("[UnityPackageService] 新規フォルダが見つかりませんでした");
+                        }
+
+                        if (importToCategoryFolder && !string.IsNullOrEmpty(category) && newFolders.Any())
+                        {
+                            // カテゴリフォルダのパスを設定
+                            string categoryPath = Path.Combine("Assets", category);
+
+                            // カテゴリフォルダが実際に存在するか確認（より厳密な方法）
+                            bool folderExists = AssetDatabase.IsValidFolder(categoryPath);
+
+                            if (!folderExists)
+                            {
+                                // 同名のアセットが存在するか確認
+                                string assetGuid = AssetDatabase.AssetPathToGUID(categoryPath);
+                                if (!string.IsNullOrEmpty(assetGuid))
+                                {
+                                    Debug.LogError($"[UnityPackageService] 同名のアセットが既に存在します: {categoryPath}");
+                                    return;
+                                }
+
+                                string result = AssetDatabase.CreateFolder("Assets", category);
+                                if (string.IsNullOrEmpty(result))
+                                {
+                                    Debug.LogError($"[UnityPackageService] カテゴリフォルダの作成に失敗しました: {categoryPath}");
+                                    return;
+                                }
+                                AssetDatabase.Refresh();
+                            }
+
+                            // 新しいフォルダをカテゴリフォルダに移動
+                            foreach (var folder in newFolders)
+                            {
+                                if (Directory.Exists(folder))
+                                {
+                                    string folderName = Path.GetFileName(folder);
+                                    string newPath = Path.Combine(categoryPath, folderName);
+                                    
+                                    // 移動先に同名のフォルダが存在する場合、その中に移動
+                                    if (Directory.Exists(newPath))
+                                    {
+                                        // フォルダ内の全アセットを移動
+                                        string[] assets = Directory.GetFiles(folder, "*.*", SearchOption.AllDirectories);
+                                        
+                                        foreach (var asset in assets)
+                                        {
+                                            if (Path.GetExtension(asset) != ".meta")
+                                            {
+                                                string relativePath = Path.GetRelativePath(folder, asset);
+                                                string targetPath = Path.Combine(newPath, relativePath);
+                                                string targetDir = Path.GetDirectoryName(targetPath);
+                                                
+                                                if (!string.IsNullOrEmpty(targetDir) && !Directory.Exists(targetDir))
+                                                {
+                                                    Directory.CreateDirectory(targetDir);
+                                                }
+                                                
+                                                string result = AssetDatabase.MoveAsset(asset, targetPath);
+                                                if (!string.IsNullOrEmpty(result))
+                                                {
+                                                    Debug.LogError($"[UnityPackageService] アセット移動エラー: {result}");
+                                                }
+                                            }
+                                        }
+                                        // 空になったフォルダを削除
+                                        AssetDatabase.DeleteAsset(folder);
+                                    }
+                                    else
+                                    {
+                                        // フォルダを移動
+                                        string result = AssetDatabase.MoveAsset(folder, newPath);
+                                        if (!string.IsNullOrEmpty(result))
+                                        {
+                                            Debug.LogError($"[UnityPackageService] フォルダ移動エラー: {result}");
+                                        }
+                                    }
+                                }
+                            }
+                            AssetDatabase.Refresh();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogError($"[UnityPackageService] インポート後の処理に失敗しました: {ex.Message}");
+                    }
+                    finally
+                    {
+                        // ハンドラを使い捨てにする
+                        if (_importCompletedHandler != null)
+                        {
+                            AssetDatabase.importPackageCompleted -= _importCompletedHandler;
+                            _importCompletedHandler = null;
+                        }
+                    }
+                };
+
+                AssetDatabase.importPackageCompleted += _importCompletedHandler;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"パッケージのインポートに失敗しました: {ex.Message}");
+            }
         }
+
+
 
         /// <summary>
         /// Assetsフォルダ内のフォルダ一覧を取得

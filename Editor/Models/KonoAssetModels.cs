@@ -1,4 +1,4 @@
-// Copyright (c) 2025 yuki-2525
+// Copyright (c) 2025 sakurayuki
 // This code is borrowed from AETools(https://github.com/puk06/AE-Tools)
 // AETools is licensed under the MIT License. https://github.com/puk06/AE-Tools/blob/master/LICENSE.txt
 

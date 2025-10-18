@@ -1,3 +1,5 @@
+// Copyright (c) 2025 sakurayuki
+
 #nullable enable
 
 using System;
@@ -81,7 +83,7 @@ namespace UnityEditorAssetBrowser.Views
                 item.Memo,
                 boothItemId
             );
-            DrawUnityPackageSection(item.ItemPath, item.Title, item.ImagePath);
+            DrawUnityPackageSection(item.ItemPath, item.Title, item.ImagePath,item.Category);
             GUILayout.EndVertical();
         }
 
@@ -118,7 +120,8 @@ namespace UnityEditorAssetBrowser.Views
             DrawUnityPackageSection(
                 itemPath,
                 item.description.name,
-                item.description.imageFilename
+                item.description.imageFilename,
+                "アバター"
             );
             GUILayout.EndVertical();
         }
@@ -156,7 +159,8 @@ namespace UnityEditorAssetBrowser.Views
             DrawUnityPackageSection(
                 itemPath,
                 item.description.name,
-                item.description.imageFilename
+                item.description.imageFilename,
+                item.category
             );
             GUILayout.EndVertical();
         }
@@ -194,7 +198,8 @@ namespace UnityEditorAssetBrowser.Views
             DrawUnityPackageSection(
                 itemPath,
                 item.description.name,
-                item.description.imageFilename
+                item.description.imageFilename,
+                item.category
             );
             GUILayout.EndVertical();
         }
@@ -232,7 +237,8 @@ namespace UnityEditorAssetBrowser.Views
             DrawUnityPackageSection(
                 itemPath,
                 item.description.name,
-                item.description.imageFilename
+                item.description.imageFilename,
+                item.category
             );
             GUILayout.EndVertical();
         }
@@ -496,7 +502,7 @@ namespace UnityEditorAssetBrowser.Views
         /// </summary>
         /// <param name="package">パッケージパス</param>
         /// <param name="imagePath">サムネイル画像パス</param>
-        private void DrawUnityPackageItem(string package, string imagePath)
+        private void DrawUnityPackageItem(string package, string imagePath, string? category)
         {
             GUILayout.BeginHorizontal();
             GUILayout.Label(Path.GetFileName(package));
@@ -510,7 +516,7 @@ namespace UnityEditorAssetBrowser.Views
                 if (generateFolderThumbnail)
                 {
                     // サムネイルも生成する
-                    UnityPackageServices.ImportPackageAndSetThumbnails(package, imagePath);
+                    UnityPackageServices.ImportPackageAndSetThumbnails(package, imagePath, category);
                 }
                 else
                 {
@@ -527,7 +533,7 @@ namespace UnityEditorAssetBrowser.Views
         /// <param name="itemPath">アイテムパス</param>
         /// <param name="itemName">アイテム名</param>
         /// <param name="imagePath">サムネイル画像パス</param>
-        private void DrawUnityPackageSection(string itemPath, string itemName, string imagePath)
+        private void DrawUnityPackageSection(string itemPath, string itemName, string imagePath, string? category)
         {
             // 相対パスの場合はAEDatabasePathと結合
             string fullPath = itemPath;
@@ -603,7 +609,7 @@ namespace UnityEditorAssetBrowser.Views
                     EditorGUI.indentLevel++;
                     for (int i = 0; i < unityPackages.Count(); i++)
                     {
-                        DrawUnityPackageItem(unityPackages.ElementAt(i), imagePath);
+                        DrawUnityPackageItem(unityPackages.ElementAt(i), imagePath, category);
 
                         // 最後のアイテム以外の後に線を描画
                         if (i < unityPackages.Count() - 1)
