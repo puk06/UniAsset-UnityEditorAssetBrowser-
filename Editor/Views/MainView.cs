@@ -2,9 +2,7 @@
 
 #nullable enable
 
-using System;
 using UnityEditor;
-using UnityEditorAssetBrowser.Helper;
 using UnityEditorAssetBrowser.Models;
 using UnityEditorAssetBrowser.Services;
 using UnityEditorAssetBrowser.ViewModels;
@@ -176,9 +174,9 @@ namespace UnityEditorAssetBrowser.Views
         /// </summary>
         private void ShowAvatarsContent()
         {
-            var filteredItems = _assetBrowserViewModel.GetFilteredAvatars();
-            var sortedItems = _assetBrowserViewModel.SortItems(filteredItems);
-            var pageItems = _paginationViewModel.GetCurrentPageItems(sortedItems);
+            var filteredSortedItems = _assetBrowserViewModel.GetFilteredAvatars();
+            // var sortedItems = _assetBrowserViewModel.SortItems(filteredSortedItems);
+            var pageItems = _paginationViewModel.GetCurrentPageItems(filteredSortedItems);
 
             // 表示前に必要な画像のみ読み込み
             ImageServices.Instance.UpdateVisibleImages(

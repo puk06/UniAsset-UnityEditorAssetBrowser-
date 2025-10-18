@@ -79,8 +79,7 @@ namespace UnityEditorAssetBrowser.Helper
                 if (File.Exists(worldObjectsPath))
                 {
                     var json = File.ReadAllText(worldObjectsPath);
-                    result.worldObjectsDatabase =
-                        JsonConvert.DeserializeObject<KonoAssetWorldObjectsDatabase>(json);
+                    result.worldObjectsDatabase = JsonConvert.DeserializeObject<KonoAssetWorldObjectsDatabase>(json);
                 }
 
                 // otherAssets.jsonの読み込み

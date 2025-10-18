@@ -3,7 +3,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEditorAssetBrowser.Services;
 using UnityEngine;
@@ -17,8 +16,7 @@ namespace UnityEditorAssetBrowser
     public static class FolderIconDrawer
     {
         // EditorPrefsのキー：フォルダアイコン表示設定
-        private const string PREFS_KEY_SHOW_FOLDER_THUMBNAIL =
-            "UnityEditorAssetBrowser_ShowFolderThumbnail";
+        private const string PREFS_KEY_SHOW_FOLDER_THUMBNAIL = "UnityEditorAssetBrowser_ShowFolderThumbnail";
         private const string PREFS_KEY_EXCLUDE_FOLDERS = "UnityEditorAssetBrowser_ExcludeFolders";
 
         // 現在イベントが登録されているかどうかのフラグ
