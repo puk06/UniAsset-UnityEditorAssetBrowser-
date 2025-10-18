@@ -154,21 +154,42 @@ namespace UnityEditorAssetBrowser.Views
         /// </summary>
         private void DrawCurrentTabContent(List<object> totalItems)
         {
-            switch (_paginationViewModel.SelectedTab)
+            var pageItems = _paginationViewModel.GetCurrentPageItems(totalItems);
+
+            // 表示前に必要な画像のみ読み込み
+            ImageServices.Instance.UpdateVisibleImages(
+                pageItems,
+                _cachedAEDatabasePath ?? string.Empty,
+                _cachedKADatabasePath ?? string.Empty
+            );
+
+            foreach (var item in pageItems)
             {
-                case 0:
-                    ShowAvatarsContent(totalItems);
-                    break;
-                case 1:
-                    ShowItemsContent(totalItems);
-                    break;
-                case 2:
-                    ShowWorldObjectsContent(totalItems);
-                    break;
-                case 3:
-                    ShowOthersContent(totalItems);
-                    break;
+                if (item is AvatarExplorerItem aeItem)
+                {
+                    _assetItemView.ShowAvatarItem(aeItem);
+                }
+                else if (item is KonoAssetAvatarItem kaItem)
+                {
+                    _assetItemView.ShowKonoAssetItem(kaItem);
+                }
             }
+            
+            // switch (_paginationViewModel.SelectedTab)
+            // {
+            //     case 0:
+            //         ShowAvatarsContent(totalItems);
+            //         break;
+            //     case 1:
+            //         ShowItemsContent(totalItems);
+            //         break;
+            //     case 2:
+            //         ShowWorldObjectsContent(totalItems);
+            //         break;
+            //     case 3:
+            //         ShowOthersContent(totalItems);
+            //         break;
+            // }
         }
 
         /// <summary>
