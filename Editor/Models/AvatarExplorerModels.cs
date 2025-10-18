@@ -1,6 +1,6 @@
-// Copyright (c) 2025 yuki-2525
-// This code is borrowed from AvatarExplorer(https://github.com/yuki-2525/AvatarExplorer)
-// AvatarExplorer is licensed under the MIT License. https://github.com/yuki-2525/AvatarExplorer/blob/main/LICENSE
+// Copyright (c) 2025 sakurayuki
+// This code is borrowed from AvatarExplorer(https://github.com/puk06/AvatarExplorer)
+// AvatarExplorer is licensed under the MIT License. https://github.com/puk06/blob/main/LICENSE
 
 #nullable enable
 

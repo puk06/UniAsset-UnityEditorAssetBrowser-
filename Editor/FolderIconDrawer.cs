@@ -1,3 +1,5 @@
+// Copyright (c) 2025 sakurayuki
+
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;

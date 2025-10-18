@@ -1,4 +1,4 @@
-// Copyright (c) 2025 yuki-2525
+// Copyright (c) 2025 sakurayuki
 // This code is borrowed from AssetLibraryManager (https://github.com/MAIOTAchannel/AssetLibraryManager)
 // Used with permission from MAIOTAchannel
 
