@@ -235,11 +235,12 @@ namespace UnityEditorAssetBrowser.Services
             if (item is AvatarExplorerItem aeItem && aeItem.SupportedAvatars != null)
             {
                 // すべてのキーワードが少なくとも1つの対応アバターに含まれていることを確認
+                /// <param name="avatarTitle">空白が詰められたアバタータイトル</param>
                 return keywords.All(keyword =>
-                    aeItem.SupportedAvatars.Any(avatarPath =>
+                    aeItem.SupportedAvatars.Any(avatarTitle =>
                     {
                         var avatarItem = aeDatabase?.Items.FirstOrDefault(x =>
-                            x.ItemPath == avatarPath
+                            x.Title.Replace(" ", "") == avatarTitle
                         );
                         if (avatarItem != null)
                         {
@@ -248,7 +249,7 @@ namespace UnityEditorAssetBrowser.Services
                                 StringComparison.InvariantCultureIgnoreCase
                             );
                         }
-                        return Path.GetFileName(avatarPath)
+                        return Path.GetFileName(avatarTitle)
                             .Contains(keyword, StringComparison.InvariantCultureIgnoreCase);
                     })
                 );

@@ -386,10 +386,11 @@ namespace UnityEditorAssetBrowser.Views
         /// <returns>対応アバターの表示テキスト</returns>
         private string GetAESupportedAvatarsText(string[] supportedAvatars)
         {
-            var supportedAvatarNames = supportedAvatars.Select(avatarPath =>
+            /// <param name="avatarTitle">空白が詰められたアバタータイトル</param>
+            var supportedAvatarNames = supportedAvatars.Select(avatarTitle =>
             {
-                var avatarItem = aeDatabase?.Items.FirstOrDefault(x => x.ItemPath == avatarPath);
-                return avatarItem?.Title ?? Path.GetFileName(avatarPath);
+                var avatarItem = aeDatabase?.Items.FirstOrDefault(x => x.Title.Replace(" ", "") == avatarTitle);
+                return avatarItem?.Title ?? Path.GetFileName(avatarTitle);
             });
 
             return "対応アバター: " + string.Join(", ", supportedAvatarNames);
