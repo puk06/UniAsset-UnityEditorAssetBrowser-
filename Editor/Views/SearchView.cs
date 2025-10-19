@@ -285,6 +285,7 @@ namespace UnityEditorAssetBrowser.Views
         {
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
+
             if (GUILayout.Button("設定", GUILayout.Width(100)))
             {
                 SettingsWindow.ShowWindow(
@@ -293,6 +294,7 @@ namespace UnityEditorAssetBrowser.Views
                     _paginationViewModel
                 );
             }
+
             if (GUILayout.Button("更新", GUILayout.Width(100)))
             {
                 // データベースを更新
@@ -302,6 +304,7 @@ namespace UnityEditorAssetBrowser.Views
                 _assetItemView.ResetUnitypackageCache();
                 HandleUtility.Repaint();
             }
+            
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.Space(10);
