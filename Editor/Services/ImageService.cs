@@ -10,7 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEditor;
-using UnityEditorAssetBrowser.Models;
+using UnityEditorAssetBrowser.Interfaces;
 using UnityEngine;
 
 namespace UnityEditorAssetBrowser.Services
@@ -258,25 +258,6 @@ namespace UnityEditorAssetBrowser.Services
         }
 
         /// <summary>
-        /// アイテムの画像パスを取得
-        /// アイテムの種類に応じて適切な画像パスを返す
-        /// </summary>
-        /// <param name="item">画像パスを取得するアイテム</param>
-        /// <returns>アイテムの画像パス（取得できない場合は空文字列）</returns>
-        public static string GetItemImagePath(object item)
-        {
-            return item switch
-            {
-                AvatarExplorerItem aeItem => aeItem.ImagePath,
-                KonoAssetAvatarItem kaItem => kaItem.Description.ImageFilename,
-                KonoAssetWearableItem wearableItem => wearableItem.Description.ImageFilename,
-                KonoAssetWorldObjectItem worldItem => worldItem.Description.ImageFilename,
-                KonoAssetOtherAssetItem otherItem => otherItem.Description.ImageFilename,
-                _ => string.Empty,
-            };
-        }
-
-        /// <summary>
         /// 画像キャッシュをクリア
         /// メモリ使用量を削減するために使用する
         /// </summary>
@@ -334,27 +315,18 @@ namespace UnityEditorAssetBrowser.Services
         /// 現在表示中のアイテムの画像を再読み込み
         /// </summary>
         /// <param name="items">再読み込みするアイテムのリスト</param>
-        /// <param name="aeDatabasePath">AEデータベースのパス</param>
-        /// <param name="kaDatabasePath">KAデータベースのパス</param>
-        public void ReloadCurrentItemsImages(
-            IEnumerable<object> items,
-            string aeDatabasePath,
-            string kaDatabasePath
-        )
+        public void ReloadCurrentItemsImages(IEnumerable<IDatabaseItem> items)
         {
             foreach (var item in items)
             {
-                string imagePath = GetItemImagePath(item);
+                var databasePath = item.IsAEDatabase() ? DatabaseService.GetAEDatabasePath() : DatabaseService.GetKADatabasePath();
+                string imagePath = item.GetImagePath(databasePath);
+
                 if (!string.IsNullOrEmpty(imagePath))
                 {
-                    string fullImagePath = GetFullImagePath(
-                        imagePath,
-                        aeDatabasePath,
-                        kaDatabasePath
-                    );
-                    if (File.Exists(fullImagePath))
+                    if (File.Exists(imagePath))
                     {
-                        LoadTexture(fullImagePath);
+                        LoadTexture(imagePath);
                     }
                 }
             }
@@ -364,33 +336,24 @@ namespace UnityEditorAssetBrowser.Services
         /// 表示中アイテムの画像を更新し、不要な画像を削除
         /// </summary>
         /// <param name="visibleItems">現在表示中のアイテム</param>
-        /// <param name="aeDatabasePath">AEデータベースのパス</param>
-        /// <param name="kaDatabasePath">KAデータベースのパス</param>
-        public void UpdateVisibleImages(
-            IEnumerable<object> visibleItems,
-            string aeDatabasePath,
-            string kaDatabasePath
-        )
+        public void UpdateVisibleImages(IEnumerable<IDatabaseItem> visibleItems)
         {
             var newVisibleImages = new HashSet<string>();
 
             // 新しく表示されるアイテムの画像パス収集
             foreach (var item in visibleItems)
             {
-                string imagePath = GetItemImagePath(item);
+                var databasePath = item.IsAEDatabase() ? DatabaseService.GetAEDatabasePath() : DatabaseService.GetKADatabasePath();
+                string imagePath = item.GetImagePath(databasePath);
+
                 if (!string.IsNullOrEmpty(imagePath))
                 {
-                    string fullImagePath = GetFullImagePath(
-                        imagePath,
-                        aeDatabasePath,
-                        kaDatabasePath
-                    );
-                    newVisibleImages.Add(fullImagePath);
+                    newVisibleImages.Add(imagePath);
 
                     // まだキャッシュにない場合のみ読み込み
-                    if (!imageCache.ContainsKey(fullImagePath) && File.Exists(fullImagePath))
+                    if (!imageCache.ContainsKey(imagePath) && File.Exists(imagePath))
                     {
-                        LoadTexture(fullImagePath);
+                        LoadTexture(imagePath);
                     }
                 }
             }
@@ -536,21 +499,6 @@ namespace UnityEditorAssetBrowser.Services
             
             placeholderTexture.SetPixels32(pixels);
             placeholderTexture.Apply();
-        }
-
-
-        private string GetFullImagePath(
-            string imagePath,
-            string aeDatabasePath,
-            string kaDatabasePath
-        )
-        {
-            if (string.IsNullOrEmpty(imagePath))
-                return string.Empty;
-
-            return imagePath.StartsWith("Datas")
-                ? Path.Combine(aeDatabasePath, imagePath.Replace("Datas\\", ""))
-                : Path.Combine(kaDatabasePath, "images", imagePath);
         }
     }
 }

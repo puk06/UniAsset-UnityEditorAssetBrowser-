@@ -17,5 +17,6 @@ namespace UnityEditorAssetBrowser.Interfaces
         public string GetCategory();
         public string[] GetTags();
         public DateTime GetCreatedDate();
+        public bool IsAEDatabase();
     }
 }

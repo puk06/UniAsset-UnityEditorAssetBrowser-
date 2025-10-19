@@ -11,77 +11,78 @@ using UnityEditorAssetBrowser.Interfaces;
 
 namespace UnityEditorAssetBrowser.Models
 {
-    #region Base Database Models
-    /// <summary>
-    /// KonoAssetの基本データベースモデル
-    /// データベースのバージョンとアイテムリストを管理する
-    /// </summary>
-    public class KonoAssetDatabase
-    {
-        /// <summary>
-        /// データベースのバージョン
-        /// </summary>
-        [JsonProperty("version")]
-        public int Version { get; set; }
+    // #region Base Database Models
+    // /// <summary>
+    // /// KonoAssetの基本データベースモデル
+    // /// データベースのバージョンとアイテムリストを管理する
+    // /// </summary>
+    // public class KonoAssetDatabase
+    // {
+    //     /// <summary>
+    //     /// データベースのバージョン
+    //     /// </summary>
+    //     [JsonProperty("version")]
+    //     public int Version { get; set; }
 
-        /// <summary>
-        /// アイテムのリスト
-        /// </summary>
-        [JsonProperty("data")]
-        public object[] Data { get; set; } = Array.Empty<object>();
-    }
-    #endregion
+    //     /// <summary>
+    //     /// アイテムのリスト
+    //     /// </summary>
+    //     [JsonProperty("data")]
+    //     public object[] Data { get; set; } = Array.Empty<object>();
+    // }
+    // #endregion
 
     #region Specific Database Models
     /// <summary>
     /// アバター用データベース
     /// アバターアイテムのリストを管理する
     /// </summary>
-    public class KonoAssetAvatarsDatabase : KonoAssetDatabase
+    public class KonoAssetAvatarsDatabase
     {
         /// <summary>
         /// アバターアイテムのリスト
         /// </summary>
-        public new KonoAssetAvatarItem[] Data { get; set; } = Array.Empty<KonoAssetAvatarItem>();
+        [JsonProperty("data")]
+        public KonoAssetAvatarItem[] Data { get; set; } = Array.Empty<KonoAssetAvatarItem>();
     }
 
     /// <summary>
     /// ウェアラブル用データベース
     /// ウェアラブルアイテムのリストを管理する
     /// </summary>
-    public class KonoAssetWearablesDatabase : KonoAssetDatabase
+    public class KonoAssetWearablesDatabase
     {
         /// <summary>
         /// ウェアラブルアイテムのリスト
         /// </summary>
-        public new KonoAssetWearableItem[] Data { get; set; } =
-            Array.Empty<KonoAssetWearableItem>();
+        [JsonProperty("data")]
+        public KonoAssetWearableItem[] Data { get; set; } = Array.Empty<KonoAssetWearableItem>();
     }
 
     /// <summary>
     /// ワールドオブジェクト用データベース
     /// ワールドオブジェクトアイテムのリストを管理する
     /// </summary>
-    public class KonoAssetWorldObjectsDatabase : KonoAssetDatabase
+    public class KonoAssetWorldObjectsDatabase
     {
         /// <summary>
         /// ワールドオブジェクトアイテムのリスト
         /// </summary>
-        public new KonoAssetWorldObjectItem[] Data { get; set; } =
-            Array.Empty<KonoAssetWorldObjectItem>();
+        [JsonProperty("data")]
+        public KonoAssetWorldObjectItem[] Data { get; set; } = Array.Empty<KonoAssetWorldObjectItem>();
     }
 
     /// <summary>
     /// その他アセット用データベース
     /// その他アセットアイテムのリストを管理する
     /// </summary>
-    public class KonoAssetOtherAssetsDatabase : KonoAssetDatabase
+    public class KonoAssetOtherAssetsDatabase
     {
         /// <summary>
         /// その他アセットアイテムのリスト
         /// </summary>
-        public new KonoAssetOtherAssetItem[] Data { get; set; } =
-            Array.Empty<KonoAssetOtherAssetItem>();
+        [JsonProperty("data")]
+        public KonoAssetOtherAssetItem[] Data { get; set; } = Array.Empty<KonoAssetOtherAssetItem>();
     }
     #endregion
 
@@ -126,7 +127,7 @@ namespace UnityEditorAssetBrowser.Models
         public string GetItemPath(string databasePath)
             => Path.Combine(databasePath, "data", Id);
         public string GetImagePath(string databasePath)
-            => Path.Combine(databasePath, "images", Id);
+            => Path.Combine(databasePath, "images", Id + ".jpg");
         public string[] GetSupportedAvatars()
             => SupportedAvatars;
         public int GetBoothId()
@@ -137,6 +138,8 @@ namespace UnityEditorAssetBrowser.Models
             => Description.Tags;
         public DateTime GetCreatedDate()
             => DateTimeOffset.FromUnixTimeMilliseconds(Description.CreatedAt).DateTime;
+        public bool IsAEDatabase()
+            => false;
     }
 
     /// <summary>
@@ -166,7 +169,7 @@ namespace UnityEditorAssetBrowser.Models
         public string GetItemPath(string databasePath)
             => Path.Combine(databasePath, "data", Id);
         public string GetImagePath(string databasePath)
-            => Path.Combine(databasePath, "images", Id);
+            => Path.Combine(databasePath, "images", Id + ".jpg");
         public string[] GetSupportedAvatars()
             => Array.Empty<string>();
         public int GetBoothId()
@@ -177,7 +180,8 @@ namespace UnityEditorAssetBrowser.Models
             => Description.Tags;
         public DateTime GetCreatedDate()
             => DateTimeOffset.FromUnixTimeMilliseconds(Description.CreatedAt).DateTime;
-
+        public bool IsAEDatabase()
+            => false;
     }
 
     /// <summary>
@@ -213,7 +217,7 @@ namespace UnityEditorAssetBrowser.Models
         public string GetItemPath(string databasePath)
             => Path.Combine(databasePath, "data", Id);
         public string GetImagePath(string databasePath)
-            => Path.Combine(databasePath, "images", Id);
+            => Path.Combine(databasePath, "images", Id + ".jpg");
         public string[] GetSupportedAvatars()
             => Array.Empty<string>();
         public int GetBoothId()
@@ -224,7 +228,8 @@ namespace UnityEditorAssetBrowser.Models
             => Description.Tags;
         public DateTime GetCreatedDate()
             => DateTimeOffset.FromUnixTimeMilliseconds(Description.CreatedAt).DateTime;
-
+        public bool IsAEDatabase()
+            => false;
     }
 
     /// <summary>
@@ -260,7 +265,7 @@ namespace UnityEditorAssetBrowser.Models
         public string GetItemPath(string databasePath)
             => Path.Combine(databasePath, "data", Id);
         public string GetImagePath(string databasePath)
-            => Path.Combine(databasePath, "images", Id);
+            => Path.Combine(databasePath, "images", Id + ".jpg");
         public string[] GetSupportedAvatars()
             => Array.Empty<string>();
         public int GetBoothId()
@@ -271,6 +276,8 @@ namespace UnityEditorAssetBrowser.Models
             => Description.Tags;
         public DateTime GetCreatedDate()
             => DateTimeOffset.FromUnixTimeMilliseconds(Description.CreatedAt).DateTime;
+        public bool IsAEDatabase()
+            => false;
     }
     #endregion
 

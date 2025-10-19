@@ -8,7 +8,6 @@ using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEditorAssetBrowser.Interfaces;
-using UnityEditorAssetBrowser.Models;
 using UnityEditorAssetBrowser.Services;
 using UnityEngine;
 
@@ -26,8 +25,6 @@ namespace UnityEditorAssetBrowser.Views
         /// <summary>UnityPackageのフォールドアウト状態</summary>
         private readonly Dictionary<string, bool> unityPackageFoldouts = new();
 
-        private readonly AssetItem assetItemHelper = new AssetItem();
-
         // 色を循環させる（赤、青、緑、黄、紫、水色）
         private static readonly Color[] LineColors = new Color[]
         {
@@ -40,41 +37,20 @@ namespace UnityEditorAssetBrowser.Views
         };
 
         /// <summary>
-        /// 完全な画像パスを取得
-        /// </summary>
-        /// <param name="imagePath">画像パス</param>
-        /// <returns>完全な画像パス</returns>
-        public string GetFullImagePath(string imagePath)
-        {
-            if (string.IsNullOrEmpty(imagePath))
-            {
-                Debug.LogWarning("[AssetItemView] 画像パスが未設定です");
-                return string.Empty;
-            }
-
-            if (imagePath.StartsWith("Datas"))
-            {
-                return Path.Combine(
-                    DatabaseService.GetAEDatabasePath(),
-                    imagePath.Replace("Datas\\", "")
-                );
-            }
-
-            return Path.Combine(DatabaseService.GetKADatabasePath(), "images", imagePath);
-        }
-
-        /// <summary>
         /// AEアバターアイテムの表示
         /// </summary>
         /// <param name="item">表示するアイテム</param>
         public void ShowAvatarItem(IDatabaseItem item)
         {
             GUILayout.BeginVertical(EditorStyles.helpBox);
+
+            var databasePath = item.IsAEDatabase() ? DatabaseService.GetAEDatabasePath() : DatabaseService.GetKADatabasePath();
+
             DrawItemHeader(
                 item.GetTitle(),
                 item.GetAuthor(),
-                item.GetImagePath(DatabaseService.GetKADatabasePath()),
-                item.GetItemPath(DatabaseService.GetKADatabasePath()),
+                item.GetImagePath(databasePath),
+                item.GetItemPath(databasePath),
                 item.GetCreatedDate(),
                 item.GetCategory(),
                 item.GetSupportedAvatars(),
@@ -82,7 +58,7 @@ namespace UnityEditorAssetBrowser.Views
                 item.GetMemo(),
                 item.GetBoothId()
             );
-            DrawUnityPackageSection(item.GetItemPath(DatabaseService.GetKADatabasePath()), item.GetTitle(), item.GetImagePath(DatabaseService.GetKADatabasePath()), item.GetCategory());
+            DrawUnityPackageSection(item.GetItemPath(databasePath), item.GetTitle(), item.GetImagePath(databasePath), item.GetCategory());
             GUILayout.EndVertical();
         }
 
@@ -264,10 +240,9 @@ namespace UnityEditorAssetBrowser.Views
             if (string.IsNullOrEmpty(imagePath))
                 return;
 
-            string fullImagePath = GetFullImagePath(imagePath);
-            if (File.Exists(fullImagePath))
+            if (File.Exists(imagePath))
             {
-                var texture = ImageServices.Instance.LoadTexture(fullImagePath);
+                var texture = ImageServices.Instance.LoadTexture(imagePath);
                 if (texture != null)
                 {
                     GUILayout.Label(texture, GUILayout.Width(100), GUILayout.Height(100));
@@ -340,6 +315,8 @@ namespace UnityEditorAssetBrowser.Views
             GUILayout.EndHorizontal();
         }
 
+        private readonly Dictionary<string, string[]> _cachedUnitypackages = new Dictionary<string, string[]>();
+
         /// <summary>
         /// UnityPackageセクションの描画
         /// </summary>
@@ -365,8 +342,13 @@ namespace UnityEditorAssetBrowser.Views
                 string fileName = Path.GetFileName(normalizedItemPath);
                 fullPath = Path.Combine(normalizedAePath, "Items", fileName);
             }
-
-            var unityPackages = UnityPackageServices.FindUnityPackages(fullPath);
+            
+            if (!_cachedUnitypackages.TryGetValue(itemName, out var unityPackages))
+            {
+                unityPackages = UnityPackageServices.FindUnityPackages(fullPath);
+                _cachedUnitypackages.Add(itemName, unityPackages);
+            }
+            
             if (!unityPackages.Any()) return;
 
             // フォールドアウトの状態を初期化（キーが存在しない場合）

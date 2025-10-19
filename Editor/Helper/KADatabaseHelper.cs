@@ -62,8 +62,7 @@ namespace UnityEditorAssetBrowser.Helper
                 if (File.Exists(avatarsPath))
                 {
                     var json = File.ReadAllText(avatarsPath);
-                    result.avatarsDatabase =
-                        JsonConvert.DeserializeObject<KonoAssetAvatarsDatabase>(json);
+                    result.avatarsDatabase = JsonConvert.DeserializeObject<KonoAssetAvatarsDatabase>(json);
                 }
 
                 // avatarWearables.jsonの読み込み
@@ -104,7 +103,10 @@ namespace UnityEditorAssetBrowser.Helper
         /// </summary>
         /// <param name="path">保存先のディレクトリパス</param>
         /// <param name="database">保存するデータベース</param>
-        public static void SaveKADatabase(string path, KonoAssetDatabase database)
+        public static void SaveKADatabase(
+            string path
+            // , KonoAssetDatabase database
+        )
         {
             return; // 勝手に書き換えられたら困るため、一応
             

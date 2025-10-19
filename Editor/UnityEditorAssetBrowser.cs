@@ -129,7 +129,6 @@ namespace UnityEditorAssetBrowser
             );
             _paginationView = new PaginationView(_paginationViewModel, _assetBrowserViewModel);
             _mainView = new MainView(
-                _assetBrowserViewModel,
                 _searchViewModel,
                 _paginationViewModel,
                 _searchView,
@@ -166,9 +165,6 @@ namespace UnityEditorAssetBrowser
         /// </summary>
         private void OnHierarchyChanged()
         {
-            string aeDatabasePath = DatabaseService.GetAEDatabasePath();
-            string kaDatabasePath = DatabaseService.GetKADatabasePath();
-
             // 画像キャッシュをクリア
             ImageServices.Instance.ClearCache();
 
@@ -178,14 +174,8 @@ namespace UnityEditorAssetBrowser
             _searchViewModel.SetCurrentTab(_paginationViewModel.SelectedTab);
 
             // 現在表示中のアイテムの画像を再読み込み
-            var currentItems = _assetBrowserViewModel.GetCurrentTabItems(
-                _paginationViewModel.SelectedTab
-            );
-            ImageServices.Instance.ReloadCurrentItemsImages(
-                currentItems,
-                aeDatabasePath,
-                kaDatabasePath
-            );
+            var currentItems = _assetBrowserViewModel.GetCurrentTabItems(_paginationViewModel.SelectedTab);
+            ImageServices.Instance.ReloadCurrentItemsImages(currentItems);
         }
 
         /// <summary>

@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Newtonsoft.Json;
 using UnityEditorAssetBrowser.Interfaces;
 
@@ -178,7 +179,7 @@ namespace UnityEditorAssetBrowser.Models
         public string GetItemPath(string databasePath)
             => ItemPath;
         public string GetImagePath(string databasePath)
-            => ImagePath;
+            => Path.Combine(databasePath, ImagePath.Replace("Datas\\", ""));
         public string[] GetSupportedAvatars()
             => SupportedAvatar;
         public int GetBoothId()
@@ -189,6 +190,8 @@ namespace UnityEditorAssetBrowser.Models
             => Array.Empty<string>();
         public DateTime GetCreatedDate()
             => CreatedDate;
+        public bool IsAEDatabase()
+            => true;
 
         /// <summary>
         /// AEアイテムのカテゴリー名を取得

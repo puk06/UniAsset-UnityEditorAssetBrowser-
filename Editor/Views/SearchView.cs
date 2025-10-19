@@ -317,11 +317,7 @@ namespace UnityEditorAssetBrowser.Views
             ImageServices.Instance.AdaptCacheSizeToSearchResults(filteredItems.Count);
 
             // 画像キャッシュを新しい表示アイテムに更新
-            ImageServices.Instance.UpdateVisibleImages(
-                pageItems,
-                DatabaseService.GetAEDatabasePath(),
-                DatabaseService.GetKADatabasePath()
-            );
+            ImageServices.Instance.UpdateVisibleImages(pageItems);
         }
 
         /// <summary>

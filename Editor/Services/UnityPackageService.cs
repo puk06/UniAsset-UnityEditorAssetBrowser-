@@ -275,22 +275,19 @@ namespace UnityEditorAssetBrowser.Services
         /// </summary>
         private static string GetValidatedImagePath(string imagePath)
         {
-            var assetItemView = new AssetItemView();
-            string fullImagePath = assetItemView.GetFullImagePath(imagePath);
-
-            if (string.IsNullOrEmpty(fullImagePath))
+            if (string.IsNullOrEmpty(imagePath))
             {
                 Debug.LogWarning("[UnityPackageService] 完全な画像パスを取得できませんでした");
                 return string.Empty;
             }
 
-            if (!File.Exists(fullImagePath))
+            if (!File.Exists(imagePath))
             {
-                Debug.LogWarning($"[UnityPackageService] サムネイル画像が見つかりません: {fullImagePath}");
+                Debug.LogWarning($"[UnityPackageService] サムネイル画像が見つかりません: {imagePath}");
                 return string.Empty;
             }
 
-            return fullImagePath;
+            return imagePath;
         }
 
         /// <summary>

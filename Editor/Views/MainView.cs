@@ -17,9 +17,6 @@ namespace UnityEditorAssetBrowser.Views
     /// </summary>
     public class MainView
     {
-        /// <summary>アセットブラウザーのViewModel</summary>
-        private readonly AssetBrowserViewModel _assetBrowserViewModel;
-
         /// <summary>検索のViewModel</summary>
         private readonly SearchViewModel _searchViewModel;
 
@@ -47,47 +44,25 @@ namespace UnityEditorAssetBrowser.Views
             "その他",
         };
 
-        /// <summary>キャッシュされたAEデータベースパス</summary>
-        private string? _cachedAEDatabasePath;
-
-        /// <summary>キャッシュされたKAデータベースパス</summary>
-        private string? _cachedKADatabasePath;
-
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        /// <param name="assetBrowserViewModel">アセットブラウザーのViewModel</param>
         /// <param name="searchViewModel">検索のViewModel</param>
         /// <param name="paginationViewModel">ページネーションのViewModel</param>
         /// <param name="searchView">検索ビュー</param>
         /// <param name="paginationView">ページネーションビュー</param>
-        /// <param name="aeDatabase">AEデータベース</param>
         public MainView(
-            AssetBrowserViewModel assetBrowserViewModel,
             SearchViewModel searchViewModel,
             PaginationViewModel paginationViewModel,
             SearchView searchView,
             PaginationView paginationView
         )
         {
-            _assetBrowserViewModel = assetBrowserViewModel;
             _searchViewModel = searchViewModel;
             _paginationViewModel = paginationViewModel;
             _searchView = searchView;
             _paginationView = paginationView;
             _assetItemView = new AssetItemView();
-
-            // データベースパスをキャッシュ
-            RefreshDatabasePaths();
-        }
-
-        /// <summary>
-        /// データベースパスを更新してキャッシュ
-        /// </summary>
-        private void RefreshDatabasePaths()
-        {
-            _cachedAEDatabasePath = DatabaseService.GetAEDatabasePath();
-            _cachedKADatabasePath = DatabaseService.GetKADatabasePath();
         }
 
         private List<IDatabaseItem>? _cachedItems = null;
@@ -178,11 +153,7 @@ namespace UnityEditorAssetBrowser.Views
             var pageItems = _paginationViewModel.GetCurrentPageItems(totalItems);
 
             // 表示前に必要な画像のみ読み込み
-            ImageServices.Instance.UpdateVisibleImages(
-                pageItems,
-                _cachedAEDatabasePath ?? string.Empty,
-                _cachedKADatabasePath ?? string.Empty
-            );
+            ImageServices.Instance.UpdateVisibleImages(pageItems);
 
             foreach (var item in pageItems)
             {
