@@ -127,7 +127,7 @@ namespace UnityEditorAssetBrowser.Models
         public string GetItemPath(string databasePath)
             => Path.Combine(databasePath, "data", Id);
         public string GetImagePath(string databasePath)
-            => Path.Combine(databasePath, "images", Id + ".jpg");
+            => Path.Combine(databasePath, "images", Description.ImageFilename);
         public string[] GetSupportedAvatars()
             => SupportedAvatars;
         public int GetBoothId()
@@ -169,7 +169,7 @@ namespace UnityEditorAssetBrowser.Models
         public string GetItemPath(string databasePath)
             => Path.Combine(databasePath, "data", Id);
         public string GetImagePath(string databasePath)
-            => Path.Combine(databasePath, "images", Id + ".jpg");
+            => Path.Combine(databasePath, "images", Description.ImageFilename);
         public string[] GetSupportedAvatars()
             => Array.Empty<string>();
         public int GetBoothId()
@@ -217,7 +217,7 @@ namespace UnityEditorAssetBrowser.Models
         public string GetItemPath(string databasePath)
             => Path.Combine(databasePath, "data", Id);
         public string GetImagePath(string databasePath)
-            => Path.Combine(databasePath, "images", Id + ".jpg");
+            => Path.Combine(databasePath, "images", Description.ImageFilename);
         public string[] GetSupportedAvatars()
             => Array.Empty<string>();
         public int GetBoothId()
@@ -265,7 +265,7 @@ namespace UnityEditorAssetBrowser.Models
         public string GetItemPath(string databasePath)
             => Path.Combine(databasePath, "data", Id);
         public string GetImagePath(string databasePath)
-            => Path.Combine(databasePath, "images", Id + ".jpg");
+            => Path.Combine(databasePath, "images", Description.ImageFilename);
         public string[] GetSupportedAvatars()
             => Array.Empty<string>();
         public int GetBoothId()
