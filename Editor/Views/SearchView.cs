@@ -300,6 +300,7 @@ namespace UnityEditorAssetBrowser.Views
                 DatabaseService.LoadKADatabase();
                 _searchViewModel.SetCurrentTab(_paginationViewModel.SelectedTab);
                 _assetItemView.ResetUnitypackageCache();
+                HandleUtility.Repaint();
             }
             EditorGUILayout.EndHorizontal();
 
