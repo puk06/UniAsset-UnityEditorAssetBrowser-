@@ -196,7 +196,7 @@ namespace UnityEditorAssetBrowser.Models
         public string[] GetTags()
             => Array.Empty<string>();
         public DateTime GetCreatedDate()
-            => CreatedDate;
+            => TimeZoneInfo.ConvertTimeToUtc(CreatedDate, TimeZoneInfo.Local);
         public bool IsAEDatabase()
             => true;
 
