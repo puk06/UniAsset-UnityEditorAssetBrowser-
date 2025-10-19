@@ -46,41 +46,6 @@ namespace UnityEditorAssetBrowser
 
         /// <summary>メインビュー</summary>
         private MainView _mainView = null!;
-
-        /// <summary>アイテム検索サービス</summary>
-        private ItemSearchService _itemSearchService = null!;
-
-        /// <summary>スクロールビューの位置</summary>
-        private Vector2 scrollPosition;
-
-        /// <summary>詳細検索の表示状態</summary>
-        private bool showAdvancedSearch => _searchViewModel.SearchCriteria.ShowAdvancedSearch;
-
-        /// <summary>タブのラベル</summary>
-        private readonly string[] tabs = { "アバター", "アバター関連", "ワールド", "その他" };
-
-        /// <summary>フォールドアウト状態の管理</summary>
-        private readonly Dictionary<string, bool> foldouts = new();
-
-        /// <summary>画像のキャッシュ</summary>
-        private Dictionary<string, Texture2D> imageCache => ImageServices.Instance.imageCache;
-
-        /// <summary>メモのフォールドアウト状態の管理</summary>
-        private readonly Dictionary<string, bool> memoFoldouts = new();
-
-        /// <summary>UnityPackageのフォールドアウト状態の管理</summary>
-        private readonly Dictionary<string, bool> unityPackageFoldouts = new();
-
-        /// <summary>ソート方法のラベル</summary>
-        private readonly string[] sortLabels =
-        {
-            "追加順（新しい順）",
-            "追加順（古い順）",
-            "アセット名（A-Z順）",
-            "アセット名（Z-A順）",
-            "ショップ名（A-Z順）",
-            "ショップ名（Z-A順）",
-        };
         #endregion
 
         #region Unity Editor Window Methods
@@ -132,7 +97,6 @@ namespace UnityEditorAssetBrowser
         private void InitializeServices()
         {
             DatabaseService.LoadSettings();
-            _itemSearchService = new ItemSearchService(DatabaseService.GetAEDatabase());
         }
 
         /// <summary>
@@ -252,15 +216,15 @@ namespace UnityEditorAssetBrowser
             // 初期値の設定
             var defaultTypes = new Dictionary<string, int>
             {
-                { "アバター", (int)AssetTypeConstants.AVATAR },
-                { "衣装", (int)AssetTypeConstants.AVATAR_RELATED },
-                { "テクスチャ", (int)AssetTypeConstants.AVATAR_RELATED },
-                { "ギミック", (int)AssetTypeConstants.AVATAR_RELATED },
-                { "アクセサリー", (int)AssetTypeConstants.AVATAR_RELATED },
-                { "髪型", (int)AssetTypeConstants.AVATAR_RELATED },
-                { "アニメーション", (int)AssetTypeConstants.AVATAR_RELATED },
-                { "ツール", (int)AssetTypeConstants.OTHER },
-                { "シェーダー", (int)AssetTypeConstants.OTHER },
+                { "アバター", (int)AssetTypeConstants.Avatar },
+                { "衣装", (int)AssetTypeConstants.AvatarRelated },
+                { "テクスチャ", (int)AssetTypeConstants.AvatarRelated },
+                { "ギミック", (int)AssetTypeConstants.AvatarRelated },
+                { "アクセサリー", (int)AssetTypeConstants.AvatarRelated },
+                { "髪型", (int)AssetTypeConstants.AvatarRelated },
+                { "アニメーション", (int)AssetTypeConstants.AvatarRelated },
+                { "ツール", (int)AssetTypeConstants.Other },
+                { "シェーダー", (int)AssetTypeConstants.Other },
             };
 
             // 指定された順序のカテゴリの初期化
@@ -315,7 +279,7 @@ namespace UnityEditorAssetBrowser
         /// <returns>デフォルトのアセットタイプのインデックス</returns>
         private int GetDefaultAssetTypeForCategory(string category)
         {
-            return IsWorldCategory(category) ? (int)AssetTypeConstants.WORLD : (int)AssetTypeConstants.OTHER;
+            return IsWorldCategory(category) ? (int)AssetTypeConstants.World : (int)AssetTypeConstants.Other;
         }
         #endregion
 

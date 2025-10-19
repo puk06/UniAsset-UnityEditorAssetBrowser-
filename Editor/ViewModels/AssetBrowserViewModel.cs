@@ -114,7 +114,7 @@ namespace UnityEditorAssetBrowser.ViewModels
                         var key = "UnityEditorAssetBrowser_CategoryAssetType_" + category;
 
                         // アセットタイプが0（アバター）のアイテムのみを表示
-                        if (EditorPrefs.HasKey(key)) return EditorPrefs.GetInt(key) == (int)AssetTypeConstants.AVATAR;
+                        if (EditorPrefs.HasKey(key)) return EditorPrefs.GetInt(key) == (int)AssetTypeConstants.Avatar;
 
                         return (AvatarExplorerItemType)item.Type == AvatarExplorerItemType.Avatar; // キーが存在しない場合は従来の判定
                     })
@@ -146,7 +146,7 @@ namespace UnityEditorAssetBrowser.ViewModels
                         var key = "UnityEditorAssetBrowser_CategoryAssetType_" + category;
 
                         // アセットタイプが1（アバター関連アセット）のアイテムのみを表示
-                        if (EditorPrefs.HasKey(key)) return EditorPrefs.GetInt(key) == (int)AssetTypeConstants.AVATAR_RELATED;
+                        if (EditorPrefs.HasKey(key)) return EditorPrefs.GetInt(key) == (int)AssetTypeConstants.AvatarRelated;
 
                         // キーが存在しない場合は従来の判定
                         return (AvatarExplorerItemType)item.Type != AvatarExplorerItemType.Avatar
@@ -181,7 +181,7 @@ namespace UnityEditorAssetBrowser.ViewModels
                         var key = "UnityEditorAssetBrowser_CategoryAssetType_" + category;
 
                         // アセットタイプが2（ワールドオブジェクト）のアイテムのみを表示
-                        if (EditorPrefs.HasKey(key)) return EditorPrefs.GetInt(key) == (int)AssetTypeConstants.WORLD;
+                        if (EditorPrefs.HasKey(key)) return EditorPrefs.GetInt(key) == (int)AssetTypeConstants.World;
 
                         // キーが存在しない場合は従来の判定
                         return (AvatarExplorerItemType)item.Type != AvatarExplorerItemType.Avatar
@@ -219,7 +219,7 @@ namespace UnityEditorAssetBrowser.ViewModels
                     if (EditorPrefs.HasKey(key))
                     {
                         var assetType = EditorPrefs.GetInt(key);
-                        if (assetType == (int)AssetTypeConstants.OTHER) // その他
+                        if (assetType == (int)AssetTypeConstants.Other) // その他
                         {
                             items.Add(item);
                         }

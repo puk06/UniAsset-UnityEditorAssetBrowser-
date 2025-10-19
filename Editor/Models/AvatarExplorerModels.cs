@@ -25,12 +25,6 @@ namespace UnityEditorAssetBrowser.Models
         public List<AvatarExplorerItem> Items { get; set; } = new List<AvatarExplorerItem>();
 
         /// <summary>
-        /// デフォルトコンストラクタ
-        /// </summary>
-        [JsonConstructor]
-        public AvatarExplorerDatabase() { }
-
-        /// <summary>
         /// 配列からデータベースを作成するための変換コンストラクタ
         /// </summary>
         /// <param name="items">アイテムの配列</param>

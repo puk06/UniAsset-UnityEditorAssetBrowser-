@@ -11,15 +11,15 @@ namespace UnityEditorAssetBrowser.Models
     public enum AssetTypeConstants
     {
         /// <summary>アバタータイプ</summary>
-        AVATAR,
+        Avatar,
         
         /// <summary>アバター関連タイプ</summary>
-        AVATAR_RELATED,
+        AvatarRelated,
         
         /// <summary>ワールドタイプ</summary>
-        WORLD,
+        World,
         
         /// <summary>その他タイプ</summary>
-        OTHER
+        Other
     }
 }
