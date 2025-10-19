@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace UnityEditorAssetBrowser.Models
 {
@@ -293,21 +292,21 @@ namespace UnityEditorAssetBrowser.Models
         public SearchCriteria Clone() =>
             new SearchCriteria
             {
-                SearchQuery = this.SearchQuery,
-                ShowAdvancedSearch = this.ShowAdvancedSearch,
-                TitleSearch = this.TitleSearch,
-                AuthorSearch = this.AuthorSearch,
-                CategorySearch = this.CategorySearch,
-                SupportedAvatarsSearch = this.SupportedAvatarsSearch,
-                TagsSearch = this.TagsSearch,
-                MemoSearch = this.MemoSearch,
-                SortMethod = this.SortMethod,
-                ShowAvatars = this.ShowAvatars,
-                ShowWearables = this.ShowWearables,
-                ShowWorldObjects = this.ShowWorldObjects,
-                ShowOtherAssets = this.ShowOtherAssets,
-                CurrentPage = this.CurrentPage,
-                ItemsPerPage = this.ItemsPerPage,
+                SearchQuery = SearchQuery,
+                ShowAdvancedSearch = ShowAdvancedSearch,
+                TitleSearch = TitleSearch,
+                AuthorSearch = AuthorSearch,
+                CategorySearch = CategorySearch,
+                SupportedAvatarsSearch = SupportedAvatarsSearch,
+                TagsSearch = TagsSearch,
+                MemoSearch = MemoSearch,
+                SortMethod = SortMethod,
+                ShowAvatars = ShowAvatars,
+                ShowWearables = ShowWearables,
+                ShowWorldObjects = ShowWorldObjects,
+                ShowOtherAssets = ShowOtherAssets,
+                CurrentPage = CurrentPage,
+                ItemsPerPage = ItemsPerPage,
             };
     }
 

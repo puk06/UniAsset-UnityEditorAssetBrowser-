@@ -2,7 +2,6 @@
 
 #nullable enable
 
-using UnityEditor;
 using UnityEditorAssetBrowser.ViewModels;
 using UnityEngine;
 

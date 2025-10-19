@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEditor;
-using UnityEditorAssetBrowser.Views;
 using UnityEngine;
 
 namespace UnityEditorAssetBrowser.Services
