@@ -68,37 +68,41 @@ namespace UnityEditorAssetBrowser.Helper
                     Converters = new List<JsonConverter> { new CustomDateTimeConverter() },
                 };
 
-                // JSONが配列形式かどうかを確認
-                if (json.TrimStart().StartsWith("["))
+                var items = JsonConvert.DeserializeObject<AvatarExplorerItem[]>(json, settings);
+                if (items != null)
                 {
-                    // 配列形式の場合は、AvatarExplorerItem[]としてデシリアライズしてから
-                    // AvatarExplorerDatabaseに変換
-                    var items = JsonConvert.DeserializeObject<AvatarExplorerItem[]>(json, settings);
-                    if (items != null)
+                    foreach (var item in items)
                     {
-                        foreach (var item in items)
-                        {
-                            item.SupportedAvatar = ConvertSupportedAvatarPaths(items, item.SupportedAvatars);
-                        }
-                    
-                        return new AvatarExplorerDatabase(items);
-                    }
-                }
-                else
-                {
-                    // オブジェクト形式の場合は、そのままAvatarExplorerDatabaseとしてデシリアライズ
-                    var database = JsonConvert.DeserializeObject<AvatarExplorerDatabase>(json, settings);
-
-                    if (database != null)
-                    {
-                        foreach (var item in database.Items)
-                        {
-                            item.SupportedAvatar = ConvertSupportedAvatarPaths(database.Items.ToArray(), item.SupportedAvatars);
-                        }
+                        item.SupportedAvatar = ConvertSupportedAvatarPaths(items, item.SupportedAvatars);
                     }
 
-                    return database;
+                    return new AvatarExplorerDatabase(items);
                 }
+
+                // AEのデータベースは必ず配列なので以下の処理は不要
+
+                // // JSONが配列形式かどうかを確認
+                // if (json.TrimStart().StartsWith("["))
+                // {
+                //     // 配列形式の場合は、AvatarExplorerItem[]としてデシリアライズしてから
+                //     // AvatarExplorerDatabaseに変換
+
+                // }
+                // else
+                // {
+                //     // オブジェクト形式の場合は、そのままAvatarExplorerDatabaseとしてデシリアライズ
+                //     var database = JsonConvert.DeserializeObject<AvatarExplorerDatabase>(json, settings);
+
+                //     if (database != null)
+                //     {
+                //         foreach (var item in database.Items)
+                //         {
+                //             item.SupportedAvatar = ConvertSupportedAvatarPaths(database.Items.ToArray(), item.SupportedAvatars);
+                //         }
+                //     }
+
+                //     return database;
+                // }
 
                 return null;
             }
@@ -117,16 +121,18 @@ namespace UnityEditorAssetBrowser.Helper
         /// <exception cref="Exception">保存に失敗した場合にスローされる</exception>
         public static void SaveAEDatabase(string path, AvatarExplorerItem[] data)
         {
-            try
-            {
-                var jsonPath = Path.Combine(path, "ItemsData.json");
-                var json = JsonConvert.SerializeObject(data, JsonSettings.Settings);
-                File.WriteAllText(jsonPath, json);
-            }
-            catch (Exception ex)
-            {
-                Debug.LogWarning($"Error saving AE database: {ex.Message}");
-            }
+            return; // 勝手に書き換えられたら困るため、一応
+
+            // try
+            // {
+            //     var jsonPath = Path.Combine(path, "ItemsData.json");
+            //     var json = JsonConvert.SerializeObject(data, JsonSettings.Settings);
+            //     File.WriteAllText(jsonPath, json);
+            // }
+            // catch (Exception ex)
+            // {
+            //     Debug.LogWarning($"Error saving AE database: {ex.Message}");
+            // }
         }
 
         /// <summary>
@@ -141,14 +147,13 @@ namespace UnityEditorAssetBrowser.Helper
         )
         {
             var supportedAvatarNames = new List<string>();
+
             foreach (var avatar in supportedAvatars)
             {
                 var avatarData = items.FirstOrDefault(x => x.ItemPath == avatar);
-                if (avatarData != null)
-                {
-                    supportedAvatarNames.Add(avatarData.Title);
-                }
+                if (avatarData != null) supportedAvatarNames.Add(avatarData.Title);
             }
+
             return supportedAvatarNames.ToArray();
         }
     }

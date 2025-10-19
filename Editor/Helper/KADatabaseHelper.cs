@@ -106,19 +106,21 @@ namespace UnityEditorAssetBrowser.Helper
         /// <param name="database">保存するデータベース</param>
         public static void SaveKADatabase(string path, KonoAssetDatabase database)
         {
-            try
-            {
-                var metadataPath = Path.Combine(path, "metadata");
-                if (!Directory.Exists(metadataPath)) Directory.CreateDirectory(metadataPath);
+            return; // 勝手に書き換えられたら困るため、一応
+            
+            // try
+            // {
+            //     var metadataPath = Path.Combine(path, "metadata");
+            //     if (!Directory.Exists(metadataPath)) Directory.CreateDirectory(metadataPath);
 
-                var jsonPath = Path.Combine(metadataPath, "database.json");
-                var json = JsonConvert.SerializeObject(database, JsonSettings.Settings);
-                File.WriteAllText(jsonPath, json);
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"Error saving KA database: {ex.Message}");
-            }
+            //     var jsonPath = Path.Combine(metadataPath, "database.json");
+            //     var json = JsonConvert.SerializeObject(database, JsonSettings.Settings);
+            //     File.WriteAllText(jsonPath, json);
+            // }
+            // catch (Exception ex)
+            // {
+            //     Debug.LogError($"Error saving KA database: {ex.Message}");
+            // }
         }
     }
 }

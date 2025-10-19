@@ -265,7 +265,7 @@ namespace UnityEditorAssetBrowser.Views
             EditorGUILayout.EndVertical();
         }
 
-        public List<object> GetAndDrawSearchResult()
+        public List<object> GetSearchResult()
         {
             List<object> totalItems = _paginationViewModel.GetCurrentTabItems(
                 () => _assetBrowserViewModel.GetFilteredAvatars(),
@@ -273,9 +273,6 @@ namespace UnityEditorAssetBrowser.Views
                 () => _assetBrowserViewModel.GetFilteredWorldObjects(),
                 () => _assetBrowserViewModel.GetFilteredOthers()
             );
-
-            EditorGUILayout.LabelField($"検索結果: {totalItems.Count}件");
-            EditorGUILayout.Space(10);
 
             return totalItems;
         }

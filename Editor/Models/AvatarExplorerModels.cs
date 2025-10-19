@@ -112,79 +112,66 @@ namespace UnityEditorAssetBrowser.Models
         /// <summary>
         /// アイテムのタイトル
         /// </summary>
-        [JsonProperty("Title")]
         public string Title { get; set; } = "";
 
         /// <summary>
         /// 作者名
         /// </summary>
-        [JsonProperty("AuthorName")]
         public string AuthorName { get; set; } = "";
 
         /// <summary>
         /// アイテムのメモ
         /// </summary>
-        [JsonProperty("ItemMemo")]
         public string ItemMemo { get; set; } = "";
 
         /// <summary>
         /// アイテムのパス
         /// </summary>
-        [JsonProperty("ItemPath")]
         public string ItemPath { get; set; } = "";
 
         /// <summary>
         /// 画像のパス
         /// </summary>
-        [JsonProperty("ImagePath")]
         public string ImagePath { get; set; } = "";
 
         /// <summary>
         /// マテリアルのパス
         /// </summary>
-        [JsonProperty("MaterialPath")]
         public string MaterialPath { get; set; } = "";
 
         /// <summary>
         /// 対応アバターのリスト
         /// </summary>
-        [JsonProperty("SupportedAvatar")]
         public string[] SupportedAvatar { get; set; } = Array.Empty<string>();
 
         /// <summary>
         /// BOOTHのID
         /// </summary>
-        [JsonProperty("BoothId")]
         public int BoothId { get; set; } = -1;
 
         /// <summary>
         /// アイテムのタイプ
         /// </summary>
-        [JsonProperty("Type")]
-        public string Type { get; set; } = "";
+        public int Type { get; set; } = 0;
 
         /// <summary>
         /// カスタムカテゴリー
         /// </summary>
-        [JsonProperty("CustomCategory")]
         public string CustomCategory { get; set; } = "";
 
         /// <summary>
         /// 作者のID
         /// </summary>
-        [JsonProperty("AuthorId")]
         public string AuthorId { get; set; } = "";
 
         /// <summary>
         /// サムネイル画像のURL
         /// </summary>
-        [JsonProperty("ThumbnailUrl")]
         public string ThumbnailUrl { get; set; } = "";
 
         /// <summary>
         /// 作成日時
         /// </summary>
-        [JsonProperty("CreatedDate")]
         public DateTime CreatedDate { get; set; } = DateTime.MinValue;
 
         /// <summary>
@@ -217,22 +204,7 @@ namespace UnityEditorAssetBrowser.Models
         /// </summary>
         /// <returns>アイテムのカテゴリー名</returns>
         public string GetAECategoryName()
-        {
-            // Typeが数値として保存されている場合の処理
-            if (int.TryParse(Type, out int typeValue))
-            {
-                return GetCategoryNameByType((AvatarExplorerItemType)typeValue);
-            }
-
-            // Typeが文字列として保存されている場合の処理
-            if (Enum.TryParse(Type, true, out AvatarExplorerItemType itemType))
-            {
-                return GetCategoryNameByType(itemType);
-            }
-
-            // デフォルトはカスタムカテゴリー
-            return CustomCategory;
-        }
+            => GetCategoryNameByType((AvatarExplorerItemType)Type);
 
         /// <summary>
         /// タイプに基づいてカテゴリー名を取得

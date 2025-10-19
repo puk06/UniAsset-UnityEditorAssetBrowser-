@@ -119,7 +119,7 @@ namespace UnityEditorAssetBrowser.ViewModels
                         // アセットタイプが0（アバター）のアイテムのみを表示
                         if (EditorPrefs.HasKey(key)) return EditorPrefs.GetInt(key) == (int)AssetTypeConstants.AVATAR;
 
-                        return item.Type == "0"; // キーが存在しない場合は従来の判定
+                        return (AvatarExplorerItemType)item.Type == AvatarExplorerItemType.Avatar; // キーが存在しない場合は従来の判定
                     })
                 );
             }
@@ -152,7 +152,7 @@ namespace UnityEditorAssetBrowser.ViewModels
                         if (EditorPrefs.HasKey(key)) return EditorPrefs.GetInt(key) == (int)AssetTypeConstants.AVATAR_RELATED;
 
                         // キーが存在しない場合は従来の判定
-                        return item.Type != "0"
+                        return (AvatarExplorerItemType)item.Type != AvatarExplorerItemType.Avatar
                             && !item.CustomCategory.Contains("ワールド", StringComparison.OrdinalIgnoreCase)
                             && !item.CustomCategory.Contains("world", StringComparison.OrdinalIgnoreCase);
                     })
@@ -188,7 +188,7 @@ namespace UnityEditorAssetBrowser.ViewModels
                         if (EditorPrefs.HasKey(key)) return EditorPrefs.GetInt(key) == (int)AssetTypeConstants.WORLD;
 
                         // キーが存在しない場合は従来の判定
-                        return item.Type != "0"
+                        return (AvatarExplorerItemType)item.Type != AvatarExplorerItemType.Avatar
                             && (
                                 item.CustomCategory.Contains("ワールド",StringComparison.OrdinalIgnoreCase)
                                 || item.CustomCategory.Contains("world",StringComparison.OrdinalIgnoreCase)

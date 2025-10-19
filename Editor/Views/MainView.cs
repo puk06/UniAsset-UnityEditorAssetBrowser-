@@ -91,6 +91,8 @@ namespace UnityEditorAssetBrowser.Views
             _cachedKADatabasePath = DatabaseService.GetKADatabasePath();
         }
 
+        private List<object>? _cachedItems = null;
+
         /// <summary>
         /// メインウィンドウの描画
         /// </summary>
@@ -103,8 +105,18 @@ namespace UnityEditorAssetBrowser.Views
             DrawTabBar();
             _searchView.DrawSearchField();
 
-            var totalItems = _searchView.GetAndDrawSearchResult();
-            DrawContentArea(totalItems);
+            if (Event.current.type == EventType.Used || _cachedItems == null)
+            {
+                _cachedItems = _searchView.GetSearchResult();
+            }
+
+            if (_cachedItems != null)
+            {
+                EditorGUILayout.LabelField($"検索結果: {_cachedItems.Count}件");
+                EditorGUILayout.Space(10);
+
+                DrawContentArea(_cachedItems);
+            }
 
             EditorGUILayout.EndVertical();
         }
