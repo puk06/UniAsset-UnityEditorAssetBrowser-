@@ -46,6 +46,9 @@ namespace UnityEditorAssetBrowser
 
         /// <summary>メインビュー</summary>
         private MainView _mainView = null!;
+
+        /// <summary>アセットアイテムビュー</summary>
+        private AssetItemView _assetItemView = null!;
         #endregion
 
         #region Unity Editor Window Methods
@@ -115,6 +118,7 @@ namespace UnityEditorAssetBrowser
                 _paginationInfo,
                 _searchViewModel
             );
+            _assetItemView = new AssetItemView();
         }
 
         /// <summary>
@@ -125,14 +129,16 @@ namespace UnityEditorAssetBrowser
             _searchView = new SearchView(
                 _searchViewModel,
                 _assetBrowserViewModel,
-                _paginationViewModel
+                _paginationViewModel,
+                _assetItemView
             );
             _paginationView = new PaginationView(_paginationViewModel, _assetBrowserViewModel);
             _mainView = new MainView(
                 _searchViewModel,
                 _paginationViewModel,
                 _searchView,
-                _paginationView
+                _paginationView,
+                _assetItemView
             );
         }
 

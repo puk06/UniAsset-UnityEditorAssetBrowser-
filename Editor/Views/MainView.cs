@@ -55,14 +55,15 @@ namespace UnityEditorAssetBrowser.Views
             SearchViewModel searchViewModel,
             PaginationViewModel paginationViewModel,
             SearchView searchView,
-            PaginationView paginationView
+            PaginationView paginationView,
+            AssetItemView assetItemView
         )
         {
             _searchViewModel = searchViewModel;
             _paginationViewModel = paginationViewModel;
             _searchView = searchView;
             _paginationView = paginationView;
-            _assetItemView = new AssetItemView();
+            _assetItemView = assetItemView;
         }
 
         private List<IDatabaseItem>? _cachedItems = null;

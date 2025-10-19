@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using UnityEditor;
@@ -256,29 +257,11 @@ namespace UnityEditorAssetBrowser.Views
         /// <param name="itemPath">アイテムパス</param>
         private void DrawExplorerOpenButton(string itemPath)
         {
-            string fullPath;
-            if (itemPath.StartsWith("Datas\\"))
-            {
-                string normalizedItemPath = itemPath.Replace(
-                    "\\",
-                    Path.DirectorySeparatorChar.ToString()
-                );
-                string normalizedAePath = DatabaseService
-                    .GetAEDatabasePath()
-                    .Replace("/", Path.DirectorySeparatorChar.ToString());
-                string itemName = Path.GetFileName(normalizedItemPath);
-                fullPath = Path.Combine(normalizedAePath, "Items", itemName);
-            }
-            else
-            {
-                fullPath = Path.Combine(DatabaseService.GetKADatabasePath(), "data", itemPath);
-            }
-
-            if (Directory.Exists(fullPath))
+            if (Directory.Exists(itemPath))
             {
                 if (GUILayout.Button("Explorerで開く", GUILayout.Width(150)))
                 {
-                    System.Diagnostics.Process.Start("explorer.exe", fullPath);
+                    Process.Start("explorer.exe", itemPath);
                 }
             }
         }
@@ -292,7 +275,8 @@ namespace UnityEditorAssetBrowser.Views
         private void DrawUnityPackageItem(string package, string imagePath, string category)
         {
             GUILayout.BeginHorizontal();
-            GUILayout.Label(Path.GetFileName(package));
+            GUILayout.Label(string.Join("/", Path.GetDirectoryName(package).Split(Path.DirectorySeparatorChar).TakeLast(2)) + "/" + Path.GetFileName(package));
+
             if (GUILayout.Button("インポート", GUILayout.Width(100)))
             {
                 // フォルダサムネイル生成設定を取得
@@ -327,30 +311,12 @@ namespace UnityEditorAssetBrowser.Views
         /// <param name="category">カテゴリ</param>
         private void DrawUnityPackageSection(string itemPath, string itemName, string imagePath, string category)
         {
-            // 相対パスの場合はAEDatabasePathと結合
-            string fullPath = itemPath;
-            if (itemPath.StartsWith("Datas\\"))
-            {
-                // パスの区切り文字を正規化
-                string normalizedItemPath = itemPath.Replace(
-                    "\\",
-                    Path.DirectorySeparatorChar.ToString()
-                );
-                string normalizedAePath = DatabaseService
-                    .GetAEDatabasePath()
-                    .Replace("/", Path.DirectorySeparatorChar.ToString());
-
-                // Datas\Items\アイテム名 の形式の場合、AEDatabasePath\Items\アイテム名 に変換
-                string fileName = Path.GetFileName(normalizedItemPath);
-                fullPath = Path.Combine(normalizedAePath, "Items", fileName);
-            }
-
             if (!_cachedUnitypackages.TryGetValue(itemName, out var unityPackages))
             {
-                unityPackages = UnityPackageServices.FindUnityPackages(fullPath);
+                unityPackages = UnityPackageServices.FindUnityPackages(itemPath);
                 _cachedUnitypackages.Add(itemName, unityPackages);
             }
-            
+
             if (!unityPackages.Any()) return;
 
             // フォールドアウトの状態を初期化（キーが存在しない場合）
@@ -421,5 +387,11 @@ namespace UnityEditorAssetBrowser.Views
             }
             EditorGUILayout.EndVertical();
         }
+        
+        /// <summary>
+        /// Unitypackageのキャッシュをリセットします。
+        /// </summary>
+        public void ResetUnitypackageCache()
+            => _cachedUnitypackages.Clear();
     }
 }

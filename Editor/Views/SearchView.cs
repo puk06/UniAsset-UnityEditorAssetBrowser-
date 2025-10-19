@@ -17,17 +17,20 @@ namespace UnityEditorAssetBrowser.Views
         private readonly SearchViewModel _searchViewModel;
         private readonly AssetBrowserViewModel _assetBrowserViewModel;
         private readonly PaginationViewModel _paginationViewModel;
+        private readonly AssetItemView _assetItemView;
         private int _lastSelectedTab = -1; // 前回選択されていたタブを記録
 
         public SearchView(
             SearchViewModel searchViewModel,
             AssetBrowserViewModel assetBrowserViewModel,
-            PaginationViewModel paginationViewModel
+            PaginationViewModel paginationViewModel,
+            AssetItemView assetItemView
         )
         {
             _searchViewModel = searchViewModel;
             _assetBrowserViewModel = assetBrowserViewModel;
             _paginationViewModel = paginationViewModel;
+            _assetItemView = assetItemView;
         }
 
         public void DrawSearchField()
@@ -296,6 +299,7 @@ namespace UnityEditorAssetBrowser.Views
                 DatabaseService.LoadAEDatabase();
                 DatabaseService.LoadKADatabase();
                 _searchViewModel.SetCurrentTab(_paginationViewModel.SelectedTab);
+                _assetItemView.ResetUnitypackageCache();
             }
             EditorGUILayout.EndHorizontal();
 

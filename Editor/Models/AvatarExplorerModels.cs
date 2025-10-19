@@ -177,9 +177,16 @@ namespace UnityEditorAssetBrowser.Models
         public string GetMemo()
             => ItemMemo;
         public string GetItemPath(string databasePath)
-            => ItemPath;
+        {
+            if (ItemPath.StartsWith("Datas\\"))
+            {
+                return Path.Combine(databasePath, ItemPath.Replace("Datas\\", "")).Replace("\\", Path.DirectorySeparatorChar.ToString());;
+            }
+
+            return ItemPath.Replace("\\", Path.DirectorySeparatorChar.ToString());;
+        }
         public string GetImagePath(string databasePath)
-            => Path.Combine(databasePath, ImagePath.Replace("Datas\\", ""));
+            => Path.Combine(databasePath, ImagePath.Replace("Datas\\", "")).Replace("\\", Path.DirectorySeparatorChar.ToString());
         public string[] GetSupportedAvatars()
             => SupportedAvatar;
         public int GetBoothId()

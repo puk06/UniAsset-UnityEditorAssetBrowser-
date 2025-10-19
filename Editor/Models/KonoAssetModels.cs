@@ -125,9 +125,9 @@ namespace UnityEditorAssetBrowser.Models
         public string GetMemo()
             => Description.Memo ?? "";
         public string GetItemPath(string databasePath)
-            => Path.Combine(databasePath, "data", Id);
+            => Path.Combine(databasePath, "data", Id).Replace("\\", Path.DirectorySeparatorChar.ToString());
         public string GetImagePath(string databasePath)
-            => Path.Combine(databasePath, "images", Description.ImageFilename);
+            => Path.Combine(databasePath, "images", Description.ImageFilename).Replace("\\", Path.DirectorySeparatorChar.ToString());
         public string[] GetSupportedAvatars()
             => SupportedAvatars;
         public int GetBoothId()
@@ -167,9 +167,9 @@ namespace UnityEditorAssetBrowser.Models
         public string GetMemo()
             => Description.Memo ?? "";
         public string GetItemPath(string databasePath)
-            => Path.Combine(databasePath, "data", Id);
+            => Path.Combine(databasePath, "data", Id).Replace("\\", Path.DirectorySeparatorChar.ToString());
         public string GetImagePath(string databasePath)
-            => Path.Combine(databasePath, "images", Description.ImageFilename);
+            => Path.Combine(databasePath, "images", Description.ImageFilename).Replace("\\", Path.DirectorySeparatorChar.ToString());
         public string[] GetSupportedAvatars()
             => Array.Empty<string>();
         public int GetBoothId()
@@ -215,9 +215,9 @@ namespace UnityEditorAssetBrowser.Models
         public string GetMemo()
             => Description.Memo ?? "";
         public string GetItemPath(string databasePath)
-            => Path.Combine(databasePath, "data", Id);
+            => Path.Combine(databasePath, "data", Id).Replace("\\", Path.DirectorySeparatorChar.ToString());
         public string GetImagePath(string databasePath)
-            => Path.Combine(databasePath, "images", Description.ImageFilename);
+            => Path.Combine(databasePath, "images", Description.ImageFilename).Replace("\\", Path.DirectorySeparatorChar.ToString());
         public string[] GetSupportedAvatars()
             => Array.Empty<string>();
         public int GetBoothId()
@@ -263,9 +263,9 @@ namespace UnityEditorAssetBrowser.Models
         public string GetMemo()
             => Description.Memo ?? "";
         public string GetItemPath(string databasePath)
-            => Path.Combine(databasePath, "data", Id);
+            => Path.Combine(databasePath, "data", Id).Replace("\\", Path.DirectorySeparatorChar.ToString());
         public string GetImagePath(string databasePath)
-            => Path.Combine(databasePath, "images", Description.ImageFilename);
+            => Path.Combine(databasePath, "images", Description.ImageFilename).Replace("\\", Path.DirectorySeparatorChar.ToString());
         public string[] GetSupportedAvatars()
             => Array.Empty<string>();
         public int GetBoothId()
