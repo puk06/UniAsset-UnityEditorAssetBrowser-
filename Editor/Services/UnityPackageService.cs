@@ -64,7 +64,7 @@ namespace UnityEditorAssetBrowser.Services
         /// <param name="packagePath">パッケージパス</param>
         /// <param name="imagePath">サムネイル画像パス</param>
         /// <param name="category">カテゴリ</param>
-        public static void ImportPackageAndSetThumbnails(string packagePath, string imagePath, string? category)
+        public static void ImportPackageAndSetThumbnails(string packagePath, string imagePath, string category)
         {
             var beforeFolders = GetAssetFolders();
 

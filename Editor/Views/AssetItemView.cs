@@ -190,7 +190,7 @@ namespace UnityEditorAssetBrowser.Views
         /// </summary>
         /// <param name="title">タイトル</param>
         /// <param name="memo">メモ</param>
-        private void DrawMemo(string title, string? memo)
+        private void DrawMemo(string title, string memo)
         {
             string memoKey = $"{title}_memo";
             if (!memoFoldouts.ContainsKey(memoKey))
@@ -288,7 +288,8 @@ namespace UnityEditorAssetBrowser.Views
         /// </summary>
         /// <param name="package">パッケージパス</param>
         /// <param name="imagePath">サムネイル画像パス</param>
-        private void DrawUnityPackageItem(string package, string imagePath, string? category)
+        /// <param name="category">カテゴリ</param>
+        private void DrawUnityPackageItem(string package, string imagePath, string category)
         {
             GUILayout.BeginHorizontal();
             GUILayout.Label(Path.GetFileName(package));
@@ -323,7 +324,8 @@ namespace UnityEditorAssetBrowser.Views
         /// <param name="itemPath">アイテムパス</param>
         /// <param name="itemName">アイテム名</param>
         /// <param name="imagePath">サムネイル画像パス</param>
-        private void DrawUnityPackageSection(string itemPath, string itemName, string imagePath, string? category)
+        /// <param name="category">カテゴリ</param>
+        private void DrawUnityPackageSection(string itemPath, string itemName, string imagePath, string category)
         {
             // 相対パスの場合はAEDatabasePathと結合
             string fullPath = itemPath;
@@ -342,7 +344,7 @@ namespace UnityEditorAssetBrowser.Views
                 string fileName = Path.GetFileName(normalizedItemPath);
                 fullPath = Path.Combine(normalizedAePath, "Items", fileName);
             }
-            
+
             if (!_cachedUnitypackages.TryGetValue(itemName, out var unityPackages))
             {
                 unityPackages = UnityPackageServices.FindUnityPackages(fullPath);
