@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEditor;
+using UnityEditorAssetBrowser.Interfaces;
 using UnityEditorAssetBrowser.Models;
 using UnityEditorAssetBrowser.Services;
 using UnityEngine;
@@ -19,9 +20,6 @@ namespace UnityEditorAssetBrowser.Views
     /// </summary>
     public class AssetItemView
     {
-        /// <summary>AvatarExplorerデータベース</summary>
-        private readonly AvatarExplorerDatabase? aeDatabase;
-
         /// <summary>メモのフォールドアウト状態</summary>
         private readonly Dictionary<string, bool> memoFoldouts = new();
 
@@ -40,15 +38,6 @@ namespace UnityEditorAssetBrowser.Views
             new Color(1f, 0f, 1f, 0.5f), // 紫
             new Color(0f, 1f, 1f, 0.5f), // 水色
         };
-
-        /// <summary>
-        /// コンストラクタ
-        /// </summary>
-        /// <param name="aeDatabase">AvatarExplorerデータベース</param>
-        public AssetItemView(AvatarExplorerDatabase? aeDatabase)
-        {
-            this.aeDatabase = aeDatabase;
-        }
 
         /// <summary>
         /// 完全な画像パスを取得
@@ -78,179 +67,22 @@ namespace UnityEditorAssetBrowser.Views
         /// AEアバターアイテムの表示
         /// </summary>
         /// <param name="item">表示するアイテム</param>
-        public void ShowAvatarItem(AvatarExplorerItem item)
+        public void ShowAvatarItem(IDatabaseItem item)
         {
             GUILayout.BeginVertical(EditorStyles.helpBox);
-            int boothItemId = assetItemHelper.GetBoothItemId(item);
             DrawItemHeader(
-                item.Title,
-                item.AuthorName,
-                item.ImagePath,
-                item.ItemPath,
-                item.CreatedDate,
-                item.Category,
-                item.SupportedAvatars,
-                item.Tags,
-                item.Memo,
-                boothItemId
+                item.GetTitle(),
+                item.GetAuthor(),
+                item.GetImagePath(DatabaseService.GetKADatabasePath()),
+                item.GetItemPath(DatabaseService.GetKADatabasePath()),
+                item.GetCreatedDate(),
+                item.GetCategory(),
+                item.GetSupportedAvatars(),
+                item.GetTags(),
+                item.GetMemo(),
+                item.GetBoothId()
             );
-            DrawUnityPackageSection(item.ItemPath, item.Title, item.ImagePath,item.Category);
-            GUILayout.EndVertical();
-        }
-
-        /// <summary>
-        /// KAアバターアイテムの表示
-        /// </summary>
-        /// <param name="item">表示するアイテム</param>
-        public void ShowKonoAssetItem(KonoAssetAvatarItem item)
-        {
-            GUILayout.BeginVertical(EditorStyles.helpBox);
-            var itemPath = Path.GetFullPath(
-                Path.Combine(DatabaseService.GetKADatabasePath(), "data", item.Id)
-            );
-            DateTime? createdDate = null;
-            if (item.Description.CreatedAt > 0)
-            {
-                createdDate = DateTimeOffset
-                    .FromUnixTimeMilliseconds(item.Description.CreatedAt)
-                    .DateTime;
-            }
-            int boothItemId = assetItemHelper.GetBoothItemId(item);
-            DrawItemHeader(
-                item.Description.Name,
-                item.Description.Creator,
-                item.Description.ImageFilename,
-                itemPath,
-                createdDate,
-                null,
-                null,
-                item.Description.Tags,
-                item.Description.Memo,
-                boothItemId
-            );
-            DrawUnityPackageSection(
-                itemPath,
-                item.Description.Name,
-                item.Description.ImageFilename,
-                "アバター"
-            );
-            GUILayout.EndVertical();
-        }
-
-        /// <summary>
-        /// KAウェアラブルアイテムの表示
-        /// </summary>
-        /// <param name="item">表示するアイテム</param>
-        public void ShowKonoAssetWearableItem(KonoAssetWearableItem item)
-        {
-            GUILayout.BeginVertical(EditorStyles.helpBox);
-            var itemPath = Path.GetFullPath(
-                Path.Combine(DatabaseService.GetKADatabasePath(), "data", item.Id)
-            );
-            DateTime? createdDate = null;
-            if (item.Description.CreatedAt > 0)
-            {
-                createdDate = DateTimeOffset
-                    .FromUnixTimeMilliseconds(item.Description.CreatedAt)
-                    .DateTime;
-            }
-            int boothItemId = assetItemHelper.GetBoothItemId(item);
-            DrawItemHeader(
-                item.Description.Name,
-                item.Description.Creator,
-                item.Description.ImageFilename,
-                itemPath,
-                createdDate,
-                item.Category,
-                item.SupportedAvatars,
-                item.Description.Tags,
-                item.Description.Memo,
-                boothItemId
-            );
-            DrawUnityPackageSection(
-                itemPath,
-                item.Description.Name,
-                item.Description.ImageFilename,
-                item.Category
-            );
-            GUILayout.EndVertical();
-        }
-
-        /// <summary>
-        /// KAワールドオブジェクトアイテムの表示
-        /// </summary>
-        /// <param name="item">表示するアイテム</param>
-        public void ShowKonoAssetWorldObjectItem(KonoAssetWorldObjectItem item)
-        {
-            GUILayout.BeginVertical(EditorStyles.helpBox);
-            var itemPath = Path.GetFullPath(
-                Path.Combine(DatabaseService.GetKADatabasePath(), "data", item.Id)
-            );
-            DateTime? createdDate = null;
-            if (item.Description.CreatedAt > 0)
-            {
-                createdDate = DateTimeOffset
-                    .FromUnixTimeMilliseconds(item.Description.CreatedAt)
-                    .DateTime;
-            }
-            int boothItemId = assetItemHelper.GetBoothItemId(item);
-            DrawItemHeader(
-                item.Description.Name,
-                item.Description.Creator,
-                item.Description.ImageFilename,
-                itemPath,
-                createdDate,
-                item.Category,
-                null,
-                item.Description.Tags,
-                item.Description.Memo,
-                boothItemId
-            );
-            DrawUnityPackageSection(
-                itemPath,
-                item.Description.Name,
-                item.Description.ImageFilename,
-                item.Category
-            );
-            GUILayout.EndVertical();
-        }
-
-        /// <summary>
-        /// KAその他アセットアイテムの表示
-        /// </summary>
-        /// <param name="item">表示するアイテム</param>
-        public void ShowKonoAssetOtherAssetItem(KonoAssetOtherAssetItem item)
-        {
-            GUILayout.BeginVertical(EditorStyles.helpBox);
-            var itemPath = Path.GetFullPath(
-                Path.Combine(DatabaseService.GetKADatabasePath(), "data", item.Id)
-            );
-            DateTime? createdDate = null;
-            if (item.Description.CreatedAt > 0)
-            {
-                createdDate = DateTimeOffset
-                    .FromUnixTimeMilliseconds(item.Description.CreatedAt)
-                    .DateTime;
-            }
-            int boothItemId = assetItemHelper.GetBoothItemId(item);
-            DrawItemHeader(
-                item.Description.Name,
-                item.Description.Creator,
-                item.Description.ImageFilename,
-                itemPath,
-                createdDate,
-                item.Category,
-                null,
-                item.Description.Tags,
-                item.Description.Memo,
-                boothItemId
-            );
-            DrawUnityPackageSection(
-                itemPath,
-                item.Description.Name,
-                item.Description.ImageFilename,
-                item.Category
-            );
+            DrawUnityPackageSection(item.GetItemPath(DatabaseService.GetKADatabasePath()), item.GetTitle(), item.GetImagePath(DatabaseService.GetKADatabasePath()), item.GetCategory());
             GUILayout.EndVertical();
         }
 
@@ -272,11 +104,11 @@ namespace UnityEditorAssetBrowser.Views
             string author,
             string imagePath,
             string itemPath,
-            DateTime? createdDate = null,
-            string? category = null,
-            string[]? supportedAvatars = null,
-            string[]? tags = null,
-            string? memo = null,
+            DateTime createdDate,
+            string category,
+            string[] supportedAvatars,
+            string[] tags,
+            string memo,
             int boothItemId = 0
         )
         {
@@ -304,22 +136,22 @@ namespace UnityEditorAssetBrowser.Views
         /// <summary>
         /// アイテムのメタデータ（カテゴリ・対応アバター・タグ・メモ）を描画
         /// </summary>
-        private void DrawItemMetadata(string title, string? category, string[]? supportedAvatars, string[]? tags, string? memo)
+        private void DrawItemMetadata(string title, string category, string[] supportedAvatars, string[] tags, string memo)
         {
             // カテゴリ
             if (!string.IsNullOrEmpty(category))
             {
-                DrawCategory(title, category);
+                DrawCategory(category);
             }
 
             // 対応アバター
-            if (supportedAvatars != null && supportedAvatars.Length > 0)
+            if (supportedAvatars.Length > 0)
             {
                 DrawSupportedAvatars(supportedAvatars);
             }
 
             // タグ
-            if (tags != null && tags.Length > 0)
+            if (tags.Length > 0)
             {
                 GUILayout.Label($"タグ: {string.Join(", ", tags)}", EditorStyles.wordWrappedLabel);
             }
@@ -361,17 +193,9 @@ namespace UnityEditorAssetBrowser.Views
         /// </summary>
         /// <param name="title">タイトル</param>
         /// <param name="category">カテゴリ</param>
-        private void DrawCategory(string title, string? category)
+        private void DrawCategory(string category)
         {
-            if (aeDatabase != null)
-            {
-                var item = aeDatabase.Items.FirstOrDefault(i => i.Title == title);
-                GUILayout.Label(item != null ? $"カテゴリ: {item.GetAECategoryName()}" : $"カテゴリ: {category}");
-            }
-            else
-            {
-                GUILayout.Label($"カテゴリ: {category}");
-            }
+            GUILayout.Label($"カテゴリ: {category}");
         }
 
         /// <summary>
@@ -383,26 +207,6 @@ namespace UnityEditorAssetBrowser.Views
             string supportedAvatarsText = $"対応アバター: {string.Join(", ", supportedAvatars)}";
 
             GUILayout.Label(supportedAvatarsText, EditorStyles.wordWrappedLabel);
-        }
-
-        /// <summary>
-        /// AEの対応アバターのテキストを取得
-        /// </summary>
-        /// <param name="supportedAvatars">対応アバターのパス配列</param>
-        /// <returns>対応アバターの表示テキスト</returns>
-        private string GetAESupportedAvatarsText(string[] supportedAvatars)
-        {
-            /// <param name="avatarTitle">空白が詰められたアバタータイトル</param>
-            var supportedAvatarNames = supportedAvatars.Select(avatarPath =>
-            {
-                var avatarItem = aeDatabase?.Items
-                    .Where(x => x.Category == "アバター")
-                    .FirstOrDefault(x => x.ItemPath == avatarPath);
-
-                return avatarItem?.Title ?? Path.GetFileName(avatarPath);
-            });
-
-            return "対応アバター: " + string.Join(", ", supportedAvatarNames);
         }
 
         /// <summary>
@@ -633,23 +437,5 @@ namespace UnityEditorAssetBrowser.Views
             }
             EditorGUILayout.EndVertical();
         }
-
-        // /// <summary>
-        // /// アイテムヘッダー情報を保持するクラス
-        // /// </summary>
-        // private class ItemHeaderInfo
-        // {
-        //     public string Title { get; set; } = string.Empty;
-        //     public string Author { get; set; } = string.Empty;
-        //     public string ImagePath { get; set; } = string.Empty;
-        //     public string ItemPath { get; set; } = string.Empty;
-        //     public DateTime? CreatedDate { get; set; }
-        //     public string? Category { get; set; }
-        //     public string[]? SupportedAvatars { get; set; }
-        //     public string[]? Tags { get; set; }
-        //     public string? Memo { get; set; }
-        //     public bool ShowCategory { get; set; } = true;
-        //     public bool ShowSupportedAvatars { get; set; }
-        // }
     }
 }

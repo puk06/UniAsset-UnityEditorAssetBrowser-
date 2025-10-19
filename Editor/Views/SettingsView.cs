@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
-using UnityEditorAssetBrowser;
 using UnityEditorAssetBrowser.Services;
 using UnityEngine;
 
@@ -153,20 +152,6 @@ namespace UnityEditorAssetBrowser.Views
         {
             var key = PREFS_KEY_PREFIX + category;
             EditorPrefs.SetInt(key, value);
-        }
-
-        /// <summary>
-        /// カテゴリのデフォルトアセットタイプを取得
-        /// </summary>
-        /// <param name="category">カテゴリ名</param>
-        /// <returns>デフォルトのアセットタイプのインデックス</returns>
-        private int GetDefaultAssetTypeForCategory(string category)
-        {
-            if (category.Contains("ワールド") || category.Contains("world"))
-            {
-                return 2; // ワールドアセット
-            }
-            return 3; // その他
         }
 
         /// <summary>

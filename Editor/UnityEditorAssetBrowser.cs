@@ -4,11 +4,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using Newtonsoft.Json;
 using UnityEditor;
-using UnityEditorAssetBrowser.Helper;
 using UnityEditorAssetBrowser.Models;
 using UnityEditorAssetBrowser.Services;
 using UnityEditorAssetBrowser.ViewModels;
@@ -26,18 +23,6 @@ namespace UnityEditorAssetBrowser
         #region Constants
         /// <summary>ウィンドウのタイトル</summary>
         private const string WINDOW_TITLE = "Asset Browser";
-
-        /// <summary>AEデータベースパスのEditorPrefsキー</summary>
-        private const string AE_DATABASE_PATH_KEY = "UnityEditorAssetBrowser_AEDatabasePath";
-
-        /// <summary>KAデータベースパスのEditorPrefsキー</summary>
-        private const string KA_DATABASE_PATH_KEY = "UnityEditorAssetBrowser_KADatabasePath";
-
-        /// <summary>ワールドカテゴリーの日本語キーワード</summary>
-        private const string WORLD_CATEGORY_JP = "ワールド";
-
-        /// <summary>ワールドカテゴリーの英語キーワード</summary>
-        private const string WORLD_CATEGORY_EN = "world";
         #endregion
 
         #region Fields
@@ -184,8 +169,7 @@ namespace UnityEditorAssetBrowser
                 _searchViewModel,
                 _paginationViewModel,
                 _searchView,
-                _paginationView,
-                DatabaseService.GetAEDatabase()
+                _paginationView
             );
         }
 
@@ -343,7 +327,7 @@ namespace UnityEditorAssetBrowser
         /// <returns>ワールド関連の場合true</returns>
         private bool IsWorldCategory(string category)
         {
-            return _itemSearchService.IsWorldCategory(category);
+            return AssetItem.IsWorldCategory(category);
         }
         #endregion
     }

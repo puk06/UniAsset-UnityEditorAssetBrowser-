@@ -5,7 +5,9 @@
 #nullable enable
 
 using System;
+using System.IO;
 using Newtonsoft.Json;
+using UnityEditorAssetBrowser.Interfaces;
 
 namespace UnityEditorAssetBrowser.Models
 {
@@ -88,7 +90,7 @@ namespace UnityEditorAssetBrowser.Models
     /// ウェアラブルアイテムモデル
     /// 衣装やアクセサリーなどのアイテム情報を管理する
     /// </summary>
-    public class KonoAssetWearableItem
+    public class KonoAssetWearableItem : IDatabaseItem
     {
         /// <summary>
         /// アイテムのID
@@ -114,13 +116,34 @@ namespace UnityEditorAssetBrowser.Models
         /// </summary>
         [JsonProperty("supportedAvatars")]
         public string[] SupportedAvatars { get; set; } = Array.Empty<string>();
+
+        public string GetTitle()
+            => Description.Name;
+        public string GetAuthor()
+            => Description.Creator;
+        public string GetMemo()
+            => Description.Memo ?? "";
+        public string GetItemPath(string databasePath)
+            => Path.Combine(databasePath, "data", Id);
+        public string GetImagePath(string databasePath)
+            => Path.Combine(databasePath, "images", Id);
+        public string[] GetSupportedAvatars()
+            => SupportedAvatars;
+        public int GetBoothId()
+            => Description.BoothItemId ?? -1;
+        public string GetCategory()
+            => Category;
+        public string[] GetTags()
+            => Description.Tags;
+        public DateTime GetCreatedDate()
+            => DateTimeOffset.FromUnixTimeMilliseconds(Description.CreatedAt).DateTime;
     }
 
     /// <summary>
     /// アバターアイテムモデル
     /// アバターの情報を管理する
     /// </summary>
-    public class KonoAssetAvatarItem
+    public class KonoAssetAvatarItem : IDatabaseItem
     {
         /// <summary>
         /// アバターのID
@@ -133,13 +156,35 @@ namespace UnityEditorAssetBrowser.Models
         /// </summary>
         [JsonProperty("description")]
         public KonoAssetDescription Description { get; set; } = new KonoAssetDescription();
+
+        public string GetTitle()
+            => Description.Name;
+        public string GetAuthor()
+            => Description.Creator;
+        public string GetMemo()
+            => Description.Memo ?? "";
+        public string GetItemPath(string databasePath)
+            => Path.Combine(databasePath, "data", Id);
+        public string GetImagePath(string databasePath)
+            => Path.Combine(databasePath, "images", Id);
+        public string[] GetSupportedAvatars()
+            => Array.Empty<string>();
+        public int GetBoothId()
+            => Description.BoothItemId ?? -1;
+        public string GetCategory()
+            => "";
+        public string[] GetTags()
+            => Description.Tags;
+        public DateTime GetCreatedDate()
+            => DateTimeOffset.FromUnixTimeMilliseconds(Description.CreatedAt).DateTime;
+
     }
 
     /// <summary>
     /// ワールドオブジェクトアイテムモデル
     /// ワールドオブジェクトの情報を管理する
     /// </summary>
-    public class KonoAssetWorldObjectItem
+    public class KonoAssetWorldObjectItem : IDatabaseItem
     {
         /// <summary>
         /// オブジェクトのID
@@ -158,13 +203,35 @@ namespace UnityEditorAssetBrowser.Models
         /// </summary>
         [JsonProperty("category")]
         public string Category { get; set; } = "";
+
+        public string GetTitle()
+            => Description.Name;
+        public string GetAuthor()
+            => Description.Creator;
+        public string GetMemo()
+            => Description.Memo ?? "";
+        public string GetItemPath(string databasePath)
+            => Path.Combine(databasePath, "data", Id);
+        public string GetImagePath(string databasePath)
+            => Path.Combine(databasePath, "images", Id);
+        public string[] GetSupportedAvatars()
+            => Array.Empty<string>();
+        public int GetBoothId()
+            => Description.BoothItemId ?? -1;
+        public string GetCategory()
+            => Category;
+        public string[] GetTags()
+            => Description.Tags;
+        public DateTime GetCreatedDate()
+            => DateTimeOffset.FromUnixTimeMilliseconds(Description.CreatedAt).DateTime;
+
     }
 
     /// <summary>
     /// その他アセットアイテムモデル
     /// その他アセットの情報を管理する
     /// </summary>
-    public class KonoAssetOtherAssetItem
+    public class KonoAssetOtherAssetItem : IDatabaseItem
     {
         /// <summary>
         /// アセットのID
@@ -183,6 +250,27 @@ namespace UnityEditorAssetBrowser.Models
         /// </summary>
         [JsonProperty("category")]
         public string Category { get; set; } = "";
+
+        public string GetTitle()
+            => Description.Name;
+        public string GetAuthor()
+            => Description.Creator;
+        public string GetMemo()
+            => Description.Memo ?? "";
+        public string GetItemPath(string databasePath)
+            => Path.Combine(databasePath, "data", Id);
+        public string GetImagePath(string databasePath)
+            => Path.Combine(databasePath, "images", Id);
+        public string[] GetSupportedAvatars()
+            => Array.Empty<string>();
+        public int GetBoothId()
+            => Description.BoothItemId ?? -1;
+        public string GetCategory()
+            => Category;
+        public string[] GetTags()
+            => Description.Tags;
+        public DateTime GetCreatedDate()
+            => DateTimeOffset.FromUnixTimeMilliseconds(Description.CreatedAt).DateTime;
     }
     #endregion
 

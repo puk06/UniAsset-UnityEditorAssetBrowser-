@@ -4,7 +4,7 @@
 
 using System.Collections.Generic;
 using UnityEditor;
-using UnityEditorAssetBrowser.Models;
+using UnityEditorAssetBrowser.Interfaces;
 using UnityEditorAssetBrowser.Services;
 using UnityEditorAssetBrowser.ViewModels;
 using UnityEngine;
@@ -67,8 +67,7 @@ namespace UnityEditorAssetBrowser.Views
             SearchViewModel searchViewModel,
             PaginationViewModel paginationViewModel,
             SearchView searchView,
-            PaginationView paginationView,
-            AvatarExplorerDatabase? aeDatabase
+            PaginationView paginationView
         )
         {
             _assetBrowserViewModel = assetBrowserViewModel;
@@ -76,7 +75,7 @@ namespace UnityEditorAssetBrowser.Views
             _paginationViewModel = paginationViewModel;
             _searchView = searchView;
             _paginationView = paginationView;
-            _assetItemView = new AssetItemView(aeDatabase);
+            _assetItemView = new AssetItemView();
 
             // データベースパスをキャッシュ
             RefreshDatabasePaths();
@@ -91,7 +90,7 @@ namespace UnityEditorAssetBrowser.Views
             _cachedKADatabasePath = DatabaseService.GetKADatabasePath();
         }
 
-        private List<object>? _cachedItems = null;
+        private List<IDatabaseItem>? _cachedItems = null;
 
         /// <summary>
         /// メインウィンドウの描画
@@ -112,9 +111,7 @@ namespace UnityEditorAssetBrowser.Views
 
             if (_cachedItems != null)
             {
-                EditorGUILayout.LabelField($"検索結果: {_cachedItems.Count}件");
-                EditorGUILayout.Space(10);
-
+                DrawSearchResult(_cachedItems);
                 DrawContentArea(_cachedItems);
             }
 
@@ -137,10 +134,16 @@ namespace UnityEditorAssetBrowser.Views
             EditorGUILayout.Space(10);
         }
 
+        private void DrawSearchResult(List<IDatabaseItem> totalItems)
+        {
+            EditorGUILayout.LabelField($"検索結果: {totalItems.Count}件");
+            EditorGUILayout.Space(10);
+        }
+
         /// <summary>
         /// コンテンツエリアの描画
         /// </summary>
-        private void DrawContentArea(List<object> totalItems)
+        private void DrawContentArea(List<IDatabaseItem> totalItems)
         {
             GUILayout.BeginVertical();
             DrawScrollView(totalItems);
@@ -151,7 +154,7 @@ namespace UnityEditorAssetBrowser.Views
         /// <summary>
         /// スクロールビューの描画
         /// </summary>
-        private void DrawScrollView(List<object> totalItems)
+        private void DrawScrollView(List<IDatabaseItem> totalItems)
         {
             scrollPosition = EditorGUILayout.BeginScrollView(
                 scrollPosition,
@@ -164,53 +167,14 @@ namespace UnityEditorAssetBrowser.Views
         /// <summary>
         /// 現在のタブのコンテンツを描画
         /// </summary>
-        private void DrawCurrentTabContent(List<object> totalItems)
-        {
-            var pageItems = _paginationViewModel.GetCurrentPageItems(totalItems);
-
-            // 表示前に必要な画像のみ読み込み
-            ImageServices.Instance.UpdateVisibleImages(
-                pageItems,
-                _cachedAEDatabasePath ?? string.Empty,
-                _cachedKADatabasePath ?? string.Empty
-            );
-
-            foreach (var item in pageItems)
-            {
-                if (item is AvatarExplorerItem aeItem)
-                {
-                    _assetItemView.ShowAvatarItem(aeItem);
-                }
-                else if (item is KonoAssetAvatarItem kaItem)
-                {
-                    _assetItemView.ShowKonoAssetItem(kaItem);
-                }
-            }
-
-            // switch (_paginationViewModel.SelectedTab)
-            // {
-            //     case 0:
-            //         ShowAvatarsContent(totalItems);
-            //         break;
-            //     case 1:
-            //         ShowItemsContent(totalItems);
-            //         break;
-            //     case 2:
-            //         ShowWorldObjectsContent(totalItems);
-            //         break;
-            //     case 3:
-            //         ShowOthersContent(totalItems);
-            //         break;
-            // }
-        }
+        private void DrawCurrentTabContent(List<IDatabaseItem> totalItems)
+            => ShowContents(totalItems);
 
         /// <summary>
         /// アバターコンテンツの表示
         /// </summary>
-        private void ShowAvatarsContent(List<object> totalItems)
+        private void ShowContents(List<IDatabaseItem> totalItems)
         {
-            // var filteredSortedItems = _assetBrowserViewModel.GetFilteredAvatars();
-            // var sortedItems = _assetBrowserViewModel.SortItems(filteredSortedItems);
             var pageItems = _paginationViewModel.GetCurrentPageItems(totalItems);
 
             // 表示前に必要な画像のみ読み込み
@@ -222,101 +186,7 @@ namespace UnityEditorAssetBrowser.Views
 
             foreach (var item in pageItems)
             {
-                if (item is AvatarExplorerItem aeItem)
-                {
-                    _assetItemView.ShowAvatarItem(aeItem);
-                }
-                else if (item is KonoAssetAvatarItem kaItem)
-                {
-                    _assetItemView.ShowKonoAssetItem(kaItem);
-                }
-            }
-        }
-
-        /// <summary>
-        /// アバター関連アセットコンテンツの表示
-        /// </summary>
-        private void ShowItemsContent(List<object> totalItems)
-        {
-            // var filteredItems = _assetBrowserViewModel.GetFilteredItems();
-            // var sortedItems = _assetBrowserViewModel.SortItems(filteredItems);
-            var pageItems = _paginationViewModel.GetCurrentPageItems(totalItems);
-
-            // 表示前に必要な画像のみ読み込み
-            ImageServices.Instance.UpdateVisibleImages(
-                pageItems,
-                _cachedAEDatabasePath ?? string.Empty,
-                _cachedKADatabasePath ?? string.Empty
-            );
-
-            foreach (var item in pageItems)
-            {
-                if (item is AvatarExplorerItem aeItem)
-                {
-                    _assetItemView.ShowAvatarItem(aeItem);
-                }
-                else if (item is KonoAssetWearableItem kaItem)
-                {
-                    _assetItemView.ShowKonoAssetWearableItem(kaItem);
-                }
-            }
-        }
-
-        /// <summary>
-        /// ワールドアセットコンテンツの表示
-        /// </summary>
-        private void ShowWorldObjectsContent(List<object> totalItems)
-        {
-            // var filteredSortedItems = _assetBrowserViewModel.GetFilteredWorldObjects();
-            // var sortedItems = _assetBrowserViewModel.SortItems(filteredItems);
-            var pageItems = _paginationViewModel.GetCurrentPageItems(totalItems);
-
-            // 表示前に必要な画像のみ読み込み
-            ImageServices.Instance.UpdateVisibleImages(
-                pageItems,
-                _cachedAEDatabasePath ?? string.Empty,
-                _cachedKADatabasePath ?? string.Empty
-            );
-
-            foreach (var item in pageItems)
-            {
-                if (item is AvatarExplorerItem aeItem)
-                {
-                    _assetItemView.ShowAvatarItem(aeItem);
-                }
-                else if (item is KonoAssetWorldObjectItem worldItem)
-                {
-                    _assetItemView.ShowKonoAssetWorldObjectItem(worldItem);
-                }
-            }
-        }
-
-        /// <summary>
-        /// その他コンテンツの表示
-        /// </summary>
-        private void ShowOthersContent(List<object> totalItems)
-        {
-            // var filteredSortedItems = _assetBrowserViewModel.GetFilteredOthers();
-            // var sortedItems = _assetBrowserViewModel.SortItems(filteredItems);
-            var pageItems = _paginationViewModel.GetCurrentPageItems(totalItems);
-
-            // 表示前に必要な画像のみ読み込み
-            ImageServices.Instance.UpdateVisibleImages(
-                pageItems,
-                _cachedAEDatabasePath ?? string.Empty,
-                _cachedKADatabasePath ?? string.Empty
-            );
-
-            foreach (var item in pageItems)
-            {
-                if (item is AvatarExplorerItem aeItem)
-                {
-                    _assetItemView.ShowAvatarItem(aeItem);
-                }
-                else if (item is KonoAssetOtherAssetItem otherItem)
-                {
-                    _assetItemView.ShowKonoAssetOtherAssetItem(otherItem);
-                }
+                _assetItemView.ShowAvatarItem(item);
             }
         }
     }

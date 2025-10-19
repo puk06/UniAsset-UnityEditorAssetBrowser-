@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEditorAssetBrowser.Interfaces;
 using UnityEditorAssetBrowser.Services;
 using UnityEditorAssetBrowser.ViewModels;
 using UnityEditorAssetBrowser.Windows;
@@ -265,9 +266,9 @@ namespace UnityEditorAssetBrowser.Views
             EditorGUILayout.EndVertical();
         }
 
-        public List<object> GetSearchResult()
+        public List<IDatabaseItem> GetSearchResult()
         {
-            List<object> totalItems = _paginationViewModel.GetCurrentTabItems(
+            List<IDatabaseItem> totalItems = _paginationViewModel.GetCurrentTabItems(
                 () => _assetBrowserViewModel.GetFilteredAvatars(),
                 () => _assetBrowserViewModel.GetFilteredItems(),
                 () => _assetBrowserViewModel.GetFilteredWorldObjects(),
@@ -326,7 +327,7 @@ namespace UnityEditorAssetBrowser.Views
         /// <summary>
         /// 現在のタブのフィルターされたアイテムを取得
         /// </summary>
-        private List<object> GetCurrentTabFilteredItems()
+        private List<IDatabaseItem> GetCurrentTabFilteredItems()
         {
             return _paginationViewModel.SelectedTab switch
             {
@@ -334,7 +335,7 @@ namespace UnityEditorAssetBrowser.Views
                 1 => _assetBrowserViewModel.GetFilteredItems(),
                 2 => _assetBrowserViewModel.GetFilteredWorldObjects(),
                 3 => _assetBrowserViewModel.GetFilteredOthers(),
-                _ => new List<object>()
+                _ => new List<IDatabaseItem>()
             };
         }
 

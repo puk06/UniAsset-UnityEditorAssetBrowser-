@@ -49,7 +49,7 @@ namespace UnityEditorAssetBrowser.Services
         private Texture2D? placeholderTexture;
 
         /// <summary>メインスレッド処理キュー</summary>
-        private readonly Queue<System.Action> mainThreadQueue = new Queue<System.Action>();
+        private readonly Queue<Action> mainThreadQueue = new Queue<Action>();
 
         /// <summary>
         /// シングルトンインスタンスを取得
@@ -528,8 +528,8 @@ namespace UnityEditorAssetBrowser.Services
                 for (int x = 0; x < 100; x++)
                 {
                     var isWhite = (x / 10 + y / 10) % 2 == 0;
-                    pixels[y * 100 + x] = isWhite 
-                        ? new Color32(240, 240, 240, 255) 
+                    pixels[y * 100 + x] = isWhite
+                        ? new Color32(240, 240, 240, 255)
                         : new Color32(200, 200, 200, 255);
                 }
             }

@@ -73,36 +73,11 @@ namespace UnityEditorAssetBrowser.Helper
                 {
                     foreach (var item in items)
                     {
-                        item.SupportedAvatar = ConvertSupportedAvatarPaths(items, item.SupportedAvatars);
+                        item.SupportedAvatar = ConvertSupportedAvatarPaths(items, item.SupportedAvatar);
                     }
 
                     return new AvatarExplorerDatabase(items);
                 }
-
-                // AEのデータベースは必ず配列なので以下の処理は不要
-
-                // // JSONが配列形式かどうかを確認
-                // if (json.TrimStart().StartsWith("["))
-                // {
-                //     // 配列形式の場合は、AvatarExplorerItem[]としてデシリアライズしてから
-                //     // AvatarExplorerDatabaseに変換
-
-                // }
-                // else
-                // {
-                //     // オブジェクト形式の場合は、そのままAvatarExplorerDatabaseとしてデシリアライズ
-                //     var database = JsonConvert.DeserializeObject<AvatarExplorerDatabase>(json, settings);
-
-                //     if (database != null)
-                //     {
-                //         foreach (var item in database.Items)
-                //         {
-                //             item.SupportedAvatar = ConvertSupportedAvatarPaths(database.Items.ToArray(), item.SupportedAvatars);
-                //         }
-                //     }
-
-                //     return database;
-                // }
 
                 return null;
             }

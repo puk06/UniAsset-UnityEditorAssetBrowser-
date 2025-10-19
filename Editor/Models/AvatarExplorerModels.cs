@@ -1,12 +1,13 @@
 // Copyright (c) 2025 sakurayuki
-// This code is borrowed from AvatarExplorer(https://github.com/puk06/AvatarExplorer)
-// AvatarExplorer is licensed under the MIT License. https://github.com/puk06/blob/main/LICENSE
+// This code is borrowed from Avatar-Explorer(https://github.com/puk06/Avatar-Explorer)
+// Avatar-Explorer is licensed under the MIT License. https://github.com/puk06/Avatar-Explorer/blob/main/LICENSE
 
 #nullable enable
 
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using UnityEditorAssetBrowser.Interfaces;
 
 namespace UnityEditorAssetBrowser.Models
 {
@@ -107,7 +108,7 @@ namespace UnityEditorAssetBrowser.Models
     /// AvatarExplorerのアイテムモデル
     /// アセットの詳細情報を管理する
     /// </summary>
-    public class AvatarExplorerItem
+    public class AvatarExplorerItem : IDatabaseItem
     {
         /// <summary>
         /// アイテムのタイトル
@@ -174,29 +175,26 @@ namespace UnityEditorAssetBrowser.Models
         /// </summary>
         public DateTime CreatedDate { get; set; } = DateTime.MinValue;
 
-        /// <summary>
-        /// アイテムのカテゴリー
-        /// </summary>
-        [JsonIgnore]
-        public string Category => GetAECategoryName();
-
-        /// <summary>
-        /// 対応アバターのリスト（エイリアス）
-        /// </summary>
-        [JsonIgnore]
-        public string[] SupportedAvatars => SupportedAvatar;
-
-        /// <summary>
-        /// タグのリスト（現在は空配列）
-        /// </summary>
-        [JsonIgnore]
-        public string[] Tags => Array.Empty<string>();
-
-        /// <summary>
-        /// アイテムのメモ（エイリアス）
-        /// </summary>
-        [JsonIgnore]
-        public string Memo => ItemMemo;
+        public string GetTitle()
+            => Title;
+        public string GetAuthor()
+            => AuthorName;
+        public string GetMemo()
+            => ItemMemo;
+        public string GetItemPath(string databasePath)
+            => ItemPath;
+        public string GetImagePath(string databasePath)
+            => ImagePath;
+        public string[] GetSupportedAvatars()
+            => SupportedAvatar;
+        public int GetBoothId()
+            => BoothId;
+        public string GetCategory()
+            => GetAECategoryName();
+        public string[] GetTags()
+            => Array.Empty<string>();
+        public DateTime GetCreatedDate()
+            => CreatedDate;
 
         /// <summary>
         /// AEアイテムのカテゴリー名を取得

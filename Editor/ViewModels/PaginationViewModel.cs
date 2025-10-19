@@ -4,7 +4,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using UnityEditorAssetBrowser.Interfaces;
 using UnityEditorAssetBrowser.Models;
 
 namespace UnityEditorAssetBrowser.ViewModels
@@ -55,15 +55,16 @@ namespace UnityEditorAssetBrowser.ViewModels
         /// </summary>
         /// <param name="items">アイテムリスト</param>
         /// <returns>総ページ数（アイテム数が0の場合は1）</returns>
-        public int GetTotalPages(List<object> items) => _paginationInfo.GetTotalPages(items);
+        public int GetTotalPages(List<IDatabaseItem> items)
+            => _paginationInfo.GetTotalPages(items);
 
         /// <summary>
         /// 現在のページのアイテムを取得
         /// </summary>
         /// <param name="items">アイテムリスト</param>
         /// <returns>現在のページに表示するアイテム</returns>
-        public IEnumerable<object> GetCurrentPageItems(List<object> items) =>
-            _paginationInfo.GetCurrentPageItems(items);
+        public IEnumerable<IDatabaseItem> GetCurrentPageItems(List<IDatabaseItem> items)
+            => _paginationInfo.GetCurrentPageItems(items);
 
         /// <summary>
         /// ページをリセット（1ページ目に戻す）
@@ -101,10 +102,10 @@ namespace UnityEditorAssetBrowser.ViewModels
         /// <param name="getFilteredOthers">フィルターされたその他のアイテムを取得する関数</param>
         /// <returns>現在のタブのアイテム数</returns>
         public int GetCurrentTabItemCount(
-            Func<List<object>> getFilteredAvatars,
-            Func<List<object>> getFilteredItems,
-            Func<List<object>> getFilteredWorldObjects,
-            Func<List<object>> getFilteredOthers
+            Func<List<IDatabaseItem>> getFilteredAvatars,
+            Func<List<IDatabaseItem>> getFilteredItems,
+            Func<List<IDatabaseItem>> getFilteredWorldObjects,
+            Func<List<IDatabaseItem>> getFilteredOthers
         ) =>
             GetCurrentTabItems(
                 getFilteredAvatars,
@@ -121,11 +122,11 @@ namespace UnityEditorAssetBrowser.ViewModels
         /// <param name="getFilteredWorldObjects">フィルターされたワールドオブジェクトを取得する関数</param>
         /// <param name="getFilteredOthers">フィルターされたその他のアイテムを取得する関数</param>
         /// <returns>現在のタブのアイテムリスト</returns>
-        public List<object> GetCurrentTabItems(
-            Func<List<object>> getFilteredAvatars,
-            Func<List<object>> getFilteredItems,
-            Func<List<object>> getFilteredWorldObjects,
-            Func<List<object>> getFilteredOthers
+        public List<IDatabaseItem> GetCurrentTabItems(
+            Func<List<IDatabaseItem>> getFilteredAvatars,
+            Func<List<IDatabaseItem>> getFilteredItems,
+            Func<List<IDatabaseItem>> getFilteredWorldObjects,
+            Func<List<IDatabaseItem>> getFilteredOthers
         ) =>
             _paginationInfo.SelectedTab switch
             {
@@ -133,7 +134,7 @@ namespace UnityEditorAssetBrowser.ViewModels
                 1 => getFilteredItems(),
                 2 => getFilteredWorldObjects(),
                 3 => getFilteredOthers(),
-                _ => new List<object>(),
+                _ => new List<IDatabaseItem>(),
             };
     }
 }

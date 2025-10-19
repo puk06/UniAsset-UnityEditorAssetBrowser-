@@ -2,10 +2,8 @@
 
 #nullable enable
 
-using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+using UnityEditorAssetBrowser.Interfaces;
 using UnityEditorAssetBrowser.Models;
 using UnityEditorAssetBrowser.Services;
 
@@ -80,7 +78,7 @@ namespace UnityEditorAssetBrowser.ViewModels
         /// </summary>
         /// <param name="item">判定するアイテム</param>
         /// <returns>検索条件に一致する場合はtrue、それ以外はfalse</returns>
-        public bool IsItemMatchSearch(object item) =>
-            _itemSearchService.IsItemMatchSearch(item, SearchCriteria, _currentTab);
+        public bool IsItemMatchSearch(IDatabaseItem item)
+            => _itemSearchService.IsItemMatchSearch(item, SearchCriteria, _currentTab);
     }
 }
