@@ -279,7 +279,7 @@ namespace UnityEditorAssetBrowser.Services
         /// </summary>
         private static string GetValidatedImagePath(string imagePath)
         {
-            var assetItemView = new AssetItemView(null);
+            var assetItemView = new AssetItemView();
             string fullImagePath = assetItemView.GetFullImagePath(imagePath);
 
             if (string.IsNullOrEmpty(fullImagePath))
