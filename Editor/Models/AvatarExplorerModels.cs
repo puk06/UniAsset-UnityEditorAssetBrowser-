@@ -180,13 +180,13 @@ namespace UnityEditorAssetBrowser.Models
         {
             if (ItemPath.StartsWith("Datas\\"))
             {
-                return Path.Combine(databasePath, ItemPath.Replace("Datas\\", "")).Replace("\\", Path.DirectorySeparatorChar.ToString());;
+                return Path.Combine(databasePath, ItemPath.Replace("Datas\\", "")).Replace('\\', Path.DirectorySeparatorChar);
             }
 
             return ItemPath.Replace("\\", Path.DirectorySeparatorChar.ToString());;
         }
         public string GetImagePath(string databasePath)
-            => Path.Combine(databasePath, ImagePath.Replace("Datas\\", "")).Replace("\\", Path.DirectorySeparatorChar.ToString());
+            => Path.Combine(databasePath, ImagePath.Replace("Datas\\", "")).Replace('\\', Path.DirectorySeparatorChar);
         public string[] GetSupportedAvatars()
             => SupportedAvatar;
         public int GetBoothId()
