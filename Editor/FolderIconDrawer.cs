@@ -220,7 +220,7 @@ namespace UnityEditorAssetBrowser
                 }
 
                 // 自フォルダ内のFolderIcon.jpgを最優先で取得
-                string selfIconPath = Path.Combine(path, "FolderIcon.jpg").Replace('\\', , Path.DirectorySeparatorChar);
+                string selfIconPath = Path.Combine(path, "FolderIcon.jpg").Replace('\\', Path.DirectorySeparatorChar);
                 List<string> iconPaths;
                 
                 if (File.Exists(selfIconPath))
