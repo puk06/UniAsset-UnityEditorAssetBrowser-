@@ -88,6 +88,7 @@ namespace UnityEditorAssetBrowser.Views
         {
             _onAEDatabasePathChanged = onAEDatabasePathChanged;
             _onKADatabasePathChanged = onKADatabasePathChanged;
+            
             ExcludeFolderService.InitializeDefaultExcludeFolders();
             InitializeCategoryAssetTypes();
             InitializeSettingsVisibility();
@@ -172,15 +173,17 @@ namespace UnityEditorAssetBrowser.Views
                 _userExcludeFolders,
                 _enabledDefaultExcludeFolders.ToList()
             );
+
             var combined = new List<string>(_userExcludeFolders);
             combined.AddRange(_enabledDefaultExcludeFolders);
+
             ExcludeFolderService.SaveCombinedExcludePatterns(combined);
         }
 
         [Serializable]
         private class ExcludeFoldersData
         {
-            public List<string> folders = new List<string>();
+            public List<string> Folders = new List<string>();
         }
 
         /// <summary>
@@ -204,11 +207,10 @@ namespace UnityEditorAssetBrowser.Views
                     path =>
                     {
                         _onAEDatabasePathChanged(path);
+
                         // AEのパスが設定されたらカテゴリ設定を開く
-                        if (!string.IsNullOrEmpty(path))
-                        {
-                            _showCategorySettings = true;
-                        }
+                        if (string.IsNullOrEmpty(path)) return;
+                        _showCategorySettings = true;
                     }
                 );
 
@@ -426,9 +428,14 @@ namespace UnityEditorAssetBrowser.Views
                         if (newIsOn != isOn)
                         {
                             if (newIsOn)
+                            {
                                 _enabledDefaultExcludeFolders.Add(def);
+                            }
                             else
+                            {
                                 _enabledDefaultExcludeFolders.Remove(def);
+                            }
+
                             SaveExcludeFoldersAndCombined();
                         }
                         EditorGUILayout.EndHorizontal();
@@ -464,15 +471,13 @@ namespace UnityEditorAssetBrowser.Views
                 {
                     if (!string.IsNullOrEmpty(_newExcludeFolder))
                     {
-                        if (
-                            !_userExcludeFolders.Contains(_newExcludeFolder)
-                            && !_allDefaultExcludeFolders.Contains(_newExcludeFolder)
-                        )
+                        if (!_userExcludeFolders.Contains(_newExcludeFolder) && !_allDefaultExcludeFolders.Contains(_newExcludeFolder))
                         {
                             _userExcludeFolders.Insert(0, _newExcludeFolder); // 先頭に追加
                             SaveExcludeFoldersAndCombined();
                         }
                     }
+                    
                     _newExcludeFolder = "";
                 }
                 
@@ -531,14 +536,7 @@ namespace UnityEditorAssetBrowser.Views
 
                 if (newValue != importToCategoryFolder)
                 {
-                    if (newValue)
-                    {
-                        EditorPrefs.SetBool(PREFS_KEY_IMPORT_TO_CATEGORY_FOLDER, true);
-                    }
-                    else
-                    {
-                        EditorPrefs.SetBool(PREFS_KEY_IMPORT_TO_CATEGORY_FOLDER, false);
-                    }
+                    EditorPrefs.SetBool(PREFS_KEY_IMPORT_TO_CATEGORY_FOLDER, newValue);
                 }
 
                 EditorGUILayout.EndVertical();
@@ -565,10 +563,7 @@ namespace UnityEditorAssetBrowser.Views
             if (!string.IsNullOrEmpty(path) && GUILayout.Button("削除", GUILayout.Width(60)))
             {
                 onPathChanged("");
-                if (label == "AE Database Path:")
-                {
-                    InitializeCategoryAssetTypes();
-                }
+                if (label == "AE Database Path:") InitializeCategoryAssetTypes();
             }
 
             // 参照ボタン
@@ -583,10 +578,7 @@ namespace UnityEditorAssetBrowser.Views
                 if (!string.IsNullOrEmpty(selectedPath))
                 {
                     onPathChanged(selectedPath);
-                    if (label == "AE Database Path:")
-                    {
-                        InitializeCategoryAssetTypes();
-                    }
+                    if (label == "AE Database Path:") InitializeCategoryAssetTypes();
                 }
             }
 
