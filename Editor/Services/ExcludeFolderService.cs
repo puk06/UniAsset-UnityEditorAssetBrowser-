@@ -126,7 +126,7 @@ namespace UnityEditorAssetBrowser.Services
                 string json = JsonUtility.ToJson(new ExcludeFoldersPrefsData
                 {
                     userFolders = new List<string>(),
-                    enabledDefaults = new List<string>(DefaultExcludePatterns),
+                    enabledDefaults = new List<string>(DefaultExcludePatterns)
                 });
 
                 EditorPrefs.SetString(PREFS_KEY_EXCLUDE_FOLDERS, json);
@@ -198,7 +198,7 @@ namespace UnityEditorAssetBrowser.Services
             string jsonString = JsonUtility.ToJson(new ExcludeFoldersPrefsData
             {
                 userFolders = userFolders,
-                enabledDefaults = enabledDefaults,
+                enabledDefaults = enabledDefaults
             });
 
             EditorPrefs.SetString(PREFS_KEY_EXCLUDE_FOLDERS, jsonString);

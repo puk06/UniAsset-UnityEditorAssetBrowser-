@@ -153,10 +153,7 @@ namespace UnityEditorAssetBrowser.Services
             private static JObject? GetPackageInfo()
             {
                 var packageJsonPath = GetPackageJsonPath();
-                if (string.IsNullOrEmpty(packageJsonPath))
-                {
-                    return null;
-                }
+                if (string.IsNullOrEmpty(packageJsonPath)) return null;
 
                 // キャッシュが有効かチェック
                 if (cachedPackageInfo != null && cachedPath == packageJsonPath)
@@ -169,12 +166,14 @@ namespace UnityEditorAssetBrowser.Services
                     var json = File.ReadAllText(packageJsonPath);
                     cachedPackageInfo = JsonConvert.DeserializeObject<JObject>(json);
                     cachedPath = packageJsonPath;
+
                     return cachedPackageInfo;
                 }
                 catch (Exception)
                 {
                     cachedPackageInfo = null;
                     cachedPath = "";
+
                     return null;
                 }
             }
@@ -247,17 +246,10 @@ namespace UnityEditorAssetBrowser.Services
         private static string GenerateUserAgent()
         {
             var displayName = GetCurrentDisplayName();
+            if (string.IsNullOrEmpty(displayName)) displayName = "UnityEditorAssetBrowser";
+            
             var version = GetCurrentVersion();
-
-            if (string.IsNullOrEmpty(displayName))
-            {
-                displayName = "UnityEditorAssetBrowser";
-            }
-
-            if (string.IsNullOrEmpty(version))
-            {
-                version = FALLBACK_VERSION;
-            }
+            if (string.IsNullOrEmpty(version)) version = FALLBACK_VERSION;
 
             return $"Unity-{displayName.Replace(" ", "")}/{version}";
         }
@@ -341,10 +333,7 @@ namespace UnityEditorAssetBrowser.Services
         {
             // package.jsonからdisplayNameを取得
             var displayName = GetCurrentDisplayName();
-            if (string.IsNullOrEmpty(displayName))
-            {
-                displayName = "このパッケージ";
-            }
+            if (string.IsNullOrEmpty(displayName)) displayName = "このパッケージ";
 
             var message =
                 $"\"{displayName}\"はアップデート可能です！\n\n" +
@@ -415,12 +404,11 @@ namespace UnityEditorAssetBrowser.Services
             // 完了を監視
             void updateFunc()
             {
-                if (operation.isDone)
-                {
-                    EditorApplication.update -= updateFunc!;
-                    ProcessWebRequestResult(request, currentVersion);
-                    request.Dispose();
-                }
+                if (!operation.isDone) return;
+
+                EditorApplication.update -= updateFunc!;
+                ProcessWebRequestResult(request, currentVersion);
+                request.Dispose();
             }
 
             EditorApplication.update += updateFunc;
@@ -475,10 +463,8 @@ namespace UnityEditorAssetBrowser.Services
 
                 foreach (var packageProp in packagesObj.Properties())
                 {
-                    if (packageProp.Name == currentPackageName)
-                    {
-                        return ExtractVersionInfoFromPackage(packageProp.Value);
-                    }
+                    if (packageProp.Name != currentPackageName) continue;
+                    return ExtractVersionInfoFromPackage(packageProp.Value);
                 }
 
                 return null;
@@ -548,8 +534,7 @@ namespace UnityEditorAssetBrowser.Services
             }
 
             // 成功時のみチェック日時を更新
-            var now = DateTime.Now;
-            EditorPrefs.SetString(LAST_CHECK_DATE_KEY, now.ToString());
+            EditorPrefs.SetString(LAST_CHECK_DATE_KEY, DateTime.Now.ToString());
         }
 
         /// <summary>
