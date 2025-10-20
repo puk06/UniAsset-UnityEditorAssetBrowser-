@@ -68,13 +68,16 @@ namespace UnityEditorAssetBrowser
         {
             // 除外フォルダ初期化と合成済みリスト保存
             ExcludeFolderService.InitializeDefaultExcludeFolders();
-            var prefs = ExcludeFolderService.LoadPrefs();
+
             var combined = new List<string>();
+
+            var prefs = ExcludeFolderService.LoadPrefs();
             if (prefs != null)
             {
                 combined.AddRange(prefs.userFolders);
                 combined.AddRange(prefs.enabledDefaults);
             }
+            
             ExcludeFolderService.SaveCombinedExcludePatterns(combined);
 
             InitializeCategoryAssetTypes();
