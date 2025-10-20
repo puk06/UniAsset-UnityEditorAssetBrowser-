@@ -108,45 +108,27 @@ namespace UnityEditorAssetBrowser.Services
         private bool IsAdvancedSearchMatch(IDatabaseItem item, SearchCriteria criteria)
         {
             // タイトル検索
-            if (
-                !string.IsNullOrEmpty(criteria.TitleSearch)
-                && !IsTitleMatch(item, criteria.GetTitleKeywords())
-            )
+            if (!string.IsNullOrEmpty(criteria.TitleSearch) && !IsTitleMatch(item, criteria.GetTitleKeywords()))
                 return false;
 
             // 作者名検索
-            if (
-                !string.IsNullOrEmpty(criteria.AuthorSearch)
-                && !IsAuthorMatch(item, criteria.GetAuthorKeywords())
-            )
+            if (!string.IsNullOrEmpty(criteria.AuthorSearch) && !IsAuthorMatch(item, criteria.GetAuthorKeywords()))
                 return false;
 
             // カテゴリ検索
-            if (
-                !string.IsNullOrEmpty(criteria.CategorySearch)
-                && !IsCategoryMatch(item, criteria.GetCategoryKeywords())
-            )
+            if (!string.IsNullOrEmpty(criteria.CategorySearch) && !IsCategoryMatch(item, criteria.GetCategoryKeywords()))
                 return false;
 
             // 対応アバター検索
-            if (
-                !string.IsNullOrEmpty(criteria.SupportedAvatarsSearch)
-                && !IsSupportedAvatarsMatch(item, criteria.GetSupportedAvatarsKeywords())
-            )
+            if (!string.IsNullOrEmpty(criteria.SupportedAvatarsSearch) && !IsSupportedAvatarsMatch(item, criteria.GetSupportedAvatarsKeywords()))
                 return false;
 
             // タグ検索
-            if (
-                !string.IsNullOrEmpty(criteria.TagsSearch)
-                && !IsTagsMatch(item, criteria.GetTagsKeywords())
-            )
+            if (!string.IsNullOrEmpty(criteria.TagsSearch) && !IsTagsMatch(item, criteria.GetTagsKeywords()))
                 return false;
 
             // メモ検索
-            if (
-                !string.IsNullOrEmpty(criteria.MemoSearch)
-                && !IsMemoMatch(item, criteria.GetMemoKeywords())
-            )
+            if (!string.IsNullOrEmpty(criteria.MemoSearch) && !IsMemoMatch(item, criteria.GetMemoKeywords()))
                 return false;
 
             return true;
@@ -162,9 +144,7 @@ namespace UnityEditorAssetBrowser.Services
         {
             string itemTitle = item.GetTitle();
 
-            return keywords.All(keyword =>
-                itemTitle.Contains(keyword, StringComparison.InvariantCultureIgnoreCase)
-            );
+            return keywords.All(keyword => itemTitle.Contains(keyword, StringComparison.InvariantCultureIgnoreCase));
         }
 
         /// <summary>
@@ -177,9 +157,7 @@ namespace UnityEditorAssetBrowser.Services
         {
             string authorName = item.GetAuthor();
 
-            return keywords.All(keyword =>
-                authorName.Contains(keyword, StringComparison.InvariantCultureIgnoreCase)
-            );
+            return keywords.All(keyword => authorName.Contains(keyword, StringComparison.InvariantCultureIgnoreCase));
         }
 
         /// <summary>
@@ -192,9 +170,7 @@ namespace UnityEditorAssetBrowser.Services
         {
             string categoryName = item.GetCategory();
 
-            return keywords.All(keyword =>
-                categoryName.Contains(keyword, StringComparison.InvariantCultureIgnoreCase)
-            );
+            return keywords.All(keyword => categoryName.Contains(keyword, StringComparison.InvariantCultureIgnoreCase));
         }
 
         /// <summary>
@@ -251,14 +227,10 @@ namespace UnityEditorAssetBrowser.Services
         private bool IsTagsMatch(IDatabaseItem item, string[] keywords)
         {
             string[] tags = item.GetTags();
-
-            if (tags.Length == 0)
-                return false;
+            if (tags.Length == 0) return false;
 
             // すべてのキーワードが少なくとも1つのタグに含まれていることを確認
-            return keywords.All(keyword =>
-                tags.Any(tag => tag.Contains(keyword, StringComparison.InvariantCultureIgnoreCase))
-            );
+            return keywords.All(keyword => tags.Any(tag => tag.Contains(keyword, StringComparison.InvariantCultureIgnoreCase)));
         }
 
         /// <summary>
@@ -270,9 +242,7 @@ namespace UnityEditorAssetBrowser.Services
         private bool IsTagsMatch(IDatabaseItem item, string keyword)
         {
             string[] tags = item.GetTags();
-
-            if (tags.Length == 0)
-                return false;
+            if (tags.Length == 0) return false;
 
             // キーワードが少なくとも1つのタグに含まれていることを確認
             return tags.Any(tag => tag.Contains(keyword, StringComparison.InvariantCultureIgnoreCase));
@@ -287,14 +257,10 @@ namespace UnityEditorAssetBrowser.Services
         private bool IsMemoMatch(IDatabaseItem item, string[] keywords)
         {
             string memo = item.GetMemo();
-
-            if (string.IsNullOrEmpty(memo))
-                return false;
+            if (string.IsNullOrEmpty(memo)) return false;
 
             // すべてのキーワードがメモに含まれていることを確認
-            return keywords.All(keyword =>
-                memo.Contains(keyword, StringComparison.InvariantCultureIgnoreCase)
-            );
+            return keywords.All(keyword => memo.Contains(keyword, StringComparison.InvariantCultureIgnoreCase));
         }
 
         /// <summary>
@@ -306,9 +272,7 @@ namespace UnityEditorAssetBrowser.Services
         private bool IsMemoMatch(IDatabaseItem item, string keyword)
         {
             string memo = item.GetMemo();
-
-            if (string.IsNullOrEmpty(memo))
-                return false;
+            if (string.IsNullOrEmpty(memo)) return false;
 
             // キーワードがメモに含まれていることを確認
             return memo.Contains(keyword, StringComparison.InvariantCultureIgnoreCase);
