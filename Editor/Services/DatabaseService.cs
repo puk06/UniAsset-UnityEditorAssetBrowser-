@@ -31,37 +31,37 @@ namespace UnityEditorAssetBrowser.Services
         /// <summary>
         /// AvatarExplorerデータベースのパス
         /// </summary>
-        private static string aeDatabasePath = "";
+        private static string _aeDatabasePath = "";
 
         /// <summary>
         /// KonoAssetデータベースのパス
         /// </summary>
-        private static string kaDatabasePath = "";
+        private static string _kaDatabasePath = "";
 
         /// <summary>
         /// AvatarExplorerのデータベース
         /// </summary>
-        private static AvatarExplorerDatabase? aeDatabase;
+        private static AvatarExplorerDatabase? _aeDatabase;
 
         /// <summary>
         /// KonoAssetのアバターデータベース
         /// </summary>
-        private static KonoAssetAvatarsDatabase? kaAvatarsDatabase;
+        private static KonoAssetAvatarsDatabase? _kaAvatarsDatabase;
 
         /// <summary>
         /// KonoAssetのウェアラブルデータベース
         /// </summary>
-        private static KonoAssetWearablesDatabase? kaWearablesDatabase;
+        private static KonoAssetWearablesDatabase? _kaWearablesDatabase;
 
         /// <summary>
         /// KonoAssetのワールドオブジェクトデータベース
         /// </summary>
-        private static KonoAssetWorldObjectsDatabase? kaWorldObjectsDatabase;
+        private static KonoAssetWorldObjectsDatabase? _kaWorldObjectsDatabase;
 
         /// <summary>
         /// KonoAssetのその他アセットデータベース
         /// </summary>
-        private static KonoAssetOtherAssetsDatabase? kaOtherAssetsDatabase;
+        private static KonoAssetOtherAssetsDatabase? _kaOtherAssetsDatabase;
 
         private static AssetBrowserViewModel? _assetBrowserViewModel;
         private static SearchViewModel? _searchViewModel;
@@ -87,13 +87,11 @@ namespace UnityEditorAssetBrowser.Services
         /// </summary>
         public static void LoadSettings()
         {
-            aeDatabasePath = EditorPrefs.GetString(AE_DATABASE_PATH_KEY, "");
-            kaDatabasePath = EditorPrefs.GetString(KA_DATABASE_PATH_KEY, "");
+            _aeDatabasePath = EditorPrefs.GetString(AE_DATABASE_PATH_KEY, "");
+            _kaDatabasePath = EditorPrefs.GetString(KA_DATABASE_PATH_KEY, "");
 
-            if (!string.IsNullOrEmpty(aeDatabasePath))
-                LoadAEDatabase();
-            if (!string.IsNullOrEmpty(kaDatabasePath))
-                LoadKADatabase();
+            if (!string.IsNullOrEmpty(_aeDatabasePath)) LoadAEDatabase();
+            if (!string.IsNullOrEmpty(_kaDatabasePath)) LoadKADatabase();
         }
 
         /// <summary>
@@ -102,8 +100,8 @@ namespace UnityEditorAssetBrowser.Services
         /// </summary>
         public static void SaveSettings()
         {
-            EditorPrefs.SetString(AE_DATABASE_PATH_KEY, aeDatabasePath);
-            EditorPrefs.SetString(KA_DATABASE_PATH_KEY, kaDatabasePath);
+            EditorPrefs.SetString(AE_DATABASE_PATH_KEY, _aeDatabasePath);
+            EditorPrefs.SetString(KA_DATABASE_PATH_KEY, _kaDatabasePath);
         }
 
         /// <summary>
@@ -115,10 +113,10 @@ namespace UnityEditorAssetBrowser.Services
             // データベースをクリア
             ClearAEDatabase();
 
-            if (!string.IsNullOrEmpty(aeDatabasePath))
+            if (!string.IsNullOrEmpty(_aeDatabasePath))
             {
-                aeDatabase = AEDatabaseHelper.LoadAEDatabaseFile(aeDatabasePath);
-                if (aeDatabase == null)
+                _aeDatabase = AEDatabaseHelper.LoadAEDatabaseFile(_aeDatabasePath);
+                if (_aeDatabase == null)
                 {
                     OnAEDatabasePathChanged("");
                     ShowErrorDialog(
@@ -156,9 +154,9 @@ namespace UnityEditorAssetBrowser.Services
             // データベースをクリア
             ClearKADatabase();
 
-            if (!string.IsNullOrEmpty(kaDatabasePath))
+            if (!string.IsNullOrEmpty(_kaDatabasePath))
             {
-                var metadataPath = Path.Combine(kaDatabasePath, "metadata");
+                var metadataPath = Path.Combine(_kaDatabasePath, "metadata");
                 if (!Directory.Exists(metadataPath))
                 {
                     OnKADatabasePathChanged("");
@@ -170,10 +168,10 @@ namespace UnityEditorAssetBrowser.Services
                 }
 
                 var result = KADatabaseHelper.LoadKADatabaseFiles(metadataPath);
-                kaAvatarsDatabase = result.avatarsDatabase;
-                kaWearablesDatabase = result.wearablesDatabase;
-                kaWorldObjectsDatabase = result.worldObjectsDatabase;
-                kaOtherAssetsDatabase = result.otherAssetsDatabase;
+                _kaAvatarsDatabase = result.AvatarsDatabase;
+                _kaWearablesDatabase = result.WearablesDatabase;
+                _kaWorldObjectsDatabase = result.WorldObjectsDatabase;
+                _kaOtherAssetsDatabase = result.OtherAssetsDatabase;
             }
 
             // データベースを更新
@@ -207,10 +205,12 @@ namespace UnityEditorAssetBrowser.Services
         public static void OnAEDatabasePathChanged(string path)
         {
             SetAEDatabasePath(path);
+
             if (string.IsNullOrEmpty(path))
             {
                 // パスが空の場合は、データベースをクリアして即座に更新
                 ClearAEDatabase();
+
                 if (
                     _assetBrowserViewModel != null
                     && _searchViewModel != null
@@ -231,12 +231,14 @@ namespace UnityEditorAssetBrowser.Services
             {
                 LoadAEDatabase();
             }
+
             SaveSettings();
         }
 
         public static void OnKADatabasePathChanged(string path)
         {
             SetKADatabasePath(path);
+
             if (string.IsNullOrEmpty(path))
             {
                 // パスが空の場合は、データベースをクリアして即座に更新
@@ -255,6 +257,7 @@ namespace UnityEditorAssetBrowser.Services
             {
                 LoadKADatabase();
             }
+
             SaveSettings();
         }
 
@@ -262,75 +265,80 @@ namespace UnityEditorAssetBrowser.Services
         /// AvatarExplorerデータベースのパスを取得する
         /// </summary>
         /// <returns>データベースのパス</returns>
-        public static string GetAEDatabasePath() => aeDatabasePath;
+        public static string GetAEDatabasePath()
+            => _aeDatabasePath;
 
         /// <summary>
         /// KonoAssetデータベースのパスを取得する
         /// </summary>
         /// <returns>データベースのパス</returns>
-        public static string GetKADatabasePath() => kaDatabasePath;
+        public static string GetKADatabasePath()
+            => _kaDatabasePath;
 
         /// <summary>
         /// AvatarExplorerデータベースのパスを設定する
         /// </summary>
         /// <param name="path">設定するパス</param>
-        public static void SetAEDatabasePath(string path) => aeDatabasePath = path;
+        public static void SetAEDatabasePath(string path)
+            => _aeDatabasePath = path;
 
         /// <summary>
         /// KonoAssetデータベースのパスを設定する
         /// </summary>
         /// <param name="path">設定するパス</param>
-        public static void SetKADatabasePath(string path) => kaDatabasePath = path;
+        public static void SetKADatabasePath(string path)
+            => _kaDatabasePath = path;
 
         /// <summary>
         /// AvatarExplorerデータベースを取得する
         /// </summary>
         /// <returns>データベース（存在しない場合はnull）</returns>
-        public static AvatarExplorerDatabase? GetAEDatabase() => aeDatabase;
+        public static AvatarExplorerDatabase? GetAEDatabase()
+            => _aeDatabase;
 
         /// <summary>
         /// KonoAssetアバターデータベースを取得する
         /// </summary>
         /// <returns>データベース（存在しない場合はnull）</returns>
-        public static KonoAssetAvatarsDatabase? GetKAAvatarsDatabase() => kaAvatarsDatabase;
+        public static KonoAssetAvatarsDatabase? GetKAAvatarsDatabase()
+            => _kaAvatarsDatabase;
 
         /// <summary>
         /// KonoAssetウェアラブルデータベースを取得する
         /// </summary>
         /// <returns>データベース（存在しない場合はnull）</returns>
-        public static KonoAssetWearablesDatabase? GetKAWearablesDatabase() => kaWearablesDatabase;
+        public static KonoAssetWearablesDatabase? GetKAWearablesDatabase()
+            => _kaWearablesDatabase;
 
         /// <summary>
         /// KonoAssetワールドオブジェクトデータベースを取得する
         /// </summary>
         /// <returns>データベース（存在しない場合はnull）</returns>
-        public static KonoAssetWorldObjectsDatabase? GetKAWorldObjectsDatabase() =>
-            kaWorldObjectsDatabase;
+        public static KonoAssetWorldObjectsDatabase? GetKAWorldObjectsDatabase()
+            => _kaWorldObjectsDatabase;
 
         /// <summary>
         /// KonoAssetその他アセットデータベースを取得する
         /// </summary>
         /// <returns>データベース（存在しない場合はnull）</returns>
-        public static KonoAssetOtherAssetsDatabase? GetKAOtherAssetsDatabase() =>
-            kaOtherAssetsDatabase;
+        public static KonoAssetOtherAssetsDatabase? GetKAOtherAssetsDatabase()
+            => _kaOtherAssetsDatabase;
 
         /// <summary>
         /// AvatarExplorerデータベースをクリアする
         /// </summary>
         public static void ClearAEDatabase()
-        {
-            aeDatabase = null;
-        }
+            => _aeDatabase = null;
 
         /// <summary>
         /// KonoAssetデータベースをクリアする
         /// </summary>
         public static void ClearKADatabase()
         {
-            kaAvatarsDatabase = null;
-            kaWearablesDatabase = null;
-            kaWorldObjectsDatabase = null;
-            kaOtherAssetsDatabase = null;
+            _kaAvatarsDatabase = null;
+            _kaWearablesDatabase = null;
+            _kaWorldObjectsDatabase = null;
+            _kaOtherAssetsDatabase = null;
         }
     }
 }

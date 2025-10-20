@@ -235,9 +235,8 @@ namespace UnityEditorAssetBrowser.Views
                 // タグ検索
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.LabelField("タグ:", GUILayout.Width(100));
-                var newTagsSearch = EditorGUILayout.TextField(
-                    _searchViewModel.SearchCriteria.TagsSearch
-                );
+
+                var newTagsSearch = EditorGUILayout.TextField(_searchViewModel.SearchCriteria.TagsSearch);
                 if (newTagsSearch != _searchViewModel.SearchCriteria.TagsSearch)
                 {
                     _searchViewModel.SearchCriteria.TagsSearch = newTagsSearch;
@@ -245,14 +244,14 @@ namespace UnityEditorAssetBrowser.Views
                     OnSearchResultChanged();
                     GUI.changed = true;
                 }
+
                 EditorGUILayout.EndHorizontal();
 
                 // メモ検索
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.LabelField("メモ:", GUILayout.Width(100));
-                var newMemoSearch = EditorGUILayout.TextField(
-                    _searchViewModel.SearchCriteria.MemoSearch
-                );
+
+                var newMemoSearch = EditorGUILayout.TextField(_searchViewModel.SearchCriteria.MemoSearch);
                 if (newMemoSearch != _searchViewModel.SearchCriteria.MemoSearch)
                 {
                     _searchViewModel.SearchCriteria.MemoSearch = newMemoSearch;
@@ -260,6 +259,7 @@ namespace UnityEditorAssetBrowser.Views
                     OnSearchResultChanged();
                     GUI.changed = true;
                 }
+                
                 EditorGUILayout.EndHorizontal();
 
                 EditorGUILayout.EndVertical();

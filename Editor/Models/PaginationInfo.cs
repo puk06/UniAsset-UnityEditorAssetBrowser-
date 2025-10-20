@@ -69,9 +69,7 @@ namespace UnityEditorAssetBrowser.Models
         /// ページ番号を0にリセット
         /// </summary>
         public void ResetPage()
-        {
-            CurrentPage = 0;
-        }
+            => CurrentPage = 0;
 
         /// <summary>
         /// 次のページに移動

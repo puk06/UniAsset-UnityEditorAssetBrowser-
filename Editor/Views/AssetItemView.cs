@@ -21,10 +21,10 @@ namespace UnityEditorAssetBrowser.Views
     public class AssetItemView
     {
         /// <summary>メモのフォールドアウト状態</summary>
-        private readonly Dictionary<string, bool> memoFoldouts = new();
+        private readonly Dictionary<string, bool> _memoFoldouts = new();
 
         /// <summary>UnityPackageのフォールドアウト状態</summary>
-        private readonly Dictionary<string, bool> unityPackageFoldouts = new();
+        private readonly Dictionary<string, bool> _unityPackageFoldouts = new();
 
         // 色を循環させる（赤、青、緑、黄、紫、水色）
         private static readonly Color[] LineColors = new Color[]
@@ -60,6 +60,7 @@ namespace UnityEditorAssetBrowser.Views
                 item.GetBoothId()
             );
             DrawUnityPackageSection(item.GetItemPath(databasePath), item.GetTitle(), item.GetImagePath(databasePath), item.GetCategory());
+
             GUILayout.EndVertical();
         }
 
@@ -90,12 +91,15 @@ namespace UnityEditorAssetBrowser.Views
         )
         {
             GUILayout.BeginHorizontal();
+
             DrawItemImage(imagePath);
-            
+
             GUILayout.BeginVertical();
+            
             DrawItemBasicInfo(title, author);
             DrawItemMetadata(title, category, supportedAvatars, tags, memo);
             DrawItemActionButtons(itemPath, boothItemId);
+
             GUILayout.EndVertical();
             
             GUILayout.EndHorizontal();
@@ -117,27 +121,19 @@ namespace UnityEditorAssetBrowser.Views
         {
             // カテゴリ
             if (!string.IsNullOrEmpty(category))
-            {
                 DrawCategory(category);
-            }
 
             // 対応アバター
             if (supportedAvatars.Length > 0)
-            {
                 DrawSupportedAvatars(supportedAvatars);
-            }
 
             // タグ
             if (tags.Length > 0)
-            {
                 GUILayout.Label($"タグ: {string.Join(", ", tags)}", EditorStyles.wordWrappedLabel);
-            }
 
             // メモ
             if (!string.IsNullOrEmpty(memo))
-            {
                 DrawMemo(title, memo);
-            }
         }
 
         /// <summary>
@@ -147,11 +143,9 @@ namespace UnityEditorAssetBrowser.Views
         {
             EditorGUILayout.Space(5);
             DrawExplorerOpenButton(itemPath);
-            
-            if (boothItemId > 0)
-            {
-                DrawBoothOpenButton(boothItemId);
-            }
+
+            if (boothItemId <= 0) return;
+            DrawBoothOpenButton(boothItemId);
         }
 
         /// <summary>
@@ -194,9 +188,9 @@ namespace UnityEditorAssetBrowser.Views
         private void DrawMemo(string title, string memo)
         {
             string memoKey = $"{title}_memo";
-            if (!memoFoldouts.ContainsKey(memoKey))
+            if (!_memoFoldouts.ContainsKey(memoKey))
             {
-                memoFoldouts[memoKey] = false;
+                _memoFoldouts[memoKey] = false;
             }
 
             var startRect = EditorGUILayout.GetControlRect(false, 0);
@@ -205,15 +199,15 @@ namespace UnityEditorAssetBrowser.Views
 
             if (Event.current.type == EventType.MouseDown && boxRect.Contains(Event.current.mousePosition))
             {
-                memoFoldouts[memoKey] = !memoFoldouts[memoKey];
+                _memoFoldouts[memoKey] = !_memoFoldouts[memoKey];
                 GUI.changed = true;
                 Event.current.Use();
             }
 
-            string toggleText = memoFoldouts[memoKey] ? "▼メモ" : "▶メモ";
+            string toggleText = _memoFoldouts[memoKey] ? "▼メモ" : "▶メモ";
             EditorGUI.LabelField(boxRect, toggleText);
 
-            if (memoFoldouts[memoKey])
+            if (_memoFoldouts[memoKey])
             {
                 EditorGUI.indentLevel++;
                 EditorGUILayout.LabelField(memo ?? string.Empty, EditorStyles.wordWrappedLabel);
@@ -238,16 +232,14 @@ namespace UnityEditorAssetBrowser.Views
         /// <param name="imagePath">画像パス</param>
         private void DrawItemImage(string imagePath)
         {
-            if (string.IsNullOrEmpty(imagePath))
-                return;
+            if (string.IsNullOrEmpty(imagePath)) return;
 
             if (File.Exists(imagePath))
             {
                 var texture = ImageServices.Instance.LoadTexture(imagePath);
-                if (texture != null)
-                {
-                    GUILayout.Label(texture, GUILayout.Width(100), GUILayout.Height(100));
-                }
+                if (texture == null) return;
+
+                GUILayout.Label(texture, GUILayout.Width(100), GUILayout.Height(100));
             }
         }
 
@@ -257,12 +249,11 @@ namespace UnityEditorAssetBrowser.Views
         /// <param name="itemPath">アイテムパス</param>
         private void DrawExplorerOpenButton(string itemPath)
         {
-            if (Directory.Exists(itemPath))
+            if (!Directory.Exists(itemPath)) return;
+
+            if (GUILayout.Button("Explorerで開く", GUILayout.Width(150)))
             {
-                if (GUILayout.Button("Explorerで開く", GUILayout.Width(150)))
-                {
-                    Process.Start("explorer.exe", itemPath);
-                }
+                Process.Start("explorer.exe", itemPath);
             }
         }
 
@@ -320,9 +311,9 @@ namespace UnityEditorAssetBrowser.Views
             if (!unityPackages.Any()) return;
 
             // フォールドアウトの状態を初期化（キーが存在しない場合）
-            if (!unityPackageFoldouts.ContainsKey(itemName))
+            if (!_unityPackageFoldouts.ContainsKey(itemName))
             {
-                unityPackageFoldouts[itemName] = false;
+                _unityPackageFoldouts[itemName] = false;
             }
 
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
@@ -346,25 +337,22 @@ namespace UnityEditorAssetBrowser.Views
                 );
 
                 // フォールドアウトの状態を更新
-                if (
-                    Event.current.type == EventType.MouseDown
-                    && boxRect.Contains(Event.current.mousePosition)
-                )
+                if (Event.current.type == EventType.MouseDown && boxRect.Contains(Event.current.mousePosition))
                 {
-                    unityPackageFoldouts[itemName] = !unityPackageFoldouts[itemName];
+                    _unityPackageFoldouts[itemName] = !_unityPackageFoldouts[itemName];
                     GUI.changed = true;
                     Event.current.Use();
                 }
 
                 // フォールドアウトとラベルを描画
-                unityPackageFoldouts[itemName] = EditorGUI.Foldout(
+                _unityPackageFoldouts[itemName] = EditorGUI.Foldout(
                     foldoutRect,
-                    unityPackageFoldouts[itemName],
+                    _unityPackageFoldouts[itemName],
                     ""
                 );
                 EditorGUI.LabelField(labelRect, "UnityPackage");
 
-                if (unityPackageFoldouts[itemName])
+                if (_unityPackageFoldouts[itemName])
                 {
                     EditorGUI.indentLevel++;
                     for (int i = 0; i < unityPackages.Count(); i++)

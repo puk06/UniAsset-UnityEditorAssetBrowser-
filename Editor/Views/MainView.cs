@@ -33,7 +33,10 @@ namespace UnityEditorAssetBrowser.Views
         private readonly AssetItemView _assetItemView;
 
         /// <summary>スクロール位置</summary>
-        private Vector2 scrollPosition;
+        private Vector2 _scrollPosition;
+        
+        /// <summary> アイテムのキャッシュ</summary>
+        private List<IDatabaseItem>? _cachedItems = null;
 
         /// <summary>タブのラベル</summary>
         private static readonly string[] Tabs =
@@ -65,8 +68,6 @@ namespace UnityEditorAssetBrowser.Views
             _paginationView = paginationView;
             _assetItemView = assetItemView;
         }
-
-        private List<IDatabaseItem>? _cachedItems = null;
 
         /// <summary>
         /// メインウィンドウの描画
@@ -105,7 +106,7 @@ namespace UnityEditorAssetBrowser.Views
                 _paginationViewModel.SelectedTab = newTab;
                 _paginationViewModel.ResetPage();
                 _searchViewModel.SetCurrentTab(newTab);
-                EditorWindow.focusedWindow?.Repaint();
+                if (EditorWindow.focusedWindow != null) EditorWindow.focusedWindow.Repaint();
             }
             EditorGUILayout.Space(10);
         }
@@ -132,8 +133,8 @@ namespace UnityEditorAssetBrowser.Views
         /// </summary>
         private void DrawScrollView(List<IDatabaseItem> totalItems)
         {
-            scrollPosition = EditorGUILayout.BeginScrollView(
-                scrollPosition,
+            _scrollPosition = EditorGUILayout.BeginScrollView(
+                _scrollPosition,
                 GUILayout.ExpandHeight(true)
             );
             DrawCurrentTabContent(totalItems);

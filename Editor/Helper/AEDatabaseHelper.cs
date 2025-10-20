@@ -116,10 +116,7 @@ namespace UnityEditorAssetBrowser.Helper
         /// <param name="items">全アイテムリスト</param>
         /// <param name="supportedAvatars">変換対象の対応アバターパス配列</param>
         /// <returns>変換後のアバター名配列</returns>
-        private static string[] ConvertSupportedAvatarPaths(
-            AvatarExplorerItem[] items,
-            string[] supportedAvatars
-        )
+        private static string[] ConvertSupportedAvatarPaths(AvatarExplorerItem[] items, string[] supportedAvatars)
         {
             var supportedAvatarNames = new List<string>();
 

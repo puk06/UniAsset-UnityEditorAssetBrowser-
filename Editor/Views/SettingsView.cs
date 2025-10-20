@@ -72,8 +72,7 @@ namespace UnityEditorAssetBrowser.Views
         private const string PREFS_KEY_IMPORT_TO_CATEGORY_FOLDER = "UnityEditorAssetBrowser_ImportToCategoryFolder";
 
         // 初期設定リスト（abc順）
-        private static readonly List<string> _allDefaultExcludeFolders = ExcludeFolderService
-            .GetAllDefaultExcludeFolders()
+        private static readonly List<string> _allDefaultExcludeFolders = ExcludeFolderService.GetAllDefaultExcludeFolders()
             .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
             .ToList();
 
@@ -128,8 +127,8 @@ namespace UnityEditorAssetBrowser.Views
             var aeDatabase = DatabaseService.GetAEDatabase();
             if (aeDatabase != null)
             {
-                var otherCategories = aeDatabase
-                    .Items.Select(item => item.GetAECategoryName())
+                var otherCategories = aeDatabase.Items
+                    .Select(item => item.GetAECategoryName())
                     .Distinct()
                     .Where(category => !_orderedCategories.Contains(category))
                     .OrderBy(category => category);
@@ -161,9 +160,7 @@ namespace UnityEditorAssetBrowser.Views
         {
             var prefs = ExcludeFolderService.LoadPrefs();
             _userExcludeFolders = prefs?.userFolders ?? new List<string>();
-            _enabledDefaultExcludeFolders = new HashSet<string>(
-                prefs?.enabledDefaults ?? ExcludeFolderService.GetAllDefaultExcludeFolders()
-            );
+            _enabledDefaultExcludeFolders = new HashSet<string>(prefs?.enabledDefaults ?? ExcludeFolderService.GetAllDefaultExcludeFolders());
         }
 
         /// <summary>
@@ -197,6 +194,7 @@ namespace UnityEditorAssetBrowser.Views
                 "データベース設定",
                 true
             );
+
             if (_showDatabaseSettings)
             {
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox);
@@ -213,11 +211,13 @@ namespace UnityEditorAssetBrowser.Views
                         }
                     }
                 );
+
                 DrawDatabasePathField(
                     "KA Database Path:",
                     DatabaseService.GetKADatabasePath(),
                     _onKADatabasePathChanged
                 );
+
                 EditorGUILayout.EndVertical();
             }
 
@@ -228,13 +228,14 @@ namespace UnityEditorAssetBrowser.Views
                 "AvatarExplorer カテゴリ設定",
                 true
             );
+
             if (_showCategorySettings)
             {
                 var aeDatabase = DatabaseService.GetAEDatabase();
                 if (aeDatabase == null)
                 {
                     EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-                    EditorGUILayout.HelpBox("これはAvatarExplorer用の設定です", MessageType.Info);
+                    EditorGUILayout.HelpBox("これはAvatar Explorer用の設定です", MessageType.Info);
                     EditorGUILayout.EndVertical();
                 }
                 else
@@ -247,9 +248,10 @@ namespace UnityEditorAssetBrowser.Views
                     // 指定された順序のカテゴリを表示
                     foreach (var category in _orderedCategories)
                     {
-                        var items = aeDatabase
-                            .Items.Where(item => item.GetAECategoryName() == category)
+                        var items = aeDatabase.Items
+                            .Where(item => item.GetAECategoryName() == category)
                             .ToList();
+                        
                         if (items.Any())
                         {
                             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
@@ -281,17 +283,18 @@ namespace UnityEditorAssetBrowser.Views
                     }
 
                     // その他のカテゴリを表示
-                    var otherCategories = aeDatabase
-                        .Items.Select(item => item.GetAECategoryName())
+                    var otherCategories = aeDatabase.Items
+                        .Select(item => item.GetAECategoryName())
                         .Distinct()
                         .Where(category => !_orderedCategories.Contains(category))
                         .OrderBy(category => category);
 
                     foreach (var category in otherCategories)
                     {
-                        var items = aeDatabase
-                            .Items.Where(item => item.GetAECategoryName() == category)
+                        var items = aeDatabase.Items
+                            .Where(item => item.GetAECategoryName() == category)
                             .ToList();
+                        
                         EditorGUILayout.BeginVertical(EditorStyles.helpBox);
                         EditorGUILayout.BeginHorizontal();
                         EditorGUILayout.LabelField(
@@ -305,16 +308,19 @@ namespace UnityEditorAssetBrowser.Views
                         // アセットタイプの選択
                         EditorGUILayout.BeginHorizontal();
                         EditorGUILayout.LabelField("アセットタイプ:", GUILayout.Width(100));
+
                         var newValue = EditorGUILayout.Popup(
                             _categoryAssetTypes[category],
                             _assetTypes,
                             GUILayout.Width(200)
                         );
+
                         if (newValue != _categoryAssetTypes[category])
                         {
                             _categoryAssetTypes[category] = newValue;
                             SaveCategoryAssetType(category, newValue);
                         }
+
                         EditorGUILayout.EndHorizontal();
                         EditorGUILayout.EndVertical();
                     }
@@ -326,11 +332,13 @@ namespace UnityEditorAssetBrowser.Views
 
             // フォルダサムネイル設定セクション
             EditorGUILayout.Space(10);
+
             _showFolderThumbnailSettings = EditorGUILayout.Foldout(
                 _showFolderThumbnailSettings,
                 "フォルダサムネイル設定",
                 true
             );
+
             if (_showFolderThumbnailSettings)
             {
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox);
@@ -340,15 +348,18 @@ namespace UnityEditorAssetBrowser.Views
                     PREFS_KEY_SHOW_FOLDER_THUMBNAIL,
                     true
                 );
+
                 bool newShowFolderThumbnail = EditorGUILayout.ToggleLeft(
                     "フォルダサムネイルを表示する",
                     showFolderThumbnail
                 );
+
                 bool newGenerateFolderThumbnail = false;
                 if (newShowFolderThumbnail != showFolderThumbnail)
                 {
                     EditorPrefs.SetBool(PREFS_KEY_SHOW_FOLDER_THUMBNAIL, newShowFolderThumbnail);
                     FolderIconDrawer.SetEnabled(newShowFolderThumbnail);
+
                     // 設定ウィンドウ内の変数で判定し、必要ならサムネイルもONに
                     if (newShowFolderThumbnail && !newGenerateFolderThumbnail)
                     {
@@ -362,18 +373,16 @@ namespace UnityEditorAssetBrowser.Views
                     PREFS_KEY_GENERATE_FOLDER_THUMBNAIL,
                     true
                 );
+
                 EditorGUI.BeginDisabledGroup(newShowFolderThumbnail); // ONの間はグレーアウト
                 newGenerateFolderThumbnail = EditorGUILayout.ToggleLeft(
                     "フォルダサムネイルを生成する",
                     generateFolderThumbnail
                 );
                 EditorGUI.EndDisabledGroup();
+
                 // ON→OFFにしようとしたときのみ警告ダイアログ
-                if (
-                    !newShowFolderThumbnail
-                    && generateFolderThumbnail
-                    && !newGenerateFolderThumbnail
-                )
+                if (!newShowFolderThumbnail && generateFolderThumbnail && !newGenerateFolderThumbnail)
                 {
                     bool confirm = EditorUtility.DisplayDialog(
                         "注意",
@@ -381,6 +390,7 @@ namespace UnityEditorAssetBrowser.Views
                         "OK",
                         "キャンセル"
                     );
+
                     if (confirm)
                     {
                         EditorPrefs.SetBool(PREFS_KEY_GENERATE_FOLDER_THUMBNAIL, false);
@@ -390,10 +400,7 @@ namespace UnityEditorAssetBrowser.Views
                         newGenerateFolderThumbnail = true; // チェックを戻す
                     }
                 }
-                else if (
-                    newGenerateFolderThumbnail != generateFolderThumbnail
-                    && !newShowFolderThumbnail
-                )
+                else if (newGenerateFolderThumbnail != generateFolderThumbnail && !newShowFolderThumbnail)
                 {
                     EditorPrefs.SetBool(
                         PREFS_KEY_GENERATE_FOLDER_THUMBNAIL,
@@ -407,6 +414,7 @@ namespace UnityEditorAssetBrowser.Views
                     "初期設定除外フォルダ（ON/OFF）",
                     true
                 );
+
                 if (_showDefaultExcludeFolders)
                 {
                     EditorGUILayout.BeginVertical(EditorStyles.helpBox);
@@ -437,21 +445,21 @@ namespace UnityEditorAssetBrowser.Views
                     "新しい除外フォルダ",
                     _newExcludeFolder
                 );
+
                 bool shouldAdd = false;
+
                 // エンターキー対応
-                if (
-                    Event.current.type == EventType.KeyDown
-                    && Event.current.keyCode == KeyCode.Return
-                    && GUI.GetNameOfFocusedControl() == "NewExcludeFolderField"
-                )
+                if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Return && GUI.GetNameOfFocusedControl() == "NewExcludeFolderField")
                 {
                     shouldAdd = true;
                     Event.current.Use();
                 }
+
                 if (GUILayout.Button("追加", GUILayout.Width(60)))
                 {
                     shouldAdd = true;
                 }
+
                 if (shouldAdd)
                 {
                     if (!string.IsNullOrEmpty(_newExcludeFolder))
@@ -467,6 +475,7 @@ namespace UnityEditorAssetBrowser.Views
                     }
                     _newExcludeFolder = "";
                 }
+                
                 EditorGUILayout.EndHorizontal();
 
                 // ユーザー追加分リスト（上から順に）
@@ -477,32 +486,37 @@ namespace UnityEditorAssetBrowser.Views
                         Mathf.Min(_userExcludeFolders.Count * 28 + 10, userListMaxHeight)
                     )
                 );
+
                 for (int i = 0; i < _userExcludeFolders.Count; i++)
                 {
                     EditorGUILayout.BeginVertical(EditorStyles.helpBox);
                     EditorGUILayout.BeginHorizontal();
                     EditorGUILayout.LabelField(_userExcludeFolders[i]);
+
                     if (GUILayout.Button("削除", GUILayout.Width(60)))
                     {
                         _userExcludeFolders.RemoveAt(i);
                         SaveExcludeFoldersAndCombined();
                         i--;
                     }
+
                     EditorGUILayout.EndHorizontal();
                     EditorGUILayout.EndVertical();
                 }
-                EditorGUILayout.EndScrollView();
 
+                EditorGUILayout.EndScrollView();
                 EditorGUILayout.EndVertical();
             }
 
             // インポート設定セクション
             EditorGUILayout.Space(10);
+
             _showImportSettings = EditorGUILayout.Foldout(
                 _showImportSettings,
                 "インポート設定",
                 true
             );
+
             if (_showImportSettings)
             {
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox);
@@ -512,6 +526,7 @@ namespace UnityEditorAssetBrowser.Views
                     "UnityPackageをカテゴリ名のフォルダの下にインポート",
                     importToCategoryFolder
                 );
+
                 EditorGUILayout.HelpBox("・インポート時間が長くなる可能性があります\n・前提アセットがある場合に正常に動作しない可能性があります", MessageType.Warning);
 
                 if (newValue != importToCategoryFolder)
@@ -564,6 +579,7 @@ namespace UnityEditorAssetBrowser.Views
                     "",
                     ""
                 );
+
                 if (!string.IsNullOrEmpty(selectedPath))
                 {
                     onPathChanged(selectedPath);

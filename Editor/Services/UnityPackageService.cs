@@ -49,8 +49,7 @@ namespace UnityEditorAssetBrowser.Services
             {
                 return Directory.GetFiles(directory, "*.unitypackage", SearchOption.AllDirectories);
             }
-            catch (Exception ex)
-                when (ex is UnauthorizedAccessException || ex is PathTooLongException)
+            catch (Exception ex) when (ex is UnauthorizedAccessException || ex is PathTooLongException)
             {
                 Debug.LogError($"UnityPackageファイルの検索中にエラーが発生しました: {ex.Message}");
                 return Array.Empty<string>();
@@ -126,6 +125,7 @@ namespace UnityEditorAssetBrowser.Services
                                     Debug.LogError($"[UnityPackageService] カテゴリフォルダの作成に失敗しました: {categoryPath}");
                                     return;
                                 }
+
                                 AssetDatabase.Refresh();
                             }
 
@@ -142,7 +142,7 @@ namespace UnityEditorAssetBrowser.Services
                                     {
                                         // フォルダ内の全アセットを移動
                                         string[] assets = Directory.GetFiles(folder, "*.*", SearchOption.AllDirectories);
-                                        
+
                                         foreach (var asset in assets)
                                         {
                                             if (Path.GetExtension(asset) != ".meta")
@@ -150,19 +150,14 @@ namespace UnityEditorAssetBrowser.Services
                                                 string relativePath = Path.GetRelativePath(folder, asset);
                                                 string targetPath = Path.Combine(newPath, relativePath);
                                                 string targetDir = Path.GetDirectoryName(targetPath);
-                                                
-                                                if (!string.IsNullOrEmpty(targetDir) && !Directory.Exists(targetDir))
-                                                {
-                                                    Directory.CreateDirectory(targetDir);
-                                                }
-                                                
+
+                                                if (!string.IsNullOrEmpty(targetDir) && !Directory.Exists(targetDir)) Directory.CreateDirectory(targetDir);
+
                                                 string result = AssetDatabase.MoveAsset(asset, targetPath);
-                                                if (!string.IsNullOrEmpty(result))
-                                                {
-                                                    Debug.LogError($"[UnityPackageService] アセット移動エラー: {result}");
-                                                }
+                                                if (!string.IsNullOrEmpty(result)) Debug.LogError($"[UnityPackageService] アセット移動エラー: {result}");
                                             }
                                         }
+                                        
                                         // 空になったフォルダを削除
                                         AssetDatabase.DeleteAsset(folder);
                                     }
@@ -170,10 +165,7 @@ namespace UnityEditorAssetBrowser.Services
                                     {
                                         // フォルダを移動
                                         string result = AssetDatabase.MoveAsset(folder, newPath);
-                                        if (!string.IsNullOrEmpty(result))
-                                        {
-                                            Debug.LogError($"[UnityPackageService] フォルダ移動エラー: {result}");
-                                        }
+                                        if (!string.IsNullOrEmpty(result)) Debug.LogError($"[UnityPackageService] フォルダ移動エラー: {result}");
                                     }
                                 }
                             }

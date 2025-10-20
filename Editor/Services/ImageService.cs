@@ -30,26 +30,25 @@ namespace UnityEditorAssetBrowser.Services
         /// 画像のキャッシュ
         /// キーは画像パス、値は読み込まれたテクスチャ
         /// </summary>
-        public Dictionary<string, Texture2D> imageCache { get; } =
-            new Dictionary<string, Texture2D>();
+        public Dictionary<string, Texture2D> ImageCache { get; } = new Dictionary<string, Texture2D>();
 
         /// <summary>LRU管理用のアクセス順序</summary>
-        private readonly LinkedList<string> accessOrder = new LinkedList<string>();
+        private readonly LinkedList<string> _accessOrder = new LinkedList<string>();
 
         /// <summary>現在表示中の画像パス</summary>
-        private readonly HashSet<string> currentVisibleImages = new HashSet<string>();
+        private readonly HashSet<string> _currentVisibleImages = new HashSet<string>();
 
         /// <summary>画像パスとLinkedListNodeのマッピング</summary>
-        private readonly Dictionary<string, LinkedListNode<string>> nodeMap = new Dictionary<string, LinkedListNode<string>>();
+        private readonly Dictionary<string, LinkedListNode<string>> _nodeMap = new Dictionary<string, LinkedListNode<string>>();
 
         /// <summary>現在読み込み中の画像パス</summary>
-        private readonly HashSet<string> loadingImages = new HashSet<string>();
+        private readonly HashSet<string> _loadingImages = new HashSet<string>();
 
         /// <summary>プレースホルダーテクスチャ</summary>
-        private Texture2D? placeholderTexture;
+        private Texture2D? _placeholderTexture;
 
         /// <summary>メインスレッド処理キュー</summary>
-        private readonly Queue<Action> mainThreadQueue = new Queue<Action>();
+        private readonly Queue<Action> _mainThreadQueue = new Queue<Action>();
 
         /// <summary>
         /// シングルトンインスタンスを取得
@@ -79,10 +78,9 @@ namespace UnityEditorAssetBrowser.Services
         /// <exception cref="IOException">ファイルの読み込みに失敗した場合</exception>
         public Texture2D? LoadTexture(string path)
         {
-            if (string.IsNullOrEmpty(path))
-                return placeholderTexture;
+            if (string.IsNullOrEmpty(path)) return _placeholderTexture;
 
-            if (imageCache.TryGetValue(path, out var cachedTexture))
+            if (ImageCache.TryGetValue(path, out var cachedTexture))
             {
                 // LRU更新: 最近使用したアイテムをリストの末尾に移動
                 UpdateAccessOrder(path);
@@ -97,7 +95,7 @@ namespace UnityEditorAssetBrowser.Services
 
             // 大きいファイルは非同期読み込み
             LoadTextureAsync(path, priority: 1);
-            return placeholderTexture;
+            return _placeholderTexture;
         }
 
         /// <summary>
@@ -110,15 +108,14 @@ namespace UnityEditorAssetBrowser.Services
             try
             {
                 if (!File.Exists(path)) return false;
-                
+
                 var fileInfo = new FileInfo(path);
-                // 2MB以下のファイルは同期読み込み（ほとんどの画像をカバー）
-                if (fileInfo.Length > 2 * 1024 * 1024) return false;
+                if (fileInfo.Length > 2 * 1024 * 1024) return false; // 2MB以下のファイルは同期読み込み（ほとんどの画像をカバー）
                 
                 var bytes = File.ReadAllBytes(path);
                 texture = new Texture2D(2, 2);
                 
-                if (UnityEngine.ImageConversion.LoadImage(texture, bytes))
+                if (ImageConversion.LoadImage(texture, bytes))
                 {
                     AddToCache(path, texture);
                     return true;
@@ -137,6 +134,7 @@ namespace UnityEditorAssetBrowser.Services
                     UnityEngine.Object.DestroyImmediate(texture);
                     texture = null;
                 }
+
                 return false;
             }
         }
@@ -147,9 +145,9 @@ namespace UnityEditorAssetBrowser.Services
         private void ProcessMainThreadQueue()
         {
             var processCount = 0;
-            while (mainThreadQueue.Count > 0 && processCount < 10) // 1フレームで最大10個処理
+            while (_mainThreadQueue.Count > 0 && processCount < 10) // 1フレームで最大10個処理
             {
-                var action = mainThreadQueue.Dequeue();
+                var action = _mainThreadQueue.Dequeue();
                 action?.Invoke();
                 processCount++;
             }
@@ -164,25 +162,28 @@ namespace UnityEditorAssetBrowser.Services
             {
                 if (!File.Exists(path))
                 {
-                    mainThreadQueue.Enqueue(() => {
-                        loadingImages.Remove(path);
+                    _mainThreadQueue.Enqueue(() =>
+                    {
+                        _loadingImages.Remove(path);
                         onComplete?.Invoke(null);
                     });
+                    
                     return;
                 }
 
                 var bytes = File.ReadAllBytes(path);
                 
                 // メインスレッドでテクスチャ作成
-                mainThreadQueue.Enqueue(() => {
+                _mainThreadQueue.Enqueue(() => {
                     CreateTextureFromBytesSync(path, bytes, onComplete);
                 });
             }
             catch (Exception ex)
             {
                 Debug.LogError($"Large image load failed for {path}: {ex.Message}");
-                mainThreadQueue.Enqueue(() => {
-                    loadingImages.Remove(path);
+
+                _mainThreadQueue.Enqueue(() => {
+                    _loadingImages.Remove(path);
                     onComplete?.Invoke(null);
                 });
             }
@@ -194,10 +195,11 @@ namespace UnityEditorAssetBrowser.Services
         private void CreateTextureFromBytesSync(string path, byte[] bytes, Action<Texture2D?>? onComplete)
         {
             Texture2D? texture = null;
+
             try
             {
                 texture = new Texture2D(2, 2);
-                if (UnityEngine.ImageConversion.LoadImage(texture, bytes))
+                if (ImageConversion.LoadImage(texture, bytes))
                 {
                     AddToCache(path, texture);
                 }
@@ -217,11 +219,11 @@ namespace UnityEditorAssetBrowser.Services
                 }
             }
             
-            loadingImages.Remove(path);
+            _loadingImages.Remove(path);
             onComplete?.Invoke(texture);
             
             // UI更新
-            EditorWindow.focusedWindow?.Repaint();
+            if (EditorWindow.focusedWindow != null) EditorWindow.focusedWindow.Repaint();
         }
 
         /// <summary>
@@ -239,7 +241,7 @@ namespace UnityEditorAssetBrowser.Services
             }
 
             // 既にキャッシュに存在する場合
-            if (imageCache.TryGetValue(path, out var cachedTexture))
+            if (ImageCache.TryGetValue(path, out var cachedTexture))
             {
                 UpdateAccessOrder(path);
                 onComplete?.Invoke(cachedTexture);
@@ -247,13 +249,13 @@ namespace UnityEditorAssetBrowser.Services
             }
 
             // 既に読み込み中の場合はスキップ
-            if (loadingImages.Contains(path))
+            if (_loadingImages.Contains(path))
             {
                 return;
             }
 
             // 大きいファイルは直接Task.Runで処理（EditorCoroutineより高速）
-            loadingImages.Add(path);
+            _loadingImages.Add(path);
             Task.Run(() => LoadLargeImageAsync(path, onComplete));
         }
 
@@ -264,25 +266,26 @@ namespace UnityEditorAssetBrowser.Services
         public void ClearCache()
         {
             // 全テクスチャを適切に解放
-            foreach (var texture in imageCache.Values)
+            foreach (var texture in ImageCache.Values)
             {
-                if (texture != null && texture != placeholderTexture)
+                if (texture != null && texture != _placeholderTexture)
                 {
                     try
                     {
                         UnityEngine.Object.DestroyImmediate(texture);
                     }
-                    catch (System.Exception ex)
+                    catch (Exception ex)
                     {
                         Debug.LogWarning($"テクスチャの破棄に失敗しました: {ex.Message}");
                     }
                 }
             }
-            imageCache.Clear();
-            accessOrder.Clear();
-            nodeMap.Clear();
-            currentVisibleImages.Clear();
-            loadingImages.Clear();
+
+            ImageCache.Clear();
+            _accessOrder.Clear();
+            _nodeMap.Clear();
+            _currentVisibleImages.Clear();
+            _loadingImages.Clear();
         }
 
         /// <summary>
@@ -295,13 +298,13 @@ namespace UnityEditorAssetBrowser.Services
                 EditorApplication.update -= ProcessMainThreadQueue;
                 ClearCache();
                 
-                if (placeholderTexture != null)
+                if (_placeholderTexture != null)
                 {
-                    UnityEngine.Object.DestroyImmediate(placeholderTexture);
-                    placeholderTexture = null;
+                    UnityEngine.Object.DestroyImmediate(_placeholderTexture);
+                    _placeholderTexture = null;
                 }
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 Debug.LogWarning($"ImageService dispose中にエラーが発生しました: {ex.Message}");
             }
@@ -322,12 +325,9 @@ namespace UnityEditorAssetBrowser.Services
                 var databasePath = item.IsAEDatabase() ? DatabaseService.GetAEDatabasePath() : DatabaseService.GetKADatabasePath();
                 string imagePath = item.GetImagePath(databasePath);
 
-                if (!string.IsNullOrEmpty(imagePath))
+                if (!string.IsNullOrEmpty(imagePath) && File.Exists(imagePath))
                 {
-                    if (File.Exists(imagePath))
-                    {
-                        LoadTexture(imagePath);
-                    }
+                    LoadTexture(imagePath);
                 }
             }
         }
@@ -351,7 +351,7 @@ namespace UnityEditorAssetBrowser.Services
                     newVisibleImages.Add(imagePath);
 
                     // まだキャッシュにない場合のみ読み込み
-                    if (!imageCache.ContainsKey(imagePath) && File.Exists(imagePath))
+                    if (!ImageCache.ContainsKey(imagePath) && File.Exists(imagePath))
                     {
                         LoadTexture(imagePath);
                     }
@@ -359,22 +359,25 @@ namespace UnityEditorAssetBrowser.Services
             }
 
             // 不要になった画像をキャッシュから削除
-            var imagesToRemove = currentVisibleImages.Except(newVisibleImages).ToList();
+            var imagesToRemove = _currentVisibleImages.Except(newVisibleImages).ToList();
             foreach (var imagePath in imagesToRemove)
             {
                 RemoveFromCache(imagePath);
             }
 
-            currentVisibleImages.Clear();
+            _currentVisibleImages.Clear();
             foreach (var path in newVisibleImages)
             {
-                currentVisibleImages.Add(path);
+                _currentVisibleImages.Add(path);
             }
 
             // 表示中画像の読み込み完了後にEditorWindowを再描画
             if (newVisibleImages.Any())
             {
-                EditorApplication.delayCall += () => EditorWindow.focusedWindow?.Repaint();
+                EditorApplication.delayCall += () =>
+                {
+                    if (EditorWindow.focusedWindow != null) EditorWindow.focusedWindow.Repaint();
+                };
             }
         }
 
@@ -385,11 +388,12 @@ namespace UnityEditorAssetBrowser.Services
         public void AdaptCacheSizeToSearchResults(int searchResultCount)
         {
             var newMaxSize = GetOptimalCacheSize(searchResultCount);
-            if (newMaxSize < imageCache.Count)
+            if (newMaxSize < ImageCache.Count)
             {
                 // キャッシュサイズを削減
-                EvictOldestItems(imageCache.Count - newMaxSize);
+                RemoveOldestItems(ImageCache.Count - newMaxSize);
             }
+
             MAX_CACHE_SIZE = newMaxSize;
         }
 
@@ -399,14 +403,14 @@ namespace UnityEditorAssetBrowser.Services
         private void AddToCache(string path, Texture2D texture)
         {
             // キャッシュサイズ制限チェック
-            while (imageCache.Count >= MAX_CACHE_SIZE)
+            while (ImageCache.Count >= MAX_CACHE_SIZE)
             {
-                EvictOldestItem();
+                RemoveOldestItem();
             }
 
-            var node = accessOrder.AddLast(path);
-            imageCache[path] = texture;
-            nodeMap[path] = node;
+            var node = _accessOrder.AddLast(path);
+            ImageCache[path] = texture;
+            _nodeMap[path] = node;
         }
 
         /// <summary>
@@ -414,33 +418,33 @@ namespace UnityEditorAssetBrowser.Services
         /// </summary>
         private void UpdateAccessOrder(string path)
         {
-            if (nodeMap.TryGetValue(path, out var node))
+            if (_nodeMap.TryGetValue(path, out var node))
             {
-                accessOrder.Remove(node);
-                node = accessOrder.AddLast(path);
-                nodeMap[path] = node;
+                _accessOrder.Remove(node);
+                node = _accessOrder.AddLast(path);
+                _nodeMap[path] = node;
             }
         }
 
         /// <summary>
         /// 最も古いアイテムをキャッシュから削除
         /// </summary>
-        private void EvictOldestItem()
+        private void RemoveOldestItem()
         {
-            if (accessOrder.First == null) return;
+            if (_accessOrder.First == null) return;
 
-            var oldestPath = accessOrder.First.Value;
+            var oldestPath = _accessOrder.First.Value;
             RemoveFromCache(oldestPath);
         }
 
         /// <summary>
         /// 指定された数の古いアイテムを削除
         /// </summary>
-        private void EvictOldestItems(int count)
+        private void RemoveOldestItems(int count)
         {
-            for (int i = 0; i < count && accessOrder.Count > 0; i++)
+            for (int i = 0; i < count && _accessOrder.Count > 0; i++)
             {
-                EvictOldestItem();
+                RemoveOldestItem();
             }
         }
 
@@ -449,16 +453,16 @@ namespace UnityEditorAssetBrowser.Services
         /// </summary>
         private void RemoveFromCache(string path)
         {
-            if (imageCache.TryGetValue(path, out var texture))
+            if (ImageCache.TryGetValue(path, out var texture))
             {
                 UnityEngine.Object.DestroyImmediate(texture);
-                imageCache.Remove(path);
+                ImageCache.Remove(path);
             }
 
-            if (nodeMap.TryGetValue(path, out var node))
+            if (_nodeMap.TryGetValue(path, out var node))
             {
-                accessOrder.Remove(node);
-                nodeMap.Remove(path);
+                _accessOrder.Remove(node);
+                _nodeMap.Remove(path);
             }
         }
 
@@ -471,18 +475,15 @@ namespace UnityEditorAssetBrowser.Services
             if (searchResultCount <= 100) return 50;     // 中程度: 適度なキャッシュ
             return 30;                                   // 大きい結果: 省メモリ
         }
-
-        /// <summary>
-        /// 画像の完全なパスを取得
-        /// </summary>
+        
         /// <summary>
         /// プレースホルダーテクスチャを初期化
         /// </summary>
         private void InitializePlaceholder()
         {
-            if (placeholderTexture != null) return;
+            if (_placeholderTexture != null) return;
 
-            placeholderTexture = new Texture2D(100, 100);
+            _placeholderTexture = new Texture2D(100, 100);
             var pixels = new Color32[100 * 100];
             
             // シンプルなチェッカーボードパターンを生成
@@ -497,8 +498,8 @@ namespace UnityEditorAssetBrowser.Services
                 }
             }
             
-            placeholderTexture.SetPixels32(pixels);
-            placeholderTexture.Apply();
+            _placeholderTexture.SetPixels32(pixels);
+            _placeholderTexture.Apply();
         }
     }
 }

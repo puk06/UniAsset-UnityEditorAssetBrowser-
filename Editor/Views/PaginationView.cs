@@ -68,6 +68,7 @@ namespace UnityEditorAssetBrowser.Views
                 () => _assetBrowserViewModel.GetFilteredWorldObjects(),
                 () => _assetBrowserViewModel.GetFilteredOthers()
             );
+            
             int totalPages = _paginationViewModel.GetTotalPages(currentItems);
             GUILayout.Label($"ページ {_paginationViewModel.CurrentPage + 1} / {totalPages}");
         }
@@ -85,6 +86,7 @@ namespace UnityEditorAssetBrowser.Views
                     () => _assetBrowserViewModel.GetFilteredWorldObjects(),
                     () => _assetBrowserViewModel.GetFilteredOthers()
                 );
+
                 int totalPages = _paginationViewModel.GetTotalPages(currentItems);
                 _paginationViewModel.MoveToNextPage(totalPages);
             }

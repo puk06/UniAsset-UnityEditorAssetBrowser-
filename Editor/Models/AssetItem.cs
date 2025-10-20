@@ -28,9 +28,6 @@ namespace UnityEditorAssetBrowser.Models
         /// <param name="category">判定するカテゴリー名</param>
         /// <returns>ワールド関連のカテゴリーの場合はtrue、それ以外はfalse</returns>
         public static bool IsWorldCategory(string category)
-        {
-            return category.Contains(WORLD_CATEGORY_JP, StringComparison.OrdinalIgnoreCase)
-                || category.Contains(WORLD_CATEGORY_EN, StringComparison.OrdinalIgnoreCase);
-        }
+            => category.Contains(WORLD_CATEGORY_JP, StringComparison.OrdinalIgnoreCase) || category.Contains(WORLD_CATEGORY_EN, StringComparison.OrdinalIgnoreCase);
     }
 }

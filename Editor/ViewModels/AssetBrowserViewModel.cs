@@ -149,8 +149,7 @@ namespace UnityEditorAssetBrowser.ViewModels
                         if (EditorPrefs.HasKey(key)) return EditorPrefs.GetInt(key) == (int)AssetTypeConstants.AvatarRelated;
 
                         // キーが存在しない場合は従来の判定
-                        return (AvatarExplorerItemType)item.Type != AvatarExplorerItemType.Avatar
-                            && !AssetItem.IsWorldCategory(item.CustomCategory);
+                        return (AvatarExplorerItemType)item.Type != AvatarExplorerItemType.Avatar && !AssetItem.IsWorldCategory(item.CustomCategory);
                     })
                 );
             }
@@ -184,8 +183,7 @@ namespace UnityEditorAssetBrowser.ViewModels
                         if (EditorPrefs.HasKey(key)) return EditorPrefs.GetInt(key) == (int)AssetTypeConstants.World;
 
                         // キーが存在しない場合は従来の判定
-                        return (AvatarExplorerItemType)item.Type != AvatarExplorerItemType.Avatar
-                            && AssetItem.IsWorldCategory(item.CustomCategory);
+                        return (AvatarExplorerItemType)item.Type != AvatarExplorerItemType.Avatar && AssetItem.IsWorldCategory(item.CustomCategory);
                     })
                 );
             }
@@ -258,9 +256,7 @@ namespace UnityEditorAssetBrowser.ViewModels
                 case SortMethod.AuthorDesc:
                     return items.OrderByDescending(item => item.GetAuthor()).ToList();
                 case SortMethod.BoothIdDesc:
-                    return items
-                        .OrderByDescending(item => item.GetBoothId())
-                        .ToList();
+                    return items.OrderByDescending(item => item.GetBoothId()).ToList();
                 case SortMethod.BoothIdAsc:
                     return items.OrderBy(item => item.GetBoothId()).ToList();
                 default:

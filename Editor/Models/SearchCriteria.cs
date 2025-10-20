@@ -181,64 +181,71 @@ namespace UnityEditorAssetBrowser.Models
             set => _itemsPerPage = Math.Max(1, value);
         }
 
+        private static readonly char[] EmptyChars = new[] { ' ', '　' };
+
         /// <summary>
         /// 検索クエリをキーワード配列に分割
         /// </summary>
         /// <param name="query">分割する検索クエリ</param>
         /// <returns>分割されたキーワード配列</returns>
         private string[] SplitKeywords(string query)
-        {
-            return query.Split(new[] { ' ', '　' }, StringSplitOptions.RemoveEmptyEntries);
-        }
+            => query.Split(EmptyChars, StringSplitOptions.RemoveEmptyEntries);
 
         /// <summary>
         /// 基本検索のキーワードを取得
         /// </summary>
         /// <returns>キーワード配列</returns>
-        public string[] GetKeywords() => SplitKeywords(SearchQuery);
+        public string[] GetKeywords()
+            => SplitKeywords(SearchQuery);
 
         /// <summary>
         /// タイトル検索のキーワードを取得
         /// </summary>
         /// <returns>キーワード配列</returns>
-        public string[] GetTitleKeywords() => SplitKeywords(TitleSearch);
+        public string[] GetTitleKeywords()
+            => SplitKeywords(TitleSearch);
 
         /// <summary>
         /// 作者名検索のキーワードを取得
         /// </summary>
         /// <returns>キーワード配列</returns>
-        public string[] GetAuthorKeywords() => SplitKeywords(AuthorSearch);
+        public string[] GetAuthorKeywords()
+            => SplitKeywords(AuthorSearch);
 
         /// <summary>
         /// カテゴリ検索のキーワードを取得
         /// </summary>
         /// <returns>キーワード配列</returns>
-        public string[] GetCategoryKeywords() => SplitKeywords(CategorySearch);
+        public string[] GetCategoryKeywords()
+            => SplitKeywords(CategorySearch);
 
         /// <summary>
         /// 対応アバター検索のキーワードを取得
         /// </summary>
         /// <returns>キーワード配列</returns>
-        public string[] GetSupportedAvatarsKeywords() => SplitKeywords(SupportedAvatarsSearch);
+        public string[] GetSupportedAvatarsKeywords()
+            => SplitKeywords(SupportedAvatarsSearch);
 
         /// <summary>
         /// タグ検索のキーワードを取得
         /// </summary>
         /// <returns>キーワード配列</returns>
-        public string[] GetTagsKeywords() => SplitKeywords(TagsSearch);
+        public string[] GetTagsKeywords()
+            => SplitKeywords(TagsSearch);
 
         /// <summary>
         /// メモ検索のキーワードを取得
         /// </summary>
         /// <returns>キーワード配列</returns>
-        public string[] GetMemoKeywords() => SplitKeywords(MemoSearch);
+        public string[] GetMemoKeywords()
+            => SplitKeywords(MemoSearch);
 
         /// <summary>
         /// フィルター条件を取得
         /// </summary>
         /// <returns>フィルター条件の辞書</returns>
-        public Dictionary<string, bool> GetFilters() =>
-            new Dictionary<string, bool>
+        public Dictionary<string, bool> GetFilters()
+            => new Dictionary<string, bool>
             {
                 { "Avatars", ShowAvatars },
                 { "Wearables", ShowWearables },
@@ -289,8 +296,8 @@ namespace UnityEditorAssetBrowser.Models
         /// 検索条件のディープコピーを作成
         /// </summary>
         /// <returns>コピーされた検索条件</returns>
-        public SearchCriteria Clone() =>
-            new SearchCriteria
+        public SearchCriteria Clone()
+            => new SearchCriteria
             {
                 SearchQuery = SearchQuery,
                 ShowAdvancedSearch = ShowAdvancedSearch,
