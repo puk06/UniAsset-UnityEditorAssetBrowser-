@@ -32,9 +32,9 @@ namespace UnityEditorAssetBrowser
 
         private struct FolderIconCache
         {
-            public List<string> iconPaths;
-            public long lastWriteTime;
-            public bool isValid;
+            public List<string> IconPaths;
+            public long LastWriteTime;
+            public bool IsValid;
         }
 
         // 静的コンストラクタ：エディタ起動時に呼ばれる
@@ -167,7 +167,7 @@ namespace UnityEditorAssetBrowser
                     string folderName = Path.GetFileName(dir);
                     if (ExcludeFolderService.IsExcludedFolder(folderName)) continue;
 
-                    string iconPath = Path.Combine(dir, "FolderIcon.jpg").Replace("\\", "/");
+                    string iconPath = Path.Combine(dir, "FolderIcon.jpg").Replace('\\', Path.DirectorySeparatorChar);
                     if (File.Exists(iconPath)) result.Add(iconPath);
 
                     if (result.Count >= maxCount) break;
@@ -175,8 +175,6 @@ namespace UnityEditorAssetBrowser
                     // 再帰探索
                     var found = FindFolderIconsRecursive(dir, currentDepth + 1, maxDepth, maxCount - result.Count);
                     result.AddRange(found);
-
-                    if (result.Count >= maxCount) break;
                 }
             }
             catch
@@ -216,13 +214,13 @@ namespace UnityEditorAssetBrowser
             {
                 long currentWriteTime = Directory.GetLastWriteTime(path).ToBinary();
                 
-                if (_folderCache.TryGetValue(path, out var cache) && cache.isValid && cache.lastWriteTime == currentWriteTime)
+                if (_folderCache.TryGetValue(path, out var cache) && cache.IsValid && cache.LastWriteTime == currentWriteTime)
                 {
-                    return cache.iconPaths;
+                    return cache.IconPaths;
                 }
 
                 // 自フォルダ内のFolderIcon.jpgを最優先で取得
-                string selfIconPath = Path.Combine(path, "FolderIcon.jpg").Replace("\\", "/");
+                string selfIconPath = Path.Combine(path, "FolderIcon.jpg").Replace('\\', , Path.DirectorySeparatorChar);
                 List<string> iconPaths;
                 
                 if (File.Exists(selfIconPath))
@@ -237,9 +235,9 @@ namespace UnityEditorAssetBrowser
                 // キャッシュに保存
                 _folderCache[path] = new FolderIconCache
                 {
-                    iconPaths = iconPaths,
-                    lastWriteTime = currentWriteTime,
-                    isValid = true
+                    IconPaths = iconPaths,
+                    LastWriteTime = currentWriteTime,
+                    IsValid = true
                 };
 
                 return iconPaths;
@@ -330,7 +328,7 @@ namespace UnityEditorAssetBrowser
         [Serializable]
         private class ExcludeFoldersData
         {
-            public List<string> folders = new List<string>();
+            public List<string> Folders = new List<string>();
         }
     }
 }
