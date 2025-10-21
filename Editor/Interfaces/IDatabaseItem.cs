@@ -73,7 +73,7 @@ namespace UnityEditorAssetBrowser.Interfaces
         public DateTime GetCreatedDate();
 
         /// <summary>
-        /// Avatar Explorerのアイテムかどうかを取得します
+        /// Avatar Explorerのアイテムかどうかを取得します。データベースのパスを取得するときに使用されます。
         /// </summary>
         /// <returns></returns>
         public bool IsAEDatabase();
