@@ -141,7 +141,8 @@ namespace UnityEditorAssetBrowser
                 _paginationViewModel,
                 _searchView,
                 _paginationView,
-                _assetItemView
+                _assetItemView,
+                _assetBrowserViewModel
             );
         }
 

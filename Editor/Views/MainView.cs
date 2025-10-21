@@ -32,6 +32,9 @@ namespace UnityEditorAssetBrowser.Views
         /// <summary>アセットアイテムビュー</summary>
         private readonly AssetItemView _assetItemView;
 
+        /// <summary>アセットブラウザービューモデル</summary>
+        private readonly AssetBrowserViewModel _assetBrowserViewModel;
+
         /// <summary>スクロール位置</summary>
         private Vector2 _scrollPosition;
         
@@ -59,7 +62,9 @@ namespace UnityEditorAssetBrowser.Views
             PaginationViewModel paginationViewModel,
             SearchView searchView,
             PaginationView paginationView,
-            AssetItemView assetItemView
+            AssetItemView assetItemView,
+            AssetBrowserViewModel assetBrowserViewModel
+
         )
         {
             _searchViewModel = searchViewModel;
@@ -67,6 +72,12 @@ namespace UnityEditorAssetBrowser.Views
             _searchView = searchView;
             _paginationView = paginationView;
             _assetItemView = assetItemView;
+            _assetBrowserViewModel = assetBrowserViewModel;
+
+            _assetBrowserViewModel.SortMethodChanged += () =>
+            {
+                _cachedItems = null;
+            };
         }
 
         /// <summary>
