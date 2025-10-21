@@ -79,6 +79,11 @@ namespace UnityEditorAssetBrowser.Views
                 if (_cachedItems == null) return;
                 _cachedItems = _assetBrowserViewModel.SortItems(_cachedItems);
             };
+
+            DatabaseService.OnPathChanged += () =>
+            {
+                _cachedItems = null;
+            };
         }
 
         /// <summary>

@@ -4,6 +4,7 @@
 
 #nullable enable
 
+using System;
 using System.IO;
 using UnityEditor;
 using UnityEditorAssetBrowser.Helper;
@@ -18,6 +19,8 @@ namespace UnityEditorAssetBrowser.Services
     /// </summary>
     public static class DatabaseService
     {
+        public static event Action? OnPathChanged = null;
+        
         /// <summary>
         /// AvatarExplorerデータベースパスのEditorPrefsキー
         /// </summary>
@@ -233,6 +236,7 @@ namespace UnityEditorAssetBrowser.Services
             }
 
             SaveSettings();
+            OnPathChanged?.Invoke();
         }
 
         public static void OnKADatabasePathChanged(string path)
@@ -259,6 +263,7 @@ namespace UnityEditorAssetBrowser.Services
             }
 
             SaveSettings();
+            OnPathChanged?.Invoke();
         }
 
         /// <summary>
