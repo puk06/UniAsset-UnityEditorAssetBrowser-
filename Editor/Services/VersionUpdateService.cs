@@ -3,8 +3,12 @@
 #nullable enable
 
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -20,19 +24,19 @@ namespace UnityEditorAssetBrowser.Services
         // 定数定義
         /// <summary>最後にチェックした日付のEditorPrefsキー</summary>
         private const string LAST_CHECK_DATE_KEY = "UnityEditorAssetBrowser_LastVersionCheckDate";
-        
+
         /// <summary>バージョン通知を無視するかどうかのEditorPrefsキー</summary>
         private const string IGNORE_VERSION_KEY = "UnityEditorAssetBrowser_IgnoreVersion";
-        
+
         /// <summary>バージョンチェック間隔（時間）</summary>
         private const int VERSION_CHECK_INTERVAL_HOURS = 24;
-        
+
         /// <summary>HTTPリクエストタイムアウト（秒）</summary>
         private const int HTTP_TIMEOUT_SECONDS = 30;
-        
+
         /// <summary>HTTPリダイレクト制限回数</summary>
         private const int HTTP_REDIRECT_LIMIT = 10;
-        
+
         /// <summary>フォールバックバージョン</summary>
         private const string FALLBACK_VERSION = "1.0.0";
 
@@ -54,21 +58,15 @@ namespace UnityEditorAssetBrowser.Services
         /// パッケージのpackage.jsonパスを取得
         /// </summary>
         /// <returns>package.jsonの絶対パス。見つからない場合は空文字</returns>
-        private static string GetPackageJsonPath([System.Runtime.CompilerServices.CallerFilePath] string sourceFilePath = "")
+        private static string GetPackageJsonPath([CallerFilePath] string sourceFilePath = "")
         {
             try
             {
-                if (string.IsNullOrEmpty(sourceFilePath))
-                {
-                    return "";
-                }
+                if (string.IsNullOrEmpty(sourceFilePath)) return "";
 
                 // Unityパッケージ構造（Packages/パッケージ名/package.json）を最優先で確認
                 var packagePath = TryFindInPackagesDirectory(sourceFilePath);
-                if (!string.IsNullOrEmpty(packagePath))
-                {
-                    return packagePath;
-                }
+                if (!string.IsNullOrEmpty(packagePath)) return packagePath;
 
                 // 親ディレクトリを遡って検索
                 return TryFindInParentDirectories(sourceFilePath);
@@ -79,33 +77,28 @@ namespace UnityEditorAssetBrowser.Services
             }
         }
 
+        private static readonly string PackagesPathString = Path.DirectorySeparatorChar + "packages" + Path.DirectorySeparatorChar;
+
         /// <summary>
         /// Unityパッケージ構造でのpackage.json検索
         /// </summary>
         private static string TryFindInPackagesDirectory(string sourceFilePath)
         {
-            var normalizedPath = sourceFilePath.Replace('\\', '/');
-            var packagesIndex = normalizedPath.ToLower().IndexOf("/packages/");
-            
-            if (packagesIndex < 0)
-            {
-                return "";
-            }
+            var normalizedPath = Path.GetFullPath(sourceFilePath);
 
-            var packagesPath = normalizedPath.Substring(0, packagesIndex + "/packages/".Length);
-            var remainingPath = normalizedPath.Substring(packagesIndex + "/packages/".Length);
-            var pathParts = remainingPath.Split('/');
+            var packagesIndex = normalizedPath.ToLower().IndexOf(PackagesPathString);
+            if (packagesIndex < 0) return "";
+
+            var packagesPath = normalizedPath.Substring(0, packagesIndex + PackagesPathString.Length);
+            var remainingPath = normalizedPath.Substring(packagesIndex + PackagesPathString.Length);
             
-            if (pathParts.Length == 0)
-            {
-                return "";
-            }
+            var pathParts = remainingPath.Split(Path.DirectorySeparatorChar);
+            if (pathParts.Length == 0) return "";
 
             var packageName = pathParts[0];
-            var packageJsonPath = System.IO.Path.Combine(packagesPath, packageName, "package.json")
-                .Replace('/', System.IO.Path.DirectorySeparatorChar);
-            
-            return System.IO.File.Exists(packageJsonPath) ? packageJsonPath : "";
+            var packageJsonPath = Path.GetFullPath(Path.Combine(packagesPath, packageName, "package.json"));
+
+            return File.Exists(packageJsonPath) ? packageJsonPath : "";
         }
 
         /// <summary>
@@ -113,24 +106,24 @@ namespace UnityEditorAssetBrowser.Services
         /// </summary>
         private static string TryFindInParentDirectories(string sourceFilePath)
         {
-            var directory = System.IO.Path.GetDirectoryName(sourceFilePath);
-            
+            var directory = Path.GetDirectoryName(sourceFilePath);
+
             while (!string.IsNullOrEmpty(directory))
             {
-                var packageJsonPath = System.IO.Path.Combine(directory, "package.json");
-                if (System.IO.File.Exists(packageJsonPath))
+                var packageJsonPath = Path.Combine(directory, "package.json");
+                if (File.Exists(packageJsonPath))
                 {
                     return packageJsonPath;
                 }
-                
-                var parentDirectory = System.IO.Directory.GetParent(directory)?.FullName;
+
+                var parentDirectory = Directory.GetParent(directory)?.FullName;
                 if (parentDirectory == directory) // ルートディレクトリに到達
                 {
                     break;
                 }
                 directory = parentDirectory;
             }
-            
+
             return "";
         }
 
@@ -139,20 +132,17 @@ namespace UnityEditorAssetBrowser.Services
         /// </summary>
         private static class PackageJsonReader
         {
-            private static Newtonsoft.Json.Linq.JObject? cachedPackageInfo = null;
+            private static JObject? cachedPackageInfo = null;
             private static string cachedPath = "";
 
             /// <summary>
             /// Package.json情報を取得（キャッシュ付き）
             /// </summary>
             /// <returns>パッケージ情報。取得できない場合はnull</returns>
-            private static Newtonsoft.Json.Linq.JObject? GetPackageInfo()
+            private static JObject? GetPackageInfo()
             {
                 var packageJsonPath = GetPackageJsonPath();
-                if (string.IsNullOrEmpty(packageJsonPath))
-                {
-                    return null;
-                }
+                if (string.IsNullOrEmpty(packageJsonPath)) return null;
 
                 // キャッシュが有効かチェック
                 if (cachedPackageInfo != null && cachedPath == packageJsonPath)
@@ -162,15 +152,17 @@ namespace UnityEditorAssetBrowser.Services
 
                 try
                 {
-                    var json = System.IO.File.ReadAllText(packageJsonPath);
-                    cachedPackageInfo = JsonConvert.DeserializeObject<Newtonsoft.Json.Linq.JObject>(json);
+                    var json = File.ReadAllText(packageJsonPath);
+                    cachedPackageInfo = JsonConvert.DeserializeObject<JObject>(json);
                     cachedPath = packageJsonPath;
+
                     return cachedPackageInfo;
                 }
                 catch (Exception)
                 {
                     cachedPackageInfo = null;
                     cachedPath = "";
+
                     return null;
                 }
             }
@@ -215,22 +207,26 @@ namespace UnityEditorAssetBrowser.Services
         /// <summary>
         /// 現在のパッケージ名を取得
         /// </summary>
-        private static string GetCurrentPackageName() => PackageJsonReader.GetName();
+        private static string GetCurrentPackageName()
+            => PackageJsonReader.GetName();
 
         /// <summary>
         /// 現在のパッケージの表示名を取得
         /// </summary>
-        private static string GetCurrentDisplayName() => PackageJsonReader.GetDisplayName();
+        private static string GetCurrentDisplayName()
+            => PackageJsonReader.GetDisplayName();
 
         /// <summary>
         /// 現在のバージョンを取得
         /// </summary>
-        private static string GetCurrentVersion() => PackageJsonReader.GetVersion();
+        private static string GetCurrentVersion()
+            => PackageJsonReader.GetVersion();
 
         /// <summary>
         /// リモートのバージョン情報取得URLを取得
         /// </summary>
-        private static string GetRemoteVersionUrl() => PackageJsonReader.GetRepoUrl();
+        private static string GetRemoteVersionUrl()
+            => PackageJsonReader.GetRepoUrl();
 
         /// <summary>
         /// HTTP User-Agentを生成
@@ -239,18 +235,11 @@ namespace UnityEditorAssetBrowser.Services
         private static string GenerateUserAgent()
         {
             var displayName = GetCurrentDisplayName();
+            if (string.IsNullOrEmpty(displayName)) displayName = "UnityEditorAssetBrowser";
+            
             var version = GetCurrentVersion();
-            
-            if (string.IsNullOrEmpty(displayName))
-            {
-                displayName = "UnityEditorAssetBrowser";
-            }
-            
-            if (string.IsNullOrEmpty(version))
-            {
-                version = FALLBACK_VERSION;
-            }
-            
+            if (string.IsNullOrEmpty(version)) version = FALLBACK_VERSION;
+
             return $"Unity-{displayName.Replace(" ", "")}/{version}";
         }
 
@@ -264,12 +253,11 @@ namespace UnityEditorAssetBrowser.Services
         {
             try
             {
-                if (Version.TryParse(currentVersion, out Version current) && 
-                    Version.TryParse(remoteVersion, out Version remote))
+                if (Version.TryParse(currentVersion, out Version current) && Version.TryParse(remoteVersion, out Version remote))
                 {
                     return remote > current;
                 }
-                
+
                 // バージョンのパースに失敗した場合は文字列比較
                 return string.Compare(remoteVersion, currentVersion, StringComparison.OrdinalIgnoreCase) > 0;
             }
@@ -284,11 +272,11 @@ namespace UnityEditorAssetBrowser.Services
         /// </summary>
         /// <param name="versionStrings">バージョン文字列のコレクション</param>
         /// <returns>最新バージョン文字列。空の場合は空文字</returns>
-        private static string GetLatestVersionFromStrings(System.Collections.Generic.IEnumerable<string> versionStrings)
+        private static string GetLatestVersionFromStrings(IEnumerable<string> versionStrings)
         {
-            var versionList = new System.Collections.Generic.List<Version>();
-            var versionMapping = new System.Collections.Generic.Dictionary<Version, string>();
-            
+            var versionList = new List<Version>();
+            var versionMapping = new Dictionary<Version, string>();
+
             foreach (var versionString in versionStrings)
             {
                 if (Version.TryParse(versionString, out Version parsedVersion))
@@ -297,21 +285,21 @@ namespace UnityEditorAssetBrowser.Services
                     versionMapping[parsedVersion] = versionString;
                 }
             }
-            
+
             if (versionList.Count > 0)
             {
                 versionList.Sort((v1, v2) => v2.CompareTo(v1)); // 降順でソート
                 return versionMapping[versionList[0]];
             }
-            
+
             // パースに失敗した場合は最初の文字列を返す
             foreach (var versionString in versionStrings)
             {
                 return versionString;
             }
-            
+
             // 全てのバージョン文字列が空の場合は空文字を返す（処理スキップ用）
-            return "";
+            return string.Empty;
         }
 
         /// <summary>
@@ -319,7 +307,7 @@ namespace UnityEditorAssetBrowser.Services
         /// </summary>
         /// <param name="versionsObj">バージョンJObject</param>
         /// <returns>最新バージョン文字列</returns>
-        private static string GetLatestVersionFromJObject(Newtonsoft.Json.Linq.JObject versionsObj)
+        private static string GetLatestVersionFromJObject(JObject versionsObj)
         {
             var versionStrings = versionsObj.Properties().Select(prop => prop.Name);
             return GetLatestVersionFromStrings(versionStrings);
@@ -334,19 +322,17 @@ namespace UnityEditorAssetBrowser.Services
         {
             // package.jsonからdisplayNameを取得
             var displayName = GetCurrentDisplayName();
-            if (string.IsNullOrEmpty(displayName))
-            {
-                displayName = "このパッケージ";
-            }
-            
-            var message = $"\"{displayName}\"はアップデート可能です！\n\n" +
-                          $"現在のバージョン: {currentVersion}\n" +
-                          $"最新バージョン: {remoteInfo.version}\n\n" +
-                          $"VCCよりアップデートしてください";
+            if (string.IsNullOrEmpty(displayName)) displayName = "このパッケージ";
+
+            var message =
+                $"\"{displayName}\"はアップデート可能です！\n\n" +
+                $"現在のバージョン: {currentVersion}\n" +
+                $"最新バージョン: {remoteInfo.version}\n\n" +
+                $"VCCよりアップデートしてください";
 
             // ウィンドウタイトルにもdisplayNameを含める
-            var windowTitle = string.IsNullOrEmpty(displayName) || displayName == "このパッケージ" 
-                ? "アップデート通知" 
+            var windowTitle = string.IsNullOrEmpty(displayName) || displayName == "このパッケージ"
+                ? "アップデート通知"
                 : $"{displayName} アップデート通知";
 
             var result = EditorUtility.DisplayDialogComplex(
@@ -369,11 +355,11 @@ namespace UnityEditorAssetBrowser.Services
                         Application.OpenURL(remoteInfo.url);
                     }
                     break;
-                
+
                 case 1: // 後で通知
                     // 何もしない（次回起動時に再度通知）
                     break;
-                
+
                 case 2: // このバージョンを無視
                     EditorPrefs.SetString(IGNORE_VERSION_KEY, remoteInfo.version);
                     break;
@@ -386,45 +372,34 @@ namespace UnityEditorAssetBrowser.Services
         private static void FetchRemoteVersion()
         {
             var url = GetRemoteVersionUrl();
-            // URLが空の場合はバージョンチェックをスキップ
-            if (string.IsNullOrEmpty(url))
-            {
-                return;
-            }
+            if (string.IsNullOrEmpty(url)) return;
+
             var currentVersion = GetCurrentVersion();
-            // 現在のバージョンが空の場合はバージョンチェックをスキップ
-            if (string.IsNullOrEmpty(currentVersion))
-            {
-                return;
-            }
+            if (string.IsNullOrEmpty(currentVersion)) return;
 
             // Unity 2022以降のセキュリティ制限によりHTTPS必須
-            if (url.StartsWith("http://"))
-            {
-                url = url.Replace("http://", "https://");
-            }
+            if (url.StartsWith("http://")) url = url.Replace("http://", "https://");
 
             var request = UnityWebRequest.Get(url);
-            // リクエスト設定
             request.timeout = HTTP_TIMEOUT_SECONDS;
             request.redirectLimit = HTTP_REDIRECT_LIMIT;
+
             var userAgent = GenerateUserAgent();
             request.SetRequestHeader("User-Agent", userAgent);
             request.SetRequestHeader("Accept", "application/json");
-            
+
             var operation = request.SendWebRequest();
-            
+
             // 完了を監視
-            EditorApplication.CallbackFunction? updateFunc = null;
-            updateFunc = () =>
+            void updateFunc()
             {
-                if (operation.isDone)
-                {
-                    EditorApplication.update -= updateFunc!;
-                    ProcessWebRequestResult(request, currentVersion);
-                    request.Dispose();
-                }
-            };
+                if (!operation.isDone) return;
+
+                EditorApplication.update -= updateFunc!;
+                ProcessWebRequestResult(request, currentVersion);
+                request.Dispose();
+            }
+
             EditorApplication.update += updateFunc;
         }
 
@@ -439,16 +414,13 @@ namespace UnityEditorAssetBrowser.Services
                 {
                     var jsonData = request.downloadHandler.text;
                     var remoteInfo = ParseRemoteVersionInfo(jsonData);
-                    if (remoteInfo != null)
-                    {
-                        HandleVersionInfo(currentVersion, remoteInfo);
-                    }
+                    if (remoteInfo != null) HandleVersionInfo(currentVersion, remoteInfo);
                 }
                 catch (Exception)
                 {
+                    // Ignored
                 }
             }
-            // HTTPリクエスト失敗時はチェック日時を更新しない
         }
 
         /// <summary>
@@ -458,10 +430,7 @@ namespace UnityEditorAssetBrowser.Services
         {
             // VPM形式での解析を最初に試行
             var remoteInfo = TryParseVpmFormat(jsonData);
-            if (remoteInfo != null)
-            {
-                return remoteInfo;
-            }
+            if (remoteInfo != null) return remoteInfo;
 
             // VPM形式での解析に失敗した場合、直接のJSON形式を試す
             return TryParseDirectFormat(jsonData);
@@ -474,27 +443,19 @@ namespace UnityEditorAssetBrowser.Services
         {
             try
             {
-                var vpmData = JsonConvert.DeserializeObject<Newtonsoft.Json.Linq.JObject>(jsonData);
+                var vpmData = JsonConvert.DeserializeObject<JObject>(jsonData);
                 var currentPackageName = GetCurrentPackageName();
-                
-                if (vpmData?["packages"] == null || string.IsNullOrEmpty(currentPackageName))
-                {
-                    return null;
-                }
+                if (vpmData?["packages"] == null || string.IsNullOrEmpty(currentPackageName)) return null;
 
-                var packagesObj = vpmData["packages"] as Newtonsoft.Json.Linq.JObject;
-                if (packagesObj == null)
-                {
-                    return null;
-                }
+                var packagesObj = vpmData["packages"] as JObject;
+                if (packagesObj == null) return null;
 
                 foreach (var packageProp in packagesObj.Properties())
                 {
-                    if (packageProp.Name == currentPackageName)
-                    {
-                        return ExtractVersionInfoFromPackage(packageProp.Value);
-                    }
+                    if (packageProp.Name != currentPackageName) continue;
+                    return ExtractVersionInfoFromPackage(packageProp.Value);
                 }
+
                 return null;
             }
             catch (Exception)
@@ -506,31 +467,19 @@ namespace UnityEditorAssetBrowser.Services
         /// <summary>
         /// パッケージ情報からバージョン情報を抽出
         /// </summary>
-        private static RemoteVersionInfo? ExtractVersionInfoFromPackage(Newtonsoft.Json.Linq.JToken? packageValue)
+        private static RemoteVersionInfo? ExtractVersionInfoFromPackage(JToken? packageValue)
         {
-            if (packageValue == null)
-            {
-                return null;
-            }
+            if (packageValue == null) return null;
 
             var versionsToken = packageValue["versions"];
-            var versionsObj = versionsToken as Newtonsoft.Json.Linq.JObject;
-            if (versionsObj == null)
-            {
-                return null;
-            }
+            var versionsObj = versionsToken as JObject;
+            if (versionsObj == null) return null;
 
             string latestVersion = GetLatestVersionFromJObject(versionsObj);
-            if (string.IsNullOrEmpty(latestVersion))
-            {
-                return null; // バージョンが取得できない場合は処理をスキップ
-            }
-            
+            if (string.IsNullOrEmpty(latestVersion)) return null;
+
             var latestPackageInfo = versionsObj[latestVersion];
-            if (latestPackageInfo == null)
-            {
-                return null;
-            }
+            if (latestPackageInfo == null) return null;
 
             return new RemoteVersionInfo
             {
@@ -572,9 +521,9 @@ namespace UnityEditorAssetBrowser.Services
                     EditorApplication.delayCall += () => ShowUpdateNotification(currentVersion, remoteInfo);
                 }
             }
+
             // 成功時のみチェック日時を更新
-            var now = DateTime.Now;
-            EditorPrefs.SetString(LAST_CHECK_DATE_KEY, now.ToString());
+            EditorPrefs.SetString(LAST_CHECK_DATE_KEY, DateTime.Now.ToString());
         }
 
         /// <summary>
@@ -585,33 +534,24 @@ namespace UnityEditorAssetBrowser.Services
         {
             // package.jsonにrepoが設定されていない場合はスキップ
             var url = GetRemoteVersionUrl();
-            if (string.IsNullOrEmpty(url))
-            {
-                return;
-            }
+            if (string.IsNullOrEmpty(url)) return;
 
             // package.jsonにversionが設定されていない場合はスキップ
             var currentVersion = GetCurrentVersion();
-            if (string.IsNullOrEmpty(currentVersion))
-            {
-                return;
-            }
+            if (string.IsNullOrEmpty(currentVersion)) return;
 
             // 前回のチェック日を確認
             var lastCheckDateString = EditorPrefs.GetString(LAST_CHECK_DATE_KEY, "");
             if (DateTime.TryParse(lastCheckDateString, out DateTime lastCheckDate))
             {
                 var timeSinceLastCheck = DateTime.Now - lastCheckDate;
+
                 // 24時間以内にチェック済みの場合はスキップ
-                if (timeSinceLastCheck < TimeSpan.FromHours(VERSION_CHECK_INTERVAL_HOURS))
-                {
-                    return;
-                }
+                if (timeSinceLastCheck < TimeSpan.FromHours(VERSION_CHECK_INTERVAL_HOURS)) return;
             }
+            
             // バージョンチェックを実行
             FetchRemoteVersion();
         }
-
-
     }
 }

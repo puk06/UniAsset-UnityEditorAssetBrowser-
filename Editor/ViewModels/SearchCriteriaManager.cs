@@ -1,8 +1,6 @@
 // Copyright (c) 2025 sakurayuki
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEditorAssetBrowser.Models;
 
 namespace UnityEditorAssetBrowser.ViewModels
@@ -14,10 +12,10 @@ namespace UnityEditorAssetBrowser.ViewModels
     public class SearchCriteriaManager
     {
         /// <summary>タブごとの検索条件</summary>
-        private readonly Dictionary<int, SearchCriteria> tabSearchCriteria = new();
+        private readonly Dictionary<int, SearchCriteria> _tabSearchCriteria = new();
 
         /// <summary>現在のタブインデックス</summary>
-        private int currentTabIndex;
+        private int _currentTabIndex;
 
         /// <summary>
         /// 現在の検索条件
@@ -31,10 +29,10 @@ namespace UnityEditorAssetBrowser.ViewModels
         /// <param name="tabIndex">切り替え先のタブインデックス</param>
         public void SetCurrentTab(int tabIndex)
         {
-            if (currentTabIndex != tabIndex)
+            if (_currentTabIndex != tabIndex)
             {
                 SaveCurrentTabCriteria();
-                currentTabIndex = tabIndex;
+                _currentTabIndex = tabIndex;
                 LoadTabCriteria();
             }
         }
@@ -43,23 +41,21 @@ namespace UnityEditorAssetBrowser.ViewModels
         /// 現在のタブの検索条件を保存
         /// </summary>
         private void SaveCurrentTabCriteria()
-        {
-            tabSearchCriteria[currentTabIndex] = CurrentSearchCriteria.Clone();
-        }
+            => _tabSearchCriteria[_currentTabIndex] = CurrentSearchCriteria.Clone();
 
         /// <summary>
         /// 現在のタブの検索条件を読み込み
         /// </summary>
         private void LoadTabCriteria()
         {
-            if (!tabSearchCriteria.TryGetValue(currentTabIndex, out var criteria))
+            if (!_tabSearchCriteria.TryGetValue(_currentTabIndex, out var criteria))
             {
                 criteria = new SearchCriteria();
-                tabSearchCriteria[currentTabIndex] = criteria;
+                _tabSearchCriteria[_currentTabIndex] = criteria;
             }
 
             CurrentSearchCriteria = criteria.Clone();
-            CurrentSearchCriteria.ClearTabSpecificCriteria(currentTabIndex);
+            CurrentSearchCriteria.ClearTabSpecificCriteria(_currentTabIndex);
         }
     }
 }

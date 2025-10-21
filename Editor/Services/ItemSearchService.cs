@@ -3,10 +3,9 @@
 #nullable enable
 
 using System;
-using System.IO;
 using System.Linq;
+using UnityEditorAssetBrowser.Interfaces;
 using UnityEditorAssetBrowser.Models;
-using UnityEngine;
 
 namespace UnityEditorAssetBrowser.Services
 {
@@ -14,9 +13,9 @@ namespace UnityEditorAssetBrowser.Services
     /// アイテム検索を支援するサービスクラス
     /// 基本検索と詳細検索の機能を提供し、アイテムの検索条件に基づいたフィルタリングを行う
     /// </summary>
-    public class ItemSearchService : AssetItem
+    public class ItemSearchService
     {
-        private readonly AvatarExplorerDatabase? aeDatabase;
+        private readonly AvatarExplorerDatabase? _aeDatabase;
 
         /// <summary>
         /// コンストラクタ
@@ -24,7 +23,7 @@ namespace UnityEditorAssetBrowser.Services
         /// <param name="aeDatabase">AvatarExplorerデータベース（オプション）</param>
         public ItemSearchService(AvatarExplorerDatabase? aeDatabase = null)
         {
-            this.aeDatabase = aeDatabase;
+            _aeDatabase = aeDatabase;
         }
 
         /// <summary>
@@ -34,31 +33,22 @@ namespace UnityEditorAssetBrowser.Services
         /// <param name="criteria">検索条件</param>
         /// <param name="tabIndex">現在のタブインデックス</param>
         /// <returns>検索条件に一致する場合はtrue、それ以外はfalse</returns>
-        public bool IsItemMatchSearch(object item, SearchCriteria criteria, int tabIndex = 0)
+        public bool IsItemMatchSearch(IDatabaseItem item, SearchCriteria criteria, int tabIndex = 0)
         {
-            if (criteria == null)
-            {
-                return true;
-            }
+            if (criteria == null) return true;
 
             // 基本検索
             if (!string.IsNullOrEmpty(criteria.SearchQuery))
             {
                 bool basic = IsBasicSearchMatch(item, criteria.GetKeywords(), tabIndex);
-                if (!basic)
-                {
-                    return false;
-                }
+                if (!basic) return false;
             }
 
             // 詳細検索
             if (criteria.ShowAdvancedSearch)
             {
                 bool adv = IsAdvancedSearchMatch(item, criteria);
-                if (!adv)
-                {
-                    return false;
-                }
+                if (!adv) return false;
             }
 
             return true;
@@ -71,60 +61,39 @@ namespace UnityEditorAssetBrowser.Services
         /// <param name="keywords">検索キーワード</param>
         /// <param name="tabIndex">現在のタブインデックス</param>
         /// <returns>検索条件に一致する場合はtrue、それ以外はfalse</returns>
-        private bool IsBasicSearchMatch(object item, string[] keywords, int tabIndex)
+        private bool IsBasicSearchMatch(IDatabaseItem item, string[] keywords, int tabIndex)
         {
             foreach (var keyword in keywords)
             {
                 bool matchesKeyword = false;
 
                 // タイトル
-                if (GetTitle(item).Contains(keyword, StringComparison.InvariantCultureIgnoreCase))
-                {
+                if (item.GetTitle().Contains(keyword, StringComparison.InvariantCultureIgnoreCase))
                     matchesKeyword = true;
-                }
 
                 // 作者名
-                if (GetAuthor(item).Contains(keyword, StringComparison.InvariantCultureIgnoreCase))
-                {
+                if (item.GetAuthor().Contains(keyword, StringComparison.InvariantCultureIgnoreCase))
                     matchesKeyword = true;
-                }
 
-                // カテゴリ（アバタータブはスキップ＝matchesKeywordをtrueにしない）
-                if (tabIndex != 0)
-                {
-                    if (IsCategoryMatch(item, new[] { keyword }))
-                    {
-                        matchesKeyword = true;
-                    }
-                }
-                // アバタータブはスキップ
+                // カテゴリ（アバタータブはスキップ）
+                if (tabIndex != 0 && IsCategoryMatch(item, keyword))
+                    matchesKeyword = true;
 
                 // 対応アバター（アイテムタブのみ判定）
-                if (tabIndex == 1)
-                {
-                    if (IsSupportedAvatarsMatch(item, new[] { keyword }))
-                    {
-                        matchesKeyword = true;
-                    }
-                }
-                // それ以外のタブはスキップ
+                if (tabIndex == 1 && IsSupportedAvatarsMatch(item, keyword))
+                    matchesKeyword = true;
 
                 // タグ
-                if (IsTagsMatch(item, new[] { keyword }))
-                {
+                if (IsTagsMatch(item, keyword))
                     matchesKeyword = true;
-                }
 
                 // メモ
-                if (IsMemoMatch(item, new[] { keyword }))
-                {
+                if (IsMemoMatch(item, keyword))
                     matchesKeyword = true;
-                }
 
+                // このキーワードで1つも一致しなかったらfalse
                 if (!matchesKeyword)
-                {
                     return false;
-                }
             }
 
             return true;
@@ -136,48 +105,30 @@ namespace UnityEditorAssetBrowser.Services
         /// <param name="item">判定するアイテム</param>
         /// <param name="criteria">検索条件</param>
         /// <returns>検索条件に一致する場合はtrue、それ以外はfalse</returns>
-        private bool IsAdvancedSearchMatch(object item, SearchCriteria criteria)
+        private bool IsAdvancedSearchMatch(IDatabaseItem item, SearchCriteria criteria)
         {
             // タイトル検索
-            if (
-                !string.IsNullOrEmpty(criteria.TitleSearch)
-                && !IsTitleMatch(item, criteria.GetTitleKeywords())
-            )
+            if (!string.IsNullOrEmpty(criteria.TitleSearch) && !IsTitleMatch(item, criteria.GetTitleKeywords()))
                 return false;
 
             // 作者名検索
-            if (
-                !string.IsNullOrEmpty(criteria.AuthorSearch)
-                && !IsAuthorMatch(item, criteria.GetAuthorKeywords())
-            )
+            if (!string.IsNullOrEmpty(criteria.AuthorSearch) && !IsAuthorMatch(item, criteria.GetAuthorKeywords()))
                 return false;
 
             // カテゴリ検索
-            if (
-                !string.IsNullOrEmpty(criteria.CategorySearch)
-                && !IsCategoryMatch(item, criteria.GetCategoryKeywords())
-            )
+            if (!string.IsNullOrEmpty(criteria.CategorySearch) && !IsCategoryMatch(item, criteria.GetCategoryKeywords()))
                 return false;
 
             // 対応アバター検索
-            if (
-                !string.IsNullOrEmpty(criteria.SupportedAvatarsSearch)
-                && !IsSupportedAvatarsMatch(item, criteria.GetSupportedAvatarsKeywords())
-            )
+            if (!string.IsNullOrEmpty(criteria.SupportedAvatarsSearch) && !IsSupportedAvatarsMatch(item, criteria.GetSupportedAvatarsKeywords()))
                 return false;
 
             // タグ検索
-            if (
-                !string.IsNullOrEmpty(criteria.TagsSearch)
-                && !IsTagsMatch(item, criteria.GetTagsKeywords())
-            )
+            if (!string.IsNullOrEmpty(criteria.TagsSearch) && !IsTagsMatch(item, criteria.GetTagsKeywords()))
                 return false;
 
             // メモ検索
-            if (
-                !string.IsNullOrEmpty(criteria.MemoSearch)
-                && !IsMemoMatch(item, criteria.GetMemoKeywords())
-            )
+            if (!string.IsNullOrEmpty(criteria.MemoSearch) && !IsMemoMatch(item, criteria.GetMemoKeywords()))
                 return false;
 
             return true;
@@ -189,11 +140,11 @@ namespace UnityEditorAssetBrowser.Services
         /// <param name="item">判定するアイテム</param>
         /// <param name="keywords">検索キーワード</param>
         /// <returns>検索条件に一致する場合はtrue、それ以外はfalse</returns>
-        private bool IsTitleMatch(object item, string[] keywords)
+        private bool IsTitleMatch(IDatabaseItem item, string[] keywords)
         {
-            return keywords.All(keyword =>
-                GetTitle(item).Contains(keyword, StringComparison.InvariantCultureIgnoreCase)
-            );
+            string itemTitle = item.GetTitle();
+
+            return keywords.All(keyword => itemTitle.Contains(keyword, StringComparison.InvariantCultureIgnoreCase));
         }
 
         /// <summary>
@@ -202,11 +153,11 @@ namespace UnityEditorAssetBrowser.Services
         /// <param name="item">判定するアイテム</param>
         /// <param name="keywords">検索キーワード</param>
         /// <returns>検索条件に一致する場合はtrue、それ以外はfalse</returns>
-        private bool IsAuthorMatch(object item, string[] keywords)
+        private bool IsAuthorMatch(IDatabaseItem item, string[] keywords)
         {
-            return keywords.All(keyword =>
-                GetAuthor(item).Contains(keyword, StringComparison.InvariantCultureIgnoreCase)
-            );
+            string authorName = item.GetAuthor();
+
+            return keywords.All(keyword => authorName.Contains(keyword, StringComparison.InvariantCultureIgnoreCase));
         }
 
         /// <summary>
@@ -215,13 +166,24 @@ namespace UnityEditorAssetBrowser.Services
         /// <param name="item">判定するアイテム</param>
         /// <param name="keywords">検索キーワード</param>
         /// <returns>検索条件に一致する場合はtrue、それ以外はfalse</returns>
-        private bool IsCategoryMatch(object item, string[] keywords)
+        private bool IsCategoryMatch(IDatabaseItem item, string[] keywords)
         {
-            string categoryName = GetItemCategoryName(item);
+            string categoryName = item.GetCategory();
 
-            return keywords.All(keyword =>
-                categoryName.Contains(keyword, StringComparison.InvariantCultureIgnoreCase)
-            );
+            return keywords.All(keyword => categoryName.Contains(keyword, StringComparison.InvariantCultureIgnoreCase));
+        }
+
+        /// <summary>
+        /// カテゴリが検索条件に一致するか判定する
+        /// </summary>
+        /// <param name="item">判定するアイテム</param>
+        /// <param name="keyword">検索キーワード</param>
+        /// <returns>検索条件に一致する場合はtrue、それ以外はfalse</returns>
+        private bool IsCategoryMatch(IDatabaseItem item, string keyword)
+        {
+            string categoryName = item.GetCategory();
+
+            return categoryName.Contains(keyword, StringComparison.InvariantCultureIgnoreCase);
         }
 
         /// <summary>
@@ -230,43 +192,30 @@ namespace UnityEditorAssetBrowser.Services
         /// <param name="item">判定するアイテム</param>
         /// <param name="keywords">検索キーワード</param>
         /// <returns>検索条件に一致する場合はtrue、それ以外はfalse</returns>
-        private bool IsSupportedAvatarsMatch(object item, string[] keywords)
+        private bool IsSupportedAvatarsMatch(IDatabaseItem item, string[] keywords)
         {
-            if (item is AvatarExplorerItem aeItem && aeItem.SupportedAvatars != null)
-            {
-                // すべてのキーワードが少なくとも1つの対応アバターに含まれていることを確認
-                /// <param name="avatarTitle">空白が詰められたアバタータイトル</param>
-                return keywords.All(keyword =>
-                    aeItem.SupportedAvatars.Any(avatarTitle =>
-                    {
-                        var avatarItem = aeDatabase?.Items.FirstOrDefault(x =>
-                            x.Title.Replace(" ", "") == avatarTitle
-                        );
-                        if (avatarItem != null)
-                        {
-                            return avatarItem.Title.Contains(
-                                keyword,
-                                StringComparison.InvariantCultureIgnoreCase
-                            );
-                        }
-                        return Path.GetFileName(avatarTitle)
-                            .Contains(keyword, StringComparison.InvariantCultureIgnoreCase);
-                    })
-                );
-            }
-            else if (
-                item is KonoAssetWearableItem wearableItem
-                && wearableItem.supportedAvatars != null
-            )
-            {
-                // すべてのキーワードが少なくとも1つの対応アバターに含まれていることを確認
-                return keywords.All(keyword =>
-                    wearableItem.supportedAvatars.Any(avatar =>
-                        avatar.Contains(keyword, StringComparison.InvariantCultureIgnoreCase)
-                    )
-                );
-            }
-            return true;
+            var supportedAvatars = item.GetSupportedAvatars();
+
+            // すべてのキーワードが少なくとも1つの対応アバターに含まれていることを確認
+            return keywords.All(keyword =>
+                supportedAvatars.Any(avatar =>
+                    avatar.Contains(keyword, StringComparison.InvariantCultureIgnoreCase)
+                )
+            );
+        }
+        
+        /// <summary>
+        /// 対応アバターが検索条件に一致するか判定する
+        /// </summary>
+        /// <param name="item">判定するアイテム</param>
+        /// <param name="keyword">検索キーワード</param>
+        /// <returns>検索条件に一致する場合はtrue、それ以外はfalse</returns>
+        private bool IsSupportedAvatarsMatch(IDatabaseItem item, string keyword)
+        {
+            var supportedAvatars = item.GetSupportedAvatars();
+
+            // キーワードが少なくとも1つの対応アバターに含まれていることを確認
+            return supportedAvatars.Any(avatar => avatar.Contains(keyword, StringComparison.InvariantCultureIgnoreCase));
         }
 
         /// <summary>
@@ -275,26 +224,28 @@ namespace UnityEditorAssetBrowser.Services
         /// <param name="item">判定するアイテム</param>
         /// <param name="keywords">検索キーワード</param>
         /// <returns>検索条件に一致する場合はtrue、それ以外はfalse</returns>
-        private bool IsTagsMatch(object item, string[] keywords)
+        private bool IsTagsMatch(IDatabaseItem item, string[] keywords)
         {
-            string[]? tags = null;
-
-            if (item is KonoAssetAvatarItem kaItem)
-                tags = kaItem.description.tags;
-            else if (item is KonoAssetWearableItem wearableItem)
-                tags = wearableItem.description.tags;
-            else if (item is KonoAssetWorldObjectItem worldItem)
-                tags = worldItem.description.tags;
-            else if (item is KonoAssetOtherAssetItem otherItem)
-                tags = otherItem.description.tags;
-
-            if (tags == null || tags.Length == 0)
-                return false;
+            string[] tags = item.GetTags();
+            if (tags.Length == 0) return false;
 
             // すべてのキーワードが少なくとも1つのタグに含まれていることを確認
-            return keywords.All(keyword =>
-                tags.Any(tag => tag.Contains(keyword, StringComparison.InvariantCultureIgnoreCase))
-            );
+            return keywords.All(keyword => tags.Any(tag => tag.Contains(keyword, StringComparison.InvariantCultureIgnoreCase)));
+        }
+
+        /// <summary>
+        /// タグが検索条件に一致するか判定する
+        /// </summary>
+        /// <param name="item">判定するアイテム</param>
+        /// <param name="keyword">検索キーワード</param>
+        /// <returns>検索条件に一致する場合はtrue、それ以外はfalse</returns>
+        private bool IsTagsMatch(IDatabaseItem item, string keyword)
+        {
+            string[] tags = item.GetTags();
+            if (tags.Length == 0) return false;
+
+            // キーワードが少なくとも1つのタグに含まれていることを確認
+            return tags.Any(tag => tag.Contains(keyword, StringComparison.InvariantCultureIgnoreCase));
         }
 
         /// <summary>
@@ -303,21 +254,35 @@ namespace UnityEditorAssetBrowser.Services
         /// <param name="item">判定するアイテム</param>
         /// <param name="keywords">検索キーワード</param>
         /// <returns>検索条件に一致する場合はtrue、それ以外はfalse</returns>
-        private bool IsMemoMatch(object item, string[] keywords)
+        private bool IsMemoMatch(IDatabaseItem item, string[] keywords)
         {
-            string memo = GetMemo(item);
-            if (string.IsNullOrEmpty(memo))
-                return false;
+            string memo = item.GetMemo();
+            if (string.IsNullOrEmpty(memo)) return false;
 
             // すべてのキーワードがメモに含まれていることを確認
-            return keywords.All(keyword =>
-                memo.Contains(keyword, StringComparison.InvariantCultureIgnoreCase)
-            );
+            return keywords.All(keyword => memo.Contains(keyword, StringComparison.InvariantCultureIgnoreCase));
         }
 
-        public bool IsDatabaseNull()
+        /// <summary>
+        /// メモが検索条件に一致するか判定する
+        /// </summary>
+        /// <param name="item">判定するアイテム</param>
+        /// <param name="keyword">検索キーワード</param>
+        /// <returns>検索条件に一致する場合はtrue、それ以外はfalse</returns>
+        private bool IsMemoMatch(IDatabaseItem item, string keyword)
         {
-            return aeDatabase == null;
+            string memo = item.GetMemo();
+            if (string.IsNullOrEmpty(memo)) return false;
+
+            // キーワードがメモに含まれていることを確認
+            return memo.Contains(keyword, StringComparison.InvariantCultureIgnoreCase);
         }
+
+        /// <summary>
+        /// データベースがNullかどうかチェックします
+        /// </summary>
+        /// <returns></returns>
+        public bool IsDatabaseNull()
+            => _aeDatabase == null;
     }
 }

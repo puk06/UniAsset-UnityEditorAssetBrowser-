@@ -1,6 +1,6 @@
 // Copyright (c) 2025 sakurayuki
-// This code is borrowed from AvatarExplorer(https://github.com/puk06/AvatarExplorer)
-// AvatarExplorer is licensed under the MIT License. https://github.com/puk06/AvatarExplorer/blob/main/LICENSE
+// This code is borrowed from Avatar-Explorer(https://github.com/puk06/Avatar-Explorer)
+// Avatar-Explorer is licensed under the MIT License. https://github.com/puk06/Avatar-Explorer/blob/main/LICENSE)
 // This code is borrowed from AssetLibraryManager (https://github.com/MAIOTAchannel/AssetLibraryManager)
 // Used with permission from MAIOTAchannel
 
@@ -8,11 +8,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using UnityEditor;
-using UnityEditorAssetBrowser.Helper;
+using UnityEditorAssetBrowser.Interfaces;
 using UnityEditorAssetBrowser.Models;
 using UnityEditorAssetBrowser.Services;
 using UnityEngine;
@@ -38,9 +36,6 @@ namespace UnityEditorAssetBrowser.ViewModels
         private SortMethod _currentSortMethod = SortMethod.CreatedDateDesc;
         private readonly SearchViewModel _searchViewModel;
         private string? _lastError;
-
-        /// <summary>ソート処理用のAssetItemヘルパーインスタンス（パフォーマンス最適化）</summary>
-        private static readonly AssetItem _assetItemHelper = new AssetItem();
 
         public string? LastError => _lastError;
 
@@ -105,9 +100,9 @@ namespace UnityEditorAssetBrowser.ViewModels
         /// フィルターされたアバターリストを取得
         /// </summary>
         /// <returns>フィルターされたアバターリスト</returns>
-        public List<object> GetFilteredAvatars()
+        public List<IDatabaseItem> GetFilteredAvatars()
         {
-            var items = new List<object>();
+            var items = new List<IDatabaseItem>();
 
             // AEのアバターを追加
             if (_aeDatabase?.Items != null)
@@ -119,19 +114,17 @@ namespace UnityEditorAssetBrowser.ViewModels
                         var key = "UnityEditorAssetBrowser_CategoryAssetType_" + category;
 
                         // アセットタイプが0（アバター）のアイテムのみを表示
-                        if (EditorPrefs.HasKey(key))
-                        {
-                            return EditorPrefs.GetInt(key) == AssetTypeConstants.AVATAR;
-                        }
-                        return item.Type == "0"; // キーが存在しない場合は従来の判定
+                        if (EditorPrefs.HasKey(key)) return EditorPrefs.GetInt(key) == (int)AssetTypeConstants.Avatar;
+
+                        return (AvatarExplorerItemType)item.Type == AvatarExplorerItemType.Avatar; // キーが存在しない場合は従来の判定
                     })
                 );
             }
 
             // KAのアバターを追加
-            if (_kaAvatarsDatabase?.data != null)
+            if (_kaAvatarsDatabase?.Data != null)
             {
-                items.AddRange(_kaAvatarsDatabase.data);
+                items.AddRange(_kaAvatarsDatabase.Data);
             }
 
             return SortItems(items.Where(_searchViewModel.IsItemMatchSearch).ToList());
@@ -141,9 +134,9 @@ namespace UnityEditorAssetBrowser.ViewModels
         /// フィルターされたアイテムリストを取得
         /// </summary>
         /// <returns>フィルターされたアイテムリスト</returns>
-        public List<object> GetFilteredItems()
+        public List<IDatabaseItem> GetFilteredItems()
         {
-            var items = new List<object>();
+            var items = new List<IDatabaseItem>();
             if (_aeDatabase != null)
             {
                 items.AddRange(
@@ -153,26 +146,17 @@ namespace UnityEditorAssetBrowser.ViewModels
                         var key = "UnityEditorAssetBrowser_CategoryAssetType_" + category;
 
                         // アセットタイプが1（アバター関連アセット）のアイテムのみを表示
-                        if (EditorPrefs.HasKey(key))
-                        {
-                            return EditorPrefs.GetInt(key) == AssetTypeConstants.AVATAR_RELATED;
-                        }
+                        if (EditorPrefs.HasKey(key)) return EditorPrefs.GetInt(key) == (int)AssetTypeConstants.AvatarRelated;
+
                         // キーが存在しない場合は従来の判定
-                        return item.Type != "0"
-                            && !item.CustomCategory.Contains(
-                                "ワールド",
-                                StringComparison.OrdinalIgnoreCase
-                            )
-                            && !item.CustomCategory.Contains(
-                                "world",
-                                StringComparison.OrdinalIgnoreCase
-                            );
+                        return (AvatarExplorerItemType)item.Type != AvatarExplorerItemType.Avatar && !AssetItem.IsWorldCategory(item.CustomCategory);
                     })
                 );
             }
+            
             if (_kaWearablesDatabase != null)
             {
-                items.AddRange(_kaWearablesDatabase.data);
+                items.AddRange(_kaWearablesDatabase.Data);
             }
 
             return SortItems(items.Where(_searchViewModel.IsItemMatchSearch).ToList());
@@ -182,9 +166,9 @@ namespace UnityEditorAssetBrowser.ViewModels
         /// フィルターされたワールドオブジェクトリストを取得
         /// </summary>
         /// <returns>フィルターされたワールドオブジェクトリスト</returns>
-        public List<object> GetFilteredWorldObjects()
+        public List<IDatabaseItem> GetFilteredWorldObjects()
         {
-            var items = new List<object>();
+            var items = new List<IDatabaseItem>();
 
             // AEのワールドアイテムを追加
             if (_aeDatabase?.Items != null)
@@ -196,30 +180,18 @@ namespace UnityEditorAssetBrowser.ViewModels
                         var key = "UnityEditorAssetBrowser_CategoryAssetType_" + category;
 
                         // アセットタイプが2（ワールドオブジェクト）のアイテムのみを表示
-                        if (EditorPrefs.HasKey(key))
-                        {
-                            return EditorPrefs.GetInt(key) == AssetTypeConstants.WORLD;
-                        }
+                        if (EditorPrefs.HasKey(key)) return EditorPrefs.GetInt(key) == (int)AssetTypeConstants.World;
+
                         // キーが存在しない場合は従来の判定
-                        return item.Type != "0"
-                            && (
-                                item.CustomCategory.Contains(
-                                    "ワールド",
-                                    StringComparison.OrdinalIgnoreCase
-                                )
-                                || item.CustomCategory.Contains(
-                                    "world",
-                                    StringComparison.OrdinalIgnoreCase
-                                )
-                            );
+                        return (AvatarExplorerItemType)item.Type != AvatarExplorerItemType.Avatar && AssetItem.IsWorldCategory(item.CustomCategory);
                     })
                 );
             }
 
             // KAのワールドオブジェクトを追加
-            if (_kaWorldObjectsDatabase?.data != null)
+            if (_kaWorldObjectsDatabase?.Data != null)
             {
-                items.AddRange(_kaWorldObjectsDatabase.data);
+                items.AddRange(_kaWorldObjectsDatabase.Data);
             }
 
             return SortItems(items.Where(_searchViewModel.IsItemMatchSearch).ToList());
@@ -229,9 +201,9 @@ namespace UnityEditorAssetBrowser.ViewModels
         /// その他のアセットをフィルタリングして取得
         /// </summary>
         /// <returns>フィルタリングされたその他のアセットのリスト</returns>
-        public List<object> GetFilteredOthers()
+        public List<IDatabaseItem> GetFilteredOthers()
         {
-            var items = new List<object>();
+            var items = new List<IDatabaseItem>();
 
             // AEデータベースのアイテムをフィルタリング
             if (_aeDatabase != null)
@@ -245,7 +217,7 @@ namespace UnityEditorAssetBrowser.ViewModels
                     if (EditorPrefs.HasKey(key))
                     {
                         var assetType = EditorPrefs.GetInt(key);
-                        if (assetType == AssetTypeConstants.OTHER) // その他
+                        if (assetType == (int)AssetTypeConstants.Other) // その他
                         {
                             items.Add(item);
                         }
@@ -254,9 +226,9 @@ namespace UnityEditorAssetBrowser.ViewModels
             }
 
             // KAのその他アセットを追加
-            if (_kaOtherAssetsDatabase?.data != null)
+            if (_kaOtherAssetsDatabase?.Data != null)
             {
-                items.AddRange(_kaOtherAssetsDatabase.data);
+                items.AddRange(_kaOtherAssetsDatabase.Data);
             }
 
             return SortItems(items.Where(_searchViewModel.IsItemMatchSearch).ToList());
@@ -267,31 +239,20 @@ namespace UnityEditorAssetBrowser.ViewModels
         /// </summary>
         /// <param name="items">ソートするアイテムリスト</param>
         /// <returns>ソートされたアイテムリスト</returns>
-        public List<object> SortItems(List<object> items)
+        public List<IDatabaseItem> SortItems(List<IDatabaseItem> items)
         {
-            switch (_currentSortMethod)
+            return _currentSortMethod switch
             {
-                case SortMethod.CreatedDateDesc:
-                    return items.OrderByDescending(item => GetCreatedDate(item)).ToList();
-                case SortMethod.CreatedDateAsc:
-                    return items.OrderBy(item => GetCreatedDate(item)).ToList();
-                case SortMethod.TitleAsc:
-                    return items.OrderBy(item => GetTitle(item)).ToList();
-                case SortMethod.TitleDesc:
-                    return items.OrderByDescending(item => GetTitle(item)).ToList();
-                case SortMethod.AuthorAsc:
-                    return items.OrderBy(item => GetAuthor(item)).ToList();
-                case SortMethod.AuthorDesc:
-                    return items.OrderByDescending(item => GetAuthor(item)).ToList();
-                case SortMethod.BoothIdDesc:
-                    return items
-                        .OrderByDescending(item => _assetItemHelper.GetBoothItemId(item))
-                        .ToList();
-                case SortMethod.BoothIdAsc:
-                    return items.OrderBy(item => _assetItemHelper.GetBoothItemId(item)).ToList();
-                default:
-                    return items;
-            }
+                SortMethod.CreatedDateDesc => items.OrderByDescending(item => item.GetCreatedDate()).ToList(),
+                SortMethod.CreatedDateAsc => items.OrderBy(item => item.GetCreatedDate()).ToList(),
+                SortMethod.TitleAsc => items.OrderBy(item => item.GetTitle()).ToList(),
+                SortMethod.TitleDesc => items.OrderByDescending(item => item.GetTitle()).ToList(),
+                SortMethod.AuthorAsc => items.OrderBy(item => item.GetAuthor()).ToList(),
+                SortMethod.AuthorDesc => items.OrderByDescending(item => item.GetAuthor()).ToList(),
+                SortMethod.BoothIdDesc => items.OrderByDescending(item => item.GetBoothId()).ToList(),
+                SortMethod.BoothIdAsc => items.OrderBy(item => item.GetBoothId()).ToList(),
+                _ => items,
+            };
         }
 
         /// <summary>
@@ -348,7 +309,7 @@ namespace UnityEditorAssetBrowser.ViewModels
         /// </summary>
         /// <param name="aeDatabasePath">AEデータベースのパス</param>
         /// <param name="kaDatabasePath">KAデータベースのパス</param>
-        [System.Obsolete("RefreshImageCache is deprecated. Use ImageServices.Instance.UpdateVisibleImages instead.")]
+        [Obsolete("RefreshImageCache is deprecated. Use ImageServices.Instance.UpdateVisibleImages instead.")]
         public void RefreshImageCache(string aeDatabasePath, string kaDatabasePath)
         {
             // 新しい実装ではキャッシュクリアのみ実行
@@ -356,151 +317,18 @@ namespace UnityEditorAssetBrowser.ViewModels
             ImageServices.Instance.ClearCache();
         }
 
-        #region Helper Methods for Sorting
-        private DateTime? GetCreatedDate(object item)
-        {
-            if (item is AvatarExplorerItem aeItem)
-            {
-                return aeItem.CreatedDate;
-            }
-            else if (item is KonoAssetAvatarItem kaAvatarItem)
-            {
-                return kaAvatarItem.description.createdAt > 0
-                    ? DateTimeOffset
-                        .FromUnixTimeMilliseconds(kaAvatarItem.description.createdAt)
-                        .DateTime
-                    : (DateTime?)null;
-            }
-            else if (item is KonoAssetWearableItem kaWearableItem)
-            {
-                return kaWearableItem.description.createdAt > 0
-                    ? DateTimeOffset
-                        .FromUnixTimeMilliseconds(kaWearableItem.description.createdAt)
-                        .DateTime
-                    : (DateTime?)null;
-            }
-            else if (item is KonoAssetWorldObjectItem kaWorldObjectItem)
-            {
-                return kaWorldObjectItem.description.createdAt > 0
-                    ? DateTimeOffset
-                        .FromUnixTimeMilliseconds(kaWorldObjectItem.description.createdAt)
-                        .DateTime
-                    : (DateTime?)null;
-            }
-            else if (item is KonoAssetOtherAssetItem kaOtherAssetItem)
-            {
-                return kaOtherAssetItem.description.createdAt > 0
-                    ? DateTimeOffset
-                        .FromUnixTimeMilliseconds(kaOtherAssetItem.description.createdAt)
-                        .DateTime
-                    : (DateTime?)null;
-            }
-            return null;
-        }
-
-        private string GetTitle(object item)
-        {
-            if (item is AvatarExplorerItem aeItem)
-            {
-                return aeItem.Title ?? "";
-            }
-            else if (item is KonoAssetAvatarItem kaAvatarItem)
-            {
-                return kaAvatarItem.description.name ?? "";
-            }
-            else if (item is KonoAssetWearableItem kaWearableItem)
-            {
-                return kaWearableItem.description.name ?? "";
-            }
-            else if (item is KonoAssetWorldObjectItem kaWorldObjectItem)
-            {
-                return kaWorldObjectItem.description.name ?? "";
-            }
-            else if (item is KonoAssetOtherAssetItem kaOtherAssetItem)
-            {
-                return kaOtherAssetItem.description.name ?? "";
-            }
-            return "";
-        }
-
-        private string GetAuthor(object item)
-        {
-            if (item is AvatarExplorerItem aeItem)
-            {
-                return aeItem.AuthorName ?? "";
-            }
-            else if (item is KonoAssetAvatarItem kaAvatarItem)
-            {
-                return kaAvatarItem.description.creator ?? "";
-            }
-            else if (item is KonoAssetWearableItem kaWearableItem)
-            {
-                return kaWearableItem.description.creator ?? "";
-            }
-            else if (item is KonoAssetWorldObjectItem kaWorldObjectItem)
-            {
-                return kaWorldObjectItem.description.creator ?? "";
-            }
-            else if (item is KonoAssetOtherAssetItem kaOtherAssetItem)
-            {
-                return kaOtherAssetItem.description.creator ?? "";
-            }
-            return "";
-        }
-        #endregion
-
-        /// <summary>
-        /// 画像のフルパスを取得
-        /// </summary>
-        /// <param name="imagePath">画像の相対パス</param>
-        /// <param name="aeDatabasePath">AEデータベースのパス</param>
-        /// <param name="kaDatabasePath">KAデータベースのパス</param>
-        /// <returns>画像のフルパス</returns>
-        private string GetFullImagePath(
-            string imagePath,
-            string aeDatabasePath,
-            string kaDatabasePath
-        )
-        {
-            if (string.IsNullOrEmpty(imagePath))
-                return string.Empty;
-
-            return imagePath.StartsWith("Datas")
-                ? Path.Combine(aeDatabasePath, imagePath.Replace("Datas\\", ""))
-                : Path.Combine(kaDatabasePath, "images", imagePath);
-        }
-
-        /// <summary>
-        /// テクスチャを読み込む
-        /// </summary>
-        /// <param name="imagePath">画像の相対パス</param>
-        /// <param name="aeDatabasePath">AEデータベースのパス</param>
-        /// <param name="kaDatabasePath">KAデータベースのパス</param>
-        /// <returns>読み込まれたテクスチャ、読み込みに失敗した場合はnull</returns>
-        private Texture2D? LoadTexture(
-            string imagePath,
-            string aeDatabasePath,
-            string kaDatabasePath
-        )
-        {
-            string fullImagePath = GetFullImagePath(imagePath, aeDatabasePath, kaDatabasePath);
-            return File.Exists(fullImagePath)
-                ? ImageServices.Instance.LoadTexture(fullImagePath)
-                : null;
-        }
-
         /// <summary>
         /// 現在のタブのアイテムを取得
         /// </summary>
         /// <param name="selectedTab">選択中のタブ（0: アバター, 1: アイテム, 2: ワールドオブジェクト）</param>
         /// <returns>現在のタブのアイテムリスト</returns>
-        public List<object> GetCurrentTabItems(int selectedTab) =>
+        public List<IDatabaseItem> GetCurrentTabItems(int selectedTab) =>
             selectedTab switch
             {
                 0 => GetFilteredAvatars(),
                 1 => GetFilteredItems(),
                 2 => GetFilteredWorldObjects(),
-                _ => new List<object>(),
+                _ => new List<IDatabaseItem>()
             };
 
         /// <summary>

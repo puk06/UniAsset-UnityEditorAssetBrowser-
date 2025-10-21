@@ -27,22 +27,22 @@ namespace UnityEditorAssetBrowser.Helper
             /// <summary>
             /// アバターデータベース
             /// </summary>
-            public KonoAssetAvatarsDatabase? avatarsDatabase;
+            public KonoAssetAvatarsDatabase? AvatarsDatabase;
 
             /// <summary>
             /// ウェアラブルデータベース
             /// </summary>
-            public KonoAssetWearablesDatabase? wearablesDatabase;
+            public KonoAssetWearablesDatabase? WearablesDatabase;
 
             /// <summary>
             /// ワールドオブジェクトデータベース
             /// </summary>
-            public KonoAssetWorldObjectsDatabase? worldObjectsDatabase;
+            public KonoAssetWorldObjectsDatabase? WorldObjectsDatabase;
 
             /// <summary>
             /// その他アセットデータベース
             /// </summary>
-            public KonoAssetOtherAssetsDatabase? otherAssetsDatabase;
+            public KonoAssetOtherAssetsDatabase? OtherAssetsDatabase;
         }
 
         /// <summary>
@@ -62,8 +62,7 @@ namespace UnityEditorAssetBrowser.Helper
                 if (File.Exists(avatarsPath))
                 {
                     var json = File.ReadAllText(avatarsPath);
-                    result.avatarsDatabase =
-                        JsonConvert.DeserializeObject<KonoAssetAvatarsDatabase>(json);
+                    result.AvatarsDatabase = JsonConvert.DeserializeObject<KonoAssetAvatarsDatabase>(json);
                 }
 
                 // avatarWearables.jsonの読み込み
@@ -71,8 +70,7 @@ namespace UnityEditorAssetBrowser.Helper
                 if (File.Exists(wearablesPath))
                 {
                     var json = File.ReadAllText(wearablesPath);
-                    result.wearablesDatabase =
-                        JsonConvert.DeserializeObject<KonoAssetWearablesDatabase>(json);
+                    result.WearablesDatabase = JsonConvert.DeserializeObject<KonoAssetWearablesDatabase>(json);
                 }
 
                 // worldObjects.jsonの読み込み
@@ -80,8 +78,7 @@ namespace UnityEditorAssetBrowser.Helper
                 if (File.Exists(worldObjectsPath))
                 {
                     var json = File.ReadAllText(worldObjectsPath);
-                    result.worldObjectsDatabase =
-                        JsonConvert.DeserializeObject<KonoAssetWorldObjectsDatabase>(json);
+                    result.WorldObjectsDatabase = JsonConvert.DeserializeObject<KonoAssetWorldObjectsDatabase>(json);
                 }
 
                 // otherAssets.jsonの読み込み
@@ -89,8 +86,7 @@ namespace UnityEditorAssetBrowser.Helper
                 if (File.Exists(otherAssetsPath))
                 {
                     var json = File.ReadAllText(otherAssetsPath);
-                    result.otherAssetsDatabase =
-                        JsonConvert.DeserializeObject<KonoAssetOtherAssetsDatabase>(json);
+                    result.OtherAssetsDatabase = JsonConvert.DeserializeObject<KonoAssetOtherAssetsDatabase>(json);
                 }
             }
             catch (Exception ex)
@@ -107,24 +103,26 @@ namespace UnityEditorAssetBrowser.Helper
         /// </summary>
         /// <param name="path">保存先のディレクトリパス</param>
         /// <param name="database">保存するデータベース</param>
-        public static void SaveKADatabase(string path, KonoAssetDatabase database)
+        public static void SaveKADatabase(
+            string path
+            // , KonoAssetDatabase database
+        )
         {
-            try
-            {
-                var metadataPath = Path.Combine(path, "metadata");
-                if (!Directory.Exists(metadataPath))
-                {
-                    Directory.CreateDirectory(metadataPath);
-                }
+            return; // 勝手に書き換えられたら困るため、一応
+            
+            // try
+            // {
+            //     var metadataPath = Path.Combine(path, "metadata");
+            //     if (!Directory.Exists(metadataPath)) Directory.CreateDirectory(metadataPath);
 
-                var jsonPath = Path.Combine(metadataPath, "database.json");
-                var json = JsonConvert.SerializeObject(database, JsonSettings.Settings);
-                File.WriteAllText(jsonPath, json);
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"Error saving KA database: {ex.Message}");
-            }
+            //     var jsonPath = Path.Combine(metadataPath, "database.json");
+            //     var json = JsonConvert.SerializeObject(database, JsonSettings.Settings);
+            //     File.WriteAllText(jsonPath, json);
+            // }
+            // catch (Exception ex)
+            // {
+            //     Debug.LogError($"Error saving KA database: {ex.Message}");
+            // }
         }
     }
 }

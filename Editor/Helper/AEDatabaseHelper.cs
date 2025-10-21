@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using UnityEditorAssetBrowser.Models;
 using UnityEngine;
 
@@ -69,50 +68,15 @@ namespace UnityEditorAssetBrowser.Helper
                     Converters = new List<JsonConverter> { new CustomDateTimeConverter() },
                 };
 
-                // JSONが配列形式かどうかを確認
-                if (json.TrimStart().StartsWith("["))
+                var items = JsonConvert.DeserializeObject<AvatarExplorerItem[]>(json, settings);
+                if (items != null)
                 {
-                    // 配列形式の場合は、AvatarExplorerItem[]としてデシリアライズしてから
-                    // AvatarExplorerDatabaseに変換
-                    var items = JsonConvert.DeserializeObject<AvatarExplorerItem[]>(json, settings);
-                    if (items != null)
+                    foreach (var item in items)
                     {
-                        // 対応アバターのパスを変換
-                        foreach (var item in items)
-                        {
-                            if (item.SupportedAvatar != null && item.SupportedAvatar.Length > 0)
-                            {
-                                item.SupportedAvatar = ConvertSupportedAvatarPaths(
-                                    items,
-                                    item.SupportedAvatar
-                                );
-                            }
-                        }
-                        return new AvatarExplorerDatabase(items);
+                        item.SupportedAvatar = ConvertSupportedAvatarPaths(items, item.SupportedAvatar);
                     }
-                }
-                else
-                {
-                    // オブジェクト形式の場合は、そのままAvatarExplorerDatabaseとしてデシリアライズ
-                    var database = JsonConvert.DeserializeObject<AvatarExplorerDatabase>(
-                        json,
-                        settings
-                    );
-                    if (database?.Items != null)
-                    {
-                        // 対応アバターのパスを変換
-                        foreach (var item in database.Items)
-                        {
-                            if (item.SupportedAvatar != null && item.SupportedAvatar.Length > 0)
-                            {
-                                item.SupportedAvatar = ConvertSupportedAvatarPaths(
-                                    database.Items.ToArray(),
-                                    item.SupportedAvatar
-                                );
-                            }
-                        }
-                    }
-                    return database;
+
+                    return new AvatarExplorerDatabase(items);
                 }
 
                 return null;
@@ -132,16 +96,18 @@ namespace UnityEditorAssetBrowser.Helper
         /// <exception cref="Exception">保存に失敗した場合にスローされる</exception>
         public static void SaveAEDatabase(string path, AvatarExplorerItem[] data)
         {
-            try
-            {
-                var jsonPath = Path.Combine(path, "ItemsData.json");
-                var json = JsonConvert.SerializeObject(data, JsonSettings.Settings);
-                File.WriteAllText(jsonPath, json);
-            }
-            catch (Exception ex)
-            {
-                Debug.LogWarning($"Error saving AE database: {ex.Message}");
-            }
+            return; // 勝手に書き換えられたら困るため、一応
+
+            // try
+            // {
+            //     var jsonPath = Path.Combine(path, "ItemsData.json");
+            //     var json = JsonConvert.SerializeObject(data, JsonSettings.Settings);
+            //     File.WriteAllText(jsonPath, json);
+            // }
+            // catch (Exception ex)
+            // {
+            //     Debug.LogWarning($"Error saving AE database: {ex.Message}");
+            // }
         }
 
         /// <summary>
@@ -150,20 +116,16 @@ namespace UnityEditorAssetBrowser.Helper
         /// <param name="items">全アイテムリスト</param>
         /// <param name="supportedAvatars">変換対象の対応アバターパス配列</param>
         /// <returns>変換後のアバター名配列</returns>
-        private static string[] ConvertSupportedAvatarPaths(
-            AvatarExplorerItem[] items,
-            string[] supportedAvatars
-        )
+        private static string[] ConvertSupportedAvatarPaths(AvatarExplorerItem[] items, string[] supportedAvatars)
         {
             var supportedAvatarNames = new List<string>();
+
             foreach (var avatar in supportedAvatars)
             {
                 var avatarData = items.FirstOrDefault(x => x.ItemPath == avatar);
-                if (avatarData != null)
-                {
-                    supportedAvatarNames.Add(avatarData.Title.Replace(" ", ""));
-                }
+                if (avatarData != null) supportedAvatarNames.Add(avatarData.Title);
             }
+
             return supportedAvatarNames.ToArray();
         }
     }

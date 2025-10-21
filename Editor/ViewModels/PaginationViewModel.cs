@@ -4,7 +4,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using UnityEditorAssetBrowser.Interfaces;
 using UnityEditorAssetBrowser.Models;
 
 namespace UnityEditorAssetBrowser.ViewModels
@@ -55,33 +55,37 @@ namespace UnityEditorAssetBrowser.ViewModels
         /// </summary>
         /// <param name="items">アイテムリスト</param>
         /// <returns>総ページ数（アイテム数が0の場合は1）</returns>
-        public int GetTotalPages(List<object> items) => _paginationInfo.GetTotalPages(items);
+        public int GetTotalPages(List<IDatabaseItem> items)
+            => _paginationInfo.GetTotalPages(items);
 
         /// <summary>
         /// 現在のページのアイテムを取得
         /// </summary>
         /// <param name="items">アイテムリスト</param>
         /// <returns>現在のページに表示するアイテム</returns>
-        public IEnumerable<object> GetCurrentPageItems(List<object> items) =>
-            _paginationInfo.GetCurrentPageItems(items);
+        public IEnumerable<IDatabaseItem> GetCurrentPageItems(List<IDatabaseItem> items)
+            => _paginationInfo.GetCurrentPageItems(items);
 
         /// <summary>
         /// ページをリセット（1ページ目に戻す）
         /// </summary>
-        public void ResetPage() => _paginationInfo.ResetPage();
+        public void ResetPage()
+            => _paginationInfo.ResetPage();
 
         /// <summary>
         /// 次のページに移動
         /// </summary>
         /// <param name="totalPages">総ページ数</param>
         /// <returns>移動が成功したかどうか（現在のページが最後のページの場合はfalse）</returns>
-        public bool MoveToNextPage(int totalPages) => _paginationInfo.MoveToNextPage(totalPages);
+        public bool MoveToNextPage(int totalPages)
+            => _paginationInfo.MoveToNextPage(totalPages);
 
         /// <summary>
         /// 前のページに移動
         /// </summary>
         /// <returns>移動が成功したかどうか（現在のページが1ページ目の場合はfalse）</returns>
-        public bool MoveToPreviousPage() => _paginationInfo.MoveToPreviousPage();
+        public bool MoveToPreviousPage()
+            => _paginationInfo.MoveToPreviousPage();
 
         /// <summary>
         /// 指定したページに移動
@@ -89,29 +93,8 @@ namespace UnityEditorAssetBrowser.ViewModels
         /// <param name="page">移動先のページ番号（1以上）</param>
         /// <param name="totalPages">総ページ数</param>
         /// <returns>移動が成功したかどうか（ページ番号が無効な場合はfalse）</returns>
-        public bool MoveToPage(int page, int totalPages) =>
-            _paginationInfo.MoveToPage(page, totalPages);
-
-        /// <summary>
-        /// 現在のタブのアイテム数を取得
-        /// </summary>
-        /// <param name="getFilteredAvatars">フィルターされたアバターを取得する関数</param>
-        /// <param name="getFilteredItems">フィルターされたアイテムを取得する関数</param>
-        /// <param name="getFilteredWorldObjects">フィルターされたワールドオブジェクトを取得する関数</param>
-        /// <param name="getFilteredOthers">フィルターされたその他のアイテムを取得する関数</param>
-        /// <returns>現在のタブのアイテム数</returns>
-        public int GetCurrentTabItemCount(
-            Func<List<object>> getFilteredAvatars,
-            Func<List<object>> getFilteredItems,
-            Func<List<object>> getFilteredWorldObjects,
-            Func<List<object>> getFilteredOthers
-        ) =>
-            GetCurrentTabItems(
-                getFilteredAvatars,
-                getFilteredItems,
-                getFilteredWorldObjects,
-                getFilteredOthers
-            ).Count;
+        public bool MoveToPage(int page, int totalPages)
+            => _paginationInfo.MoveToPage(page, totalPages);
 
         /// <summary>
         /// 現在のタブのアイテムを取得
@@ -121,19 +104,21 @@ namespace UnityEditorAssetBrowser.ViewModels
         /// <param name="getFilteredWorldObjects">フィルターされたワールドオブジェクトを取得する関数</param>
         /// <param name="getFilteredOthers">フィルターされたその他のアイテムを取得する関数</param>
         /// <returns>現在のタブのアイテムリスト</returns>
-        public List<object> GetCurrentTabItems(
-            Func<List<object>> getFilteredAvatars,
-            Func<List<object>> getFilteredItems,
-            Func<List<object>> getFilteredWorldObjects,
-            Func<List<object>> getFilteredOthers
-        ) =>
-            _paginationInfo.SelectedTab switch
+        public List<IDatabaseItem> GetCurrentTabItems(
+            Func<List<IDatabaseItem>> getFilteredAvatars,
+            Func<List<IDatabaseItem>> getFilteredItems,
+            Func<List<IDatabaseItem>> getFilteredWorldObjects,
+            Func<List<IDatabaseItem>> getFilteredOthers
+        )
+        {
+            return _paginationInfo.SelectedTab switch
             {
                 0 => getFilteredAvatars(),
                 1 => getFilteredItems(),
                 2 => getFilteredWorldObjects(),
                 3 => getFilteredOthers(),
-                _ => new List<object>(),
+                _ => new List<IDatabaseItem>(),
             };
+        }
     }
 }
