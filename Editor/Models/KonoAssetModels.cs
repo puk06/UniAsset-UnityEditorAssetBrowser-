@@ -8,6 +8,7 @@ using System;
 using System.IO;
 using Newtonsoft.Json;
 using UnityEditorAssetBrowser.Interfaces;
+using UnityEditorAssetBrowser.Services;
 
 namespace UnityEditorAssetBrowser.Models
 {
@@ -124,10 +125,10 @@ namespace UnityEditorAssetBrowser.Models
             => Description.Creator;
         public string GetMemo()
             => Description.Memo ?? "";
-        public string GetItemPath(string databasePath)
-            => Path.Combine(databasePath, "data", Id).Replace('\\', Path.DirectorySeparatorChar);
-        public string GetImagePath(string databasePath)
-            => Path.Combine(databasePath, "images", Description.ImageFilename).Replace('\\', Path.DirectorySeparatorChar);
+        public string GetItemPath()
+            => Path.GetFullPath(Path.Combine(DatabaseService.GetKADatabasePath(), "data", Id));
+        public string GetImagePath()
+            => Path.GetFullPath(Path.Combine(DatabaseService.GetKADatabasePath(), "images", Description.ImageFilename));
         public string[] GetSupportedAvatars()
             => SupportedAvatars;
         public int GetBoothId()
@@ -138,8 +139,6 @@ namespace UnityEditorAssetBrowser.Models
             => Description.Tags;
         public DateTime GetCreatedDate()
             => DateTimeOffset.FromUnixTimeMilliseconds(Description.CreatedAt).DateTime;
-        public bool IsAEDatabase()
-            => false;
     }
 
     /// <summary>
@@ -166,10 +165,10 @@ namespace UnityEditorAssetBrowser.Models
             => Description.Creator;
         public string GetMemo()
             => Description.Memo ?? "";
-        public string GetItemPath(string databasePath)
-            => Path.Combine(databasePath, "data", Id).Replace('\\', Path.DirectorySeparatorChar);
-        public string GetImagePath(string databasePath)
-            => Path.Combine(databasePath, "images", Description.ImageFilename).Replace('\\', Path.DirectorySeparatorChar);
+        public string GetItemPath()
+            => Path.GetFullPath(Path.Combine(DatabaseService.GetKADatabasePath(), "data", Id));
+        public string GetImagePath()
+            => Path.GetFullPath(Path.Combine(DatabaseService.GetKADatabasePath(), "images", Description.ImageFilename));
         public string[] GetSupportedAvatars()
             => Array.Empty<string>();
         public int GetBoothId()
@@ -180,8 +179,6 @@ namespace UnityEditorAssetBrowser.Models
             => Description.Tags;
         public DateTime GetCreatedDate()
             => DateTimeOffset.FromUnixTimeMilliseconds(Description.CreatedAt).DateTime;
-        public bool IsAEDatabase()
-            => false;
     }
 
     /// <summary>
@@ -214,10 +211,10 @@ namespace UnityEditorAssetBrowser.Models
             => Description.Creator;
         public string GetMemo()
             => Description.Memo ?? "";
-        public string GetItemPath(string databasePath)
-            => Path.Combine(databasePath, "data", Id).Replace('\\', Path.DirectorySeparatorChar);
-        public string GetImagePath(string databasePath)
-            => Path.Combine(databasePath, "images", Description.ImageFilename).Replace('\\', Path.DirectorySeparatorChar);
+        public string GetItemPath()
+            => Path.GetFullPath(Path.Combine(DatabaseService.GetKADatabasePath(), "data", Id));
+        public string GetImagePath()
+            => Path.GetFullPath(Path.Combine(DatabaseService.GetKADatabasePath(), "images", Description.ImageFilename));
         public string[] GetSupportedAvatars()
             => Array.Empty<string>();
         public int GetBoothId()
@@ -228,8 +225,6 @@ namespace UnityEditorAssetBrowser.Models
             => Description.Tags;
         public DateTime GetCreatedDate()
             => DateTimeOffset.FromUnixTimeMilliseconds(Description.CreatedAt).DateTime;
-        public bool IsAEDatabase()
-            => false;
     }
 
     /// <summary>
@@ -262,10 +257,10 @@ namespace UnityEditorAssetBrowser.Models
             => Description.Creator;
         public string GetMemo()
             => Description.Memo ?? "";
-        public string GetItemPath(string databasePath)
-            => Path.Combine(databasePath, "data", Id).Replace('\\', Path.DirectorySeparatorChar);
-        public string GetImagePath(string databasePath)
-            => Path.Combine(databasePath, "images", Description.ImageFilename).Replace('\\', Path.DirectorySeparatorChar);
+        public string GetItemPath()
+            => Path.GetFullPath(Path.Combine(DatabaseService.GetKADatabasePath(), "data", Id));
+        public string GetImagePath()
+            => Path.GetFullPath(Path.Combine(DatabaseService.GetKADatabasePath(), "images", Description.ImageFilename));
         public string[] GetSupportedAvatars()
             => Array.Empty<string>();
         public int GetBoothId()
@@ -276,8 +271,6 @@ namespace UnityEditorAssetBrowser.Models
             => Description.Tags;
         public DateTime GetCreatedDate()
             => DateTimeOffset.FromUnixTimeMilliseconds(Description.CreatedAt).DateTime;
-        public bool IsAEDatabase()
-            => false;
     }
     #endregion
 

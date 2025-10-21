@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
 using UnityEditorAssetBrowser.Interfaces;
+using UnityEditorAssetBrowser.Services;
 
 namespace UnityEditorAssetBrowser.Models
 {
@@ -176,23 +177,17 @@ namespace UnityEditorAssetBrowser.Models
             => AuthorName;
         public string GetMemo()
             => ItemMemo;
-        public string GetItemPath(string databasePath)
+        public string GetItemPath()
         {
-            if (!databasePath.EndsWith("Datas")) databasePath = Path.Combine(databasePath, "Datas");
-            
             if (ItemPath.StartsWith("Datas\\"))
             {
-                return Path.Combine(databasePath, ItemPath.Replace("Datas\\", "")).Replace('\\', Path.DirectorySeparatorChar);
+                return Path.GetFullPath(Path.Combine(DatabaseService.GetAEDatabasePath(), ItemPath.Replace("Datas\\", "")));
             }
 
-            return ItemPath.Replace("\\", Path.DirectorySeparatorChar.ToString());;
+            return Path.GetFullPath(ItemPath);
         }
-        public string GetImagePath(string databasePath)
-        {
-            if (!databasePath.EndsWith("Datas")) databasePath = Path.Combine(databasePath, "Datas");
-            return Path.Combine(databasePath, ImagePath.Replace("Datas\\", "")).Replace('\\', Path.DirectorySeparatorChar);
-        }
-        
+        public string GetImagePath()
+            => Path.GetFullPath(Path.Combine(DatabaseService.GetAEDatabasePath(), ImagePath.Replace("Datas\\", "")));
         public string[] GetSupportedAvatars()
             => SupportedAvatar;
         public int GetBoothId()
@@ -203,8 +198,6 @@ namespace UnityEditorAssetBrowser.Models
             => Array.Empty<string>();
         public DateTime GetCreatedDate()
             => TimeZoneInfo.ConvertTimeToUtc(CreatedDate, TimeZoneInfo.Local);
-        public bool IsAEDatabase()
-            => true;
 
         /// <summary>
         /// AEアイテムのカテゴリー名を取得

@@ -45,13 +45,11 @@ namespace UnityEditorAssetBrowser.Views
         {
             GUILayout.BeginVertical(EditorStyles.helpBox);
 
-            var databasePath = item.IsAEDatabase() ? DatabaseService.GetAEDatabasePath() : DatabaseService.GetKADatabasePath();
-
             DrawItemHeader(
                 item.GetTitle(),
                 item.GetAuthor(),
-                item.GetImagePath(databasePath),
-                item.GetItemPath(databasePath),
+                item.GetImagePath(),
+                item.GetItemPath(),
                 item.GetCreatedDate(),
                 item.GetCategory(),
                 item.GetSupportedAvatars(),
@@ -59,7 +57,7 @@ namespace UnityEditorAssetBrowser.Views
                 item.GetMemo(),
                 item.GetBoothId()
             );
-            DrawUnityPackageSection(item.GetItemPath(databasePath), item.GetTitle(), item.GetImagePath(databasePath), item.GetCategory());
+            DrawUnityPackageSection(item.GetItemPath(), item.GetTitle(), item.GetImagePath(), item.GetCategory());
 
             GUILayout.EndVertical();
         }

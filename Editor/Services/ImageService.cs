@@ -322,8 +322,7 @@ namespace UnityEditorAssetBrowser.Services
         {
             foreach (var item in items)
             {
-                var databasePath = item.IsAEDatabase() ? DatabaseService.GetAEDatabasePath() : DatabaseService.GetKADatabasePath();
-                string imagePath = item.GetImagePath(databasePath);
+                string imagePath = item.GetImagePath();
 
                 if (!string.IsNullOrEmpty(imagePath) && File.Exists(imagePath))
                 {
@@ -343,8 +342,7 @@ namespace UnityEditorAssetBrowser.Services
             // 新しく表示されるアイテムの画像パス収集
             foreach (var item in visibleItems)
             {
-                var databasePath = item.IsAEDatabase() ? DatabaseService.GetAEDatabasePath() : DatabaseService.GetKADatabasePath();
-                string imagePath = item.GetImagePath(databasePath);
+                string imagePath = item.GetImagePath();
 
                 if (!string.IsNullOrEmpty(imagePath))
                 {

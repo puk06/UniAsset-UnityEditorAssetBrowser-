@@ -266,7 +266,11 @@ namespace UnityEditorAssetBrowser.Services
         /// </summary>
         /// <returns>データベースのパス</returns>
         public static string GetAEDatabasePath()
-            => _aeDatabasePath;
+        {
+            if (string.IsNullOrEmpty(_aeDatabasePath)) return string.Empty;
+            if (!_aeDatabasePath.EndsWith("Datas")) return Path.GetFullPath(Path.Combine(_aeDatabasePath, "Datas"));
+            return Path.GetFullPath(_aeDatabasePath);
+        }
 
         /// <summary>
         /// KonoAssetデータベースのパスを取得する

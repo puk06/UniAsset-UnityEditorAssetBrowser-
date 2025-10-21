@@ -31,16 +31,14 @@ namespace UnityEditorAssetBrowser.Interfaces
         /// <summary>
         /// アイテムのフルパスを取得します
         /// </summary>
-        /// <param name="databasePath"></param>
         /// <returns></returns>
-        public string GetItemPath(string databasePath);
+        public string GetItemPath();
 
         /// <summary>
         /// アイテムのサムネイルのフルパスを取得します
         /// </summary>
-        /// <param name="databasePath"></param>
         /// <returns></returns>
-        public string GetImagePath(string databasePath);
+        public string GetImagePath();
 
         /// <summary>
         /// 対応アバターの配列を取得します
@@ -71,11 +69,5 @@ namespace UnityEditorAssetBrowser.Interfaces
         /// </summary>
         /// <returns></returns>
         public DateTime GetCreatedDate();
-
-        /// <summary>
-        /// Avatar Explorerのアイテムかどうかを取得します。データベースのパスを取得するときに使用されます。
-        /// </summary>
-        /// <returns></returns>
-        public bool IsAEDatabase();
     }
 }
