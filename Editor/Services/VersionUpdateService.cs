@@ -62,17 +62,11 @@ namespace UnityEditorAssetBrowser.Services
         {
             try
             {
-                if (string.IsNullOrEmpty(sourceFilePath))
-                {
-                    return "";
-                }
+                if (string.IsNullOrEmpty(sourceFilePath)) return "";
 
                 // Unityパッケージ構造（Packages/パッケージ名/package.json）を最優先で確認
                 var packagePath = TryFindInPackagesDirectory(sourceFilePath);
-                if (!string.IsNullOrEmpty(packagePath))
-                {
-                    return packagePath;
-                }
+                if (!string.IsNullOrEmpty(packagePath)) return packagePath;
 
                 // 親ディレクトリを遡って検索
                 return TryFindInParentDirectories(sourceFilePath);
@@ -91,7 +85,7 @@ namespace UnityEditorAssetBrowser.Services
         private static string TryFindInPackagesDirectory(string sourceFilePath)
         {
             var normalizedPath = Path.GetFullPath(sourceFilePath);
-            
+
             var packagesIndex = normalizedPath.ToLower().IndexOf(PackagesPathString);
             if (packagesIndex < 0) return "";
 
