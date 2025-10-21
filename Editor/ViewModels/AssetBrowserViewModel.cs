@@ -241,27 +241,18 @@ namespace UnityEditorAssetBrowser.ViewModels
         /// <returns>ソートされたアイテムリスト</returns>
         public List<IDatabaseItem> SortItems(List<IDatabaseItem> items)
         {
-            switch (_currentSortMethod)
+            return _currentSortMethod switch
             {
-                case SortMethod.CreatedDateDesc:
-                    return items.OrderByDescending(item => item.GetCreatedDate()).ToList();
-                case SortMethod.CreatedDateAsc:
-                    return items.OrderBy(item => item.GetCreatedDate()).ToList();
-                case SortMethod.TitleAsc:
-                    return items.OrderBy(item => item.GetTitle()).ToList();
-                case SortMethod.TitleDesc:
-                    return items.OrderByDescending(item => item.GetTitle()).ToList();
-                case SortMethod.AuthorAsc:
-                    return items.OrderBy(item => item.GetAuthor()).ToList();
-                case SortMethod.AuthorDesc:
-                    return items.OrderByDescending(item => item.GetAuthor()).ToList();
-                case SortMethod.BoothIdDesc:
-                    return items.OrderByDescending(item => item.GetBoothId()).ToList();
-                case SortMethod.BoothIdAsc:
-                    return items.OrderBy(item => item.GetBoothId()).ToList();
-                default:
-                    return items;
-            }
+                SortMethod.CreatedDateDesc => items.OrderByDescending(item => item.GetCreatedDate()).ToList(),
+                SortMethod.CreatedDateAsc => items.OrderBy(item => item.GetCreatedDate()).ToList(),
+                SortMethod.TitleAsc => items.OrderBy(item => item.GetTitle()).ToList(),
+                SortMethod.TitleDesc => items.OrderByDescending(item => item.GetTitle()).ToList(),
+                SortMethod.AuthorAsc => items.OrderBy(item => item.GetAuthor()).ToList(),
+                SortMethod.AuthorDesc => items.OrderByDescending(item => item.GetAuthor()).ToList(),
+                SortMethod.BoothIdDesc => items.OrderByDescending(item => item.GetBoothId()).ToList(),
+                SortMethod.BoothIdAsc => items.OrderBy(item => item.GetBoothId()).ToList(),
+                _ => items,
+            };
         }
 
         /// <summary>
