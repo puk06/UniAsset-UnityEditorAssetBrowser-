@@ -178,6 +178,8 @@ namespace UnityEditorAssetBrowser.Models
             => ItemMemo;
         public string GetItemPath(string databasePath)
         {
+            if (!databasePath.EndsWith("Datas")) databasePath = Path.Combine(databasePath, "Datas");
+            
             if (ItemPath.StartsWith("Datas\\"))
             {
                 return Path.Combine(databasePath, ItemPath.Replace("Datas\\", "")).Replace('\\', Path.DirectorySeparatorChar);
@@ -186,7 +188,11 @@ namespace UnityEditorAssetBrowser.Models
             return ItemPath.Replace("\\", Path.DirectorySeparatorChar.ToString());;
         }
         public string GetImagePath(string databasePath)
-            => Path.Combine(databasePath, ImagePath.Replace("Datas\\", "")).Replace('\\', Path.DirectorySeparatorChar);
+        {
+            if (!databasePath.EndsWith("Datas")) databasePath = Path.Combine(databasePath, "Datas");
+            return Path.Combine(databasePath, ImagePath.Replace("Datas\\", "")).Replace('\\', Path.DirectorySeparatorChar);
+        }
+        
         public string[] GetSupportedAvatars()
             => SupportedAvatar;
         public int GetBoothId()
