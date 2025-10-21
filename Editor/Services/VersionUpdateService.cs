@@ -83,22 +83,24 @@ namespace UnityEditorAssetBrowser.Services
             }
         }
 
+        private static readonly string PackagesPathString = Path.DirectorySeparatorChar + "packages" + Path.DirectorySeparatorChar;
+
         /// <summary>
         /// Unityパッケージ構造でのpackage.json検索
         /// </summary>
         private static string TryFindInPackagesDirectory(string sourceFilePath)
         {
-            var normalizedPath = sourceFilePath.Replace('\\', '/');
-            var packagesIndex = normalizedPath.ToLower().IndexOf("/packages/");
+            var normalizedPath = Path.GetFullPath(sourceFilePath);
+            var packagesIndex = normalizedPath.ToLower().IndexOf(PackagesPathString);
 
             if (packagesIndex < 0)
             {
                 return "";
             }
 
-            var packagesPath = normalizedPath.Substring(0, packagesIndex + "/packages/".Length);
-            var remainingPath = normalizedPath.Substring(packagesIndex + "/packages/".Length);
-            var pathParts = remainingPath.Split('/');
+            var packagesPath = normalizedPath.Substring(0, packagesIndex + PackagesPathString.Length);
+            var remainingPath = normalizedPath.Substring(packagesIndex + PackagesPathString.Length);
+            var pathParts = remainingPath.Split(Path.DirectorySeparatorChar);
 
             if (pathParts.Length == 0)
             {
@@ -106,8 +108,7 @@ namespace UnityEditorAssetBrowser.Services
             }
 
             var packageName = pathParts[0];
-            var packageJsonPath = Path.Combine(packagesPath, packageName, "package.json")
-                .Replace('/', Path.DirectorySeparatorChar);
+            var packageJsonPath = Path.GetFullPath(Path.Combine(packagesPath, packageName, "package.json"));
 
             return File.Exists(packageJsonPath) ? packageJsonPath : "";
         }

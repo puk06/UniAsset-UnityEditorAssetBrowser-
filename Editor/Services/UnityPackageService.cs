@@ -307,7 +307,7 @@ namespace UnityEditorAssetBrowser.Services
         private static List<string> GetExcludedFolders(List<string> folders)
         {
             return folders
-                .Where(f => ExcludeFolderService.IsExcludedFolder(f.Split('/').Last()))
+                .Where(f => ExcludeFolderService.IsExcludedFolder(f.Split(Path.DirectorySeparatorChar).Last()))
                 .ToList();
         }
 
@@ -316,13 +316,13 @@ namespace UnityEditorAssetBrowser.Services
         /// </summary>
         private static void ProcessExcludedFolders(List<string> excludedFolders, HashSet<string> targetFolders)
         {
-            var shallowest = excludedFolders.OrderBy(f => f.Count(c => c == '/')).First();
-            var parts = shallowest.Split('/');
+            var shallowest = excludedFolders.OrderBy(f => f.Count(c => c == Path.DirectorySeparatorChar)).First();
+
+            var parts = shallowest.Split(Path.DirectorySeparatorChar);
             if (parts.Length > 1)
             {
-                string parent = string.Join("/", parts.Take(parts.Length - 1));
-                if (!string.IsNullOrEmpty(parent) && !IsRootFolderIcon(parent))
-                    targetFolders.Add(parent);
+                string parent = string.Join(Path.DirectorySeparatorChar, parts.Take(parts.Length - 1));
+                if (!string.IsNullOrEmpty(parent) && !IsRootFolderIcon(parent)) targetFolders.Add(parent);
             }
         }
 
@@ -371,7 +371,8 @@ namespace UnityEditorAssetBrowser.Services
         /// </summary>
         private static string FindBestThumbnailFolder(string folder)
         {
-            string[] parts = folder.Split('/');
+            string[] parts = folder.Split(Path.DirectorySeparatorChar);
+            
             // 除外フォルダがパスに含まれる場合は、最初の除外フォルダの1つ上を返す
             for (int i = 1; i < parts.Length; i++)
             {
@@ -415,19 +416,20 @@ namespace UnityEditorAssetBrowser.Services
         /// <returns>Assets直下のFolderIcon.jpgならtrue</returns>
         private static bool IsRootFolderIcon(string folderPath)
         {
-            if (string.IsNullOrEmpty(folderPath))
-                return false;
-            var parts = folderPath.Split('/');
+            if (string.IsNullOrEmpty(folderPath)) return false;
+
+            var parts = folderPath.Split(Path.DirectorySeparatorChar);
             return parts.Length == 2 && parts[0] == "Assets" && parts[1] == "FolderIcon.jpg";
         }
 
         // 複数パスの最も深い共通の親ディレクトリを求める
         private static string GetDeepestCommonParent(IEnumerable<string> paths)
         {
-            if (paths == null || !paths.Any())
-                return string.Empty;
-            var splitPaths = paths.Select(p => p.Split('/')).ToList();
+            if (paths == null || !paths.Any()) return string.Empty;
+
+            var splitPaths = paths.Select(p => p.Split(Path.DirectorySeparatorChar)).ToList();
             int minLen = splitPaths.Min(arr => arr.Length);
+
             List<string> common = new List<string>();
             for (int i = 0; i < minLen; i++)
             {
@@ -441,7 +443,8 @@ namespace UnityEditorAssetBrowser.Services
                     break;
                 }
             }
-            return common.Count > 0 ? string.Join("/", common) : string.Empty;
+
+            return common.Count > 0 ? string.Join(Path.DirectorySeparatorChar, common) : string.Empty;
         }
 
         [Serializable]
