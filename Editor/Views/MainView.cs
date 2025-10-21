@@ -2,10 +2,9 @@
 
 #nullable enable
 
-using System;
+using System.Collections.Generic;
 using UnityEditor;
-using UnityEditorAssetBrowser.Helper;
-using UnityEditorAssetBrowser.Models;
+using UnityEditorAssetBrowser.Interfaces;
 using UnityEditorAssetBrowser.Services;
 using UnityEditorAssetBrowser.ViewModels;
 using UnityEngine;
@@ -18,9 +17,6 @@ namespace UnityEditorAssetBrowser.Views
     /// </summary>
     public class MainView
     {
-        /// <summary>アセットブラウザーのViewModel</summary>
-        private readonly AssetBrowserViewModel _assetBrowserViewModel;
-
         /// <summary>検索のViewModel</summary>
         private readonly SearchViewModel _searchViewModel;
 
@@ -36,11 +32,17 @@ namespace UnityEditorAssetBrowser.Views
         /// <summary>アセットアイテムビュー</summary>
         private readonly AssetItemView _assetItemView;
 
+        /// <summary>アセットブラウザービューモデル</summary>
+        private readonly AssetBrowserViewModel _assetBrowserViewModel;
+
         /// <summary>スクロール位置</summary>
-        private Vector2 scrollPosition;
+        private Vector2 _scrollPosition;
+        
+        /// <summary> アイテムのキャッシュ</summary>
+        private List<IDatabaseItem>? _cachedItems = null;
 
         /// <summary>タブのラベル</summary>
-        private readonly string[] tabs =
+        private static readonly string[] Tabs =
         {
             "アバター",
             "アバター関連アセット",
@@ -48,48 +50,40 @@ namespace UnityEditorAssetBrowser.Views
             "その他",
         };
 
-        /// <summary>キャッシュされたAEデータベースパス</summary>
-        private string? _cachedAEDatabasePath;
-
-        /// <summary>キャッシュされたKAデータベースパス</summary>
-        private string? _cachedKADatabasePath;
-
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        /// <param name="assetBrowserViewModel">アセットブラウザーのViewModel</param>
         /// <param name="searchViewModel">検索のViewModel</param>
         /// <param name="paginationViewModel">ページネーションのViewModel</param>
         /// <param name="searchView">検索ビュー</param>
         /// <param name="paginationView">ページネーションビュー</param>
-        /// <param name="aeDatabase">AEデータベース</param>
         public MainView(
-            AssetBrowserViewModel assetBrowserViewModel,
             SearchViewModel searchViewModel,
             PaginationViewModel paginationViewModel,
             SearchView searchView,
             PaginationView paginationView,
-            AvatarExplorerDatabase? aeDatabase
+            AssetItemView assetItemView,
+            AssetBrowserViewModel assetBrowserViewModel
+
         )
         {
-            _assetBrowserViewModel = assetBrowserViewModel;
             _searchViewModel = searchViewModel;
             _paginationViewModel = paginationViewModel;
             _searchView = searchView;
             _paginationView = paginationView;
-            _assetItemView = new AssetItemView(aeDatabase);
+            _assetItemView = assetItemView;
+            _assetBrowserViewModel = assetBrowserViewModel;
 
-            // データベースパスをキャッシュ
-            RefreshDatabasePaths();
-        }
+            _assetBrowserViewModel.SortMethodChanged += () =>
+            {
+                if (_cachedItems == null) return;
+                _cachedItems = _assetBrowserViewModel.SortItems(_cachedItems);
+            };
 
-        /// <summary>
-        /// データベースパスを更新してキャッシュ
-        /// </summary>
-        private void RefreshDatabasePaths()
-        {
-            _cachedAEDatabasePath = DatabaseService.GetAEDatabasePath();
-            _cachedKADatabasePath = DatabaseService.GetKADatabasePath();
+            DatabaseService.OnPathChanged += () =>
+            {
+                _cachedItems = null;
+            };
         }
 
         /// <summary>
@@ -103,8 +97,17 @@ namespace UnityEditorAssetBrowser.Views
             _searchView.DrawDatabaseButtons();
             DrawTabBar();
             _searchView.DrawSearchField();
-            _searchView.DrawSearchResultCount();
-            DrawContentArea();
+
+            if (Event.current.type == EventType.Used || _cachedItems == null)
+            {
+                _cachedItems = _searchView.GetSearchResult();
+            }
+
+            if (_cachedItems != null)
+            {
+                DrawSearchResult(_cachedItems);
+                DrawContentArea(_cachedItems);
+            }
 
             EditorGUILayout.EndVertical();
         }
@@ -114,24 +117,30 @@ namespace UnityEditorAssetBrowser.Views
         /// </summary>
         private void DrawTabBar()
         {
-            var newTab = GUILayout.Toolbar(_paginationViewModel.SelectedTab, tabs);
+            var newTab = GUILayout.Toolbar(_paginationViewModel.SelectedTab, Tabs);
             if (newTab != _paginationViewModel.SelectedTab)
             {
                 _paginationViewModel.SelectedTab = newTab;
                 _paginationViewModel.ResetPage();
                 _searchViewModel.SetCurrentTab(newTab);
-                EditorWindow.focusedWindow?.Repaint();
+                if (EditorWindow.focusedWindow != null) EditorWindow.focusedWindow.Repaint();
             }
+            EditorGUILayout.Space(10);
+        }
+
+        private void DrawSearchResult(List<IDatabaseItem> totalItems)
+        {
+            EditorGUILayout.LabelField($"検索結果: {totalItems.Count}件");
             EditorGUILayout.Space(10);
         }
 
         /// <summary>
         /// コンテンツエリアの描画
         /// </summary>
-        private void DrawContentArea()
+        private void DrawContentArea(List<IDatabaseItem> totalItems)
         {
             GUILayout.BeginVertical();
-            DrawScrollView();
+            DrawScrollView(totalItems);
             _paginationView.DrawPaginationButtons();
             GUILayout.EndVertical();
         }
@@ -139,151 +148,35 @@ namespace UnityEditorAssetBrowser.Views
         /// <summary>
         /// スクロールビューの描画
         /// </summary>
-        private void DrawScrollView()
+        private void DrawScrollView(List<IDatabaseItem> totalItems)
         {
-            scrollPosition = EditorGUILayout.BeginScrollView(
-                scrollPosition,
+            _scrollPosition = EditorGUILayout.BeginScrollView(
+                _scrollPosition,
                 GUILayout.ExpandHeight(true)
             );
-            DrawCurrentTabContent();
+            DrawCurrentTabContent(totalItems);
             EditorGUILayout.EndScrollView();
         }
 
         /// <summary>
         /// 現在のタブのコンテンツを描画
         /// </summary>
-        private void DrawCurrentTabContent()
-        {
-            switch (_paginationViewModel.SelectedTab)
-            {
-                case 0:
-                    ShowAvatarsContent();
-                    break;
-                case 1:
-                    ShowItemsContent();
-                    break;
-                case 2:
-                    ShowWorldObjectsContent();
-                    break;
-                case 3:
-                    ShowOthersContent();
-                    break;
-            }
-        }
+        private void DrawCurrentTabContent(List<IDatabaseItem> totalItems)
+            => ShowContents(totalItems);
 
         /// <summary>
         /// アバターコンテンツの表示
         /// </summary>
-        private void ShowAvatarsContent()
+        private void ShowContents(List<IDatabaseItem> totalItems)
         {
-            var filteredItems = _assetBrowserViewModel.GetFilteredAvatars();
-            var sortedItems = _assetBrowserViewModel.SortItems(filteredItems);
-            var pageItems = _paginationViewModel.GetCurrentPageItems(sortedItems);
+            var pageItems = _paginationViewModel.GetCurrentPageItems(totalItems);
 
             // 表示前に必要な画像のみ読み込み
-            ImageServices.Instance.UpdateVisibleImages(
-                pageItems,
-                _cachedAEDatabasePath ?? string.Empty,
-                _cachedKADatabasePath ?? string.Empty
-            );
+            ImageServices.Instance.UpdateVisibleImages(pageItems);
 
             foreach (var item in pageItems)
             {
-                if (item is AvatarExplorerItem aeItem)
-                {
-                    _assetItemView.ShowAvatarItem(aeItem);
-                }
-                else if (item is KonoAssetAvatarItem kaItem)
-                {
-                    _assetItemView.ShowKonoAssetItem(kaItem);
-                }
-            }
-        }
-
-        /// <summary>
-        /// アバター関連アセットコンテンツの表示
-        /// </summary>
-        private void ShowItemsContent()
-        {
-            var filteredItems = _assetBrowserViewModel.GetFilteredItems();
-            var sortedItems = _assetBrowserViewModel.SortItems(filteredItems);
-            var pageItems = _paginationViewModel.GetCurrentPageItems(sortedItems);
-
-            // 表示前に必要な画像のみ読み込み
-            ImageServices.Instance.UpdateVisibleImages(
-                pageItems,
-                _cachedAEDatabasePath ?? string.Empty,
-                _cachedKADatabasePath ?? string.Empty
-            );
-
-            foreach (var item in pageItems)
-            {
-                if (item is AvatarExplorerItem aeItem)
-                {
-                    _assetItemView.ShowAvatarItem(aeItem);
-                }
-                else if (item is KonoAssetWearableItem kaItem)
-                {
-                    _assetItemView.ShowKonoAssetWearableItem(kaItem);
-                }
-            }
-        }
-
-        /// <summary>
-        /// ワールドアセットコンテンツの表示
-        /// </summary>
-        private void ShowWorldObjectsContent()
-        {
-            var filteredItems = _assetBrowserViewModel.GetFilteredWorldObjects();
-            var sortedItems = _assetBrowserViewModel.SortItems(filteredItems);
-            var pageItems = _paginationViewModel.GetCurrentPageItems(sortedItems);
-
-            // 表示前に必要な画像のみ読み込み
-            ImageServices.Instance.UpdateVisibleImages(
-                pageItems,
-                _cachedAEDatabasePath ?? string.Empty,
-                _cachedKADatabasePath ?? string.Empty
-            );
-
-            foreach (var item in pageItems)
-            {
-                if (item is AvatarExplorerItem aeItem)
-                {
-                    _assetItemView.ShowAvatarItem(aeItem);
-                }
-                else if (item is KonoAssetWorldObjectItem worldItem)
-                {
-                    _assetItemView.ShowKonoAssetWorldObjectItem(worldItem);
-                }
-            }
-        }
-
-        /// <summary>
-        /// その他コンテンツの表示
-        /// </summary>
-        private void ShowOthersContent()
-        {
-            var filteredItems = _assetBrowserViewModel.GetFilteredOthers();
-            var sortedItems = _assetBrowserViewModel.SortItems(filteredItems);
-            var pageItems = _paginationViewModel.GetCurrentPageItems(sortedItems);
-
-            // 表示前に必要な画像のみ読み込み
-            ImageServices.Instance.UpdateVisibleImages(
-                pageItems,
-                _cachedAEDatabasePath ?? string.Empty,
-                _cachedKADatabasePath ?? string.Empty
-            );
-
-            foreach (var item in pageItems)
-            {
-                if (item is AvatarExplorerItem aeItem)
-                {
-                    _assetItemView.ShowAvatarItem(aeItem);
-                }
-                else if (item is KonoAssetOtherAssetItem otherItem)
-                {
-                    _assetItemView.ShowKonoAssetOtherAssetItem(otherItem);
-                }
+                _assetItemView.ShowAvatarItem(item);
             }
         }
     }

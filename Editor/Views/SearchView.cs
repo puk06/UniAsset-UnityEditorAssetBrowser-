@@ -2,9 +2,9 @@
 
 #nullable enable
 
-using System;
+using System.Collections.Generic;
 using UnityEditor;
-using UnityEditorAssetBrowser.Models;
+using UnityEditorAssetBrowser.Interfaces;
 using UnityEditorAssetBrowser.Services;
 using UnityEditorAssetBrowser.ViewModels;
 using UnityEditorAssetBrowser.Windows;
@@ -17,24 +17,27 @@ namespace UnityEditorAssetBrowser.Views
         private readonly SearchViewModel _searchViewModel;
         private readonly AssetBrowserViewModel _assetBrowserViewModel;
         private readonly PaginationViewModel _paginationViewModel;
+        private readonly AssetItemView _assetItemView;
         private int _lastSelectedTab = -1; // 前回選択されていたタブを記録
 
         public SearchView(
             SearchViewModel searchViewModel,
             AssetBrowserViewModel assetBrowserViewModel,
-            PaginationViewModel paginationViewModel
+            PaginationViewModel paginationViewModel,
+            AssetItemView assetItemView
         )
         {
             _searchViewModel = searchViewModel;
             _assetBrowserViewModel = assetBrowserViewModel;
             _paginationViewModel = paginationViewModel;
+            _assetItemView = assetItemView;
         }
 
         public void DrawSearchField()
         {
             // タブが変更された場合の処理
             CheckTabChange();
-            
+
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
             // 基本検索フィールド
@@ -132,7 +135,7 @@ namespace UnityEditorAssetBrowser.Views
                         )
                 );
                 menu.AddItem(
-                    new GUIContent("BOOTHID順（新しい順）"),
+                    new GUIContent("Booth Id順（新しい順）"),
                     _assetBrowserViewModel.CurrentSortMethod
                         == AssetBrowserViewModel.SortMethod.BoothIdDesc,
                     () =>
@@ -141,7 +144,7 @@ namespace UnityEditorAssetBrowser.Views
                         )
                 );
                 menu.AddItem(
-                    new GUIContent("BOOTHID順（古い順）"),
+                    new GUIContent("Booth Id順（古い順）"),
                     _assetBrowserViewModel.CurrentSortMethod
                         == AssetBrowserViewModel.SortMethod.BoothIdAsc,
                     () =>
@@ -232,9 +235,8 @@ namespace UnityEditorAssetBrowser.Views
                 // タグ検索
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.LabelField("タグ:", GUILayout.Width(100));
-                var newTagsSearch = EditorGUILayout.TextField(
-                    _searchViewModel.SearchCriteria.TagsSearch
-                );
+
+                var newTagsSearch = EditorGUILayout.TextField(_searchViewModel.SearchCriteria.TagsSearch);
                 if (newTagsSearch != _searchViewModel.SearchCriteria.TagsSearch)
                 {
                     _searchViewModel.SearchCriteria.TagsSearch = newTagsSearch;
@@ -242,14 +244,14 @@ namespace UnityEditorAssetBrowser.Views
                     OnSearchResultChanged();
                     GUI.changed = true;
                 }
+
                 EditorGUILayout.EndHorizontal();
 
                 // メモ検索
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.LabelField("メモ:", GUILayout.Width(100));
-                var newMemoSearch = EditorGUILayout.TextField(
-                    _searchViewModel.SearchCriteria.MemoSearch
-                );
+
+                var newMemoSearch = EditorGUILayout.TextField(_searchViewModel.SearchCriteria.MemoSearch);
                 if (newMemoSearch != _searchViewModel.SearchCriteria.MemoSearch)
                 {
                     _searchViewModel.SearchCriteria.MemoSearch = newMemoSearch;
@@ -257,6 +259,7 @@ namespace UnityEditorAssetBrowser.Views
                     OnSearchResultChanged();
                     GUI.changed = true;
                 }
+                
                 EditorGUILayout.EndHorizontal();
 
                 EditorGUILayout.EndVertical();
@@ -266,22 +269,23 @@ namespace UnityEditorAssetBrowser.Views
             EditorGUILayout.EndVertical();
         }
 
-        public void DrawSearchResultCount()
+        public List<IDatabaseItem> GetSearchResult()
         {
-            int totalItems = _paginationViewModel.GetCurrentTabItemCount(
+            List<IDatabaseItem> totalItems = _paginationViewModel.GetCurrentTabItems(
                 () => _assetBrowserViewModel.GetFilteredAvatars(),
                 () => _assetBrowserViewModel.GetFilteredItems(),
                 () => _assetBrowserViewModel.GetFilteredWorldObjects(),
                 () => _assetBrowserViewModel.GetFilteredOthers()
             );
-            EditorGUILayout.LabelField($"検索結果: {totalItems}件");
-            EditorGUILayout.Space(10);
+
+            return totalItems;
         }
 
         public void DrawDatabaseButtons()
         {
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
+
             if (GUILayout.Button("設定", GUILayout.Width(100)))
             {
                 SettingsWindow.ShowWindow(
@@ -290,13 +294,17 @@ namespace UnityEditorAssetBrowser.Views
                     _paginationViewModel
                 );
             }
+
             if (GUILayout.Button("更新", GUILayout.Width(100)))
             {
                 // データベースを更新
                 DatabaseService.LoadAEDatabase();
                 DatabaseService.LoadKADatabase();
                 _searchViewModel.SetCurrentTab(_paginationViewModel.SelectedTab);
+                _assetItemView.ResetUnitypackageCache();
+                HandleUtility.Repaint();
             }
+            
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.Space(10);
@@ -317,17 +325,13 @@ namespace UnityEditorAssetBrowser.Views
             ImageServices.Instance.AdaptCacheSizeToSearchResults(filteredItems.Count);
 
             // 画像キャッシュを新しい表示アイテムに更新
-            ImageServices.Instance.UpdateVisibleImages(
-                pageItems,
-                DatabaseService.GetAEDatabasePath(),
-                DatabaseService.GetKADatabasePath()
-            );
+            ImageServices.Instance.UpdateVisibleImages(pageItems);
         }
 
         /// <summary>
         /// 現在のタブのフィルターされたアイテムを取得
         /// </summary>
-        private System.Collections.Generic.List<object> GetCurrentTabFilteredItems()
+        private List<IDatabaseItem> GetCurrentTabFilteredItems()
         {
             return _paginationViewModel.SelectedTab switch
             {
@@ -335,7 +339,7 @@ namespace UnityEditorAssetBrowser.Views
                 1 => _assetBrowserViewModel.GetFilteredItems(),
                 2 => _assetBrowserViewModel.GetFilteredWorldObjects(),
                 3 => _assetBrowserViewModel.GetFilteredOthers(),
-                _ => new System.Collections.Generic.List<object>()
+                _ => new List<IDatabaseItem>()
             };
         }
 
@@ -345,7 +349,7 @@ namespace UnityEditorAssetBrowser.Views
         private void CheckTabChange()
         {
             int currentTab = _paginationViewModel.SelectedTab;
-            
+
             // タブが変更された場合
             if (_lastSelectedTab != -1 && _lastSelectedTab != currentTab)
             {
@@ -355,7 +359,7 @@ namespace UnityEditorAssetBrowser.Views
                 OnSearchResultChanged();
                 GUI.changed = true;
             }
-            
+
             _lastSelectedTab = currentTab;
         }
     }

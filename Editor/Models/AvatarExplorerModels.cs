@@ -1,13 +1,15 @@
 // Copyright (c) 2025 sakurayuki
-// This code is borrowed from AvatarExplorer(https://github.com/puk06/AvatarExplorer)
-// AvatarExplorer is licensed under the MIT License. https://github.com/puk06/blob/main/LICENSE
+// This code is borrowed from Avatar-Explorer(https://github.com/puk06/Avatar-Explorer)
+// Avatar-Explorer is licensed under the MIT License. https://github.com/puk06/Avatar-Explorer/blob/main/LICENSE
 
 #nullable enable
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Newtonsoft.Json;
-using UnityEditorAssetBrowser.Models;
+using UnityEditorAssetBrowser.Interfaces;
+using UnityEditorAssetBrowser.Services;
 
 namespace UnityEditorAssetBrowser.Models
 {
@@ -23,12 +25,6 @@ namespace UnityEditorAssetBrowser.Models
         /// </summary>
         [JsonProperty("Items")]
         public List<AvatarExplorerItem> Items { get; set; } = new List<AvatarExplorerItem>();
-
-        /// <summary>
-        /// デフォルトコンストラクタ
-        /// </summary>
-        [JsonConstructor]
-        public AvatarExplorerDatabase() { }
 
         /// <summary>
         /// 配列からデータベースを作成するための変換コンストラクタ
@@ -51,166 +47,157 @@ namespace UnityEditorAssetBrowser.Models
         /// <summary>
         /// アバター
         /// </summary>
-        Avatar = 0,
+        Avatar,
 
         /// <summary>
         /// 衣装
         /// </summary>
-        Clothing = 1,
+        Clothing,
 
         /// <summary>
         /// テクスチャ
         /// </summary>
-        Texture = 2,
+        Texture,
 
         /// <summary>
         /// ギミック
         /// </summary>
-        Gimmick = 3,
+        Gimmick,
 
         /// <summary>
         /// アクセサリー
         /// </summary>
-        Accessory = 4,
+        Accessory,
 
         /// <summary>
         /// 髪型
         /// </summary>
-        HairStyle = 5,
+        HairStyle,
 
         /// <summary>
         /// アニメーション
         /// </summary>
-        Animation = 6,
+        Animation,
 
         /// <summary>
         /// ツール
         /// </summary>
-        Tool = 7,
+        Tool,
 
         /// <summary>
         /// シェーダー
         /// </summary>
-        Shader = 8,
+        Shader,
 
         /// <summary>
         /// カスタムカテゴリー
         /// </summary>
-        Custom = 9,
+        Custom,
 
         /// <summary>
         /// 不明
         /// </summary>
-        Unknown = 10,
+        Unknown,
     }
 
     /// <summary>
     /// AvatarExplorerのアイテムモデル
     /// アセットの詳細情報を管理する
     /// </summary>
-    public class AvatarExplorerItem
+    public class AvatarExplorerItem : IDatabaseItem
     {
         /// <summary>
         /// アイテムのタイトル
         /// </summary>
-        [JsonProperty("Title")]
         public string Title { get; set; } = "";
 
         /// <summary>
         /// 作者名
         /// </summary>
-        [JsonProperty("AuthorName")]
         public string AuthorName { get; set; } = "";
 
         /// <summary>
         /// アイテムのメモ
         /// </summary>
-        [JsonProperty("ItemMemo")]
         public string ItemMemo { get; set; } = "";
 
         /// <summary>
         /// アイテムのパス
         /// </summary>
-        [JsonProperty("ItemPath")]
         public string ItemPath { get; set; } = "";
 
         /// <summary>
         /// 画像のパス
         /// </summary>
-        [JsonProperty("ImagePath")]
         public string ImagePath { get; set; } = "";
 
         /// <summary>
         /// マテリアルのパス
         /// </summary>
-        [JsonProperty("MaterialPath")]
         public string MaterialPath { get; set; } = "";
 
         /// <summary>
         /// 対応アバターのリスト
         /// </summary>
-        [JsonProperty("SupportedAvatar")]
         public string[] SupportedAvatar { get; set; } = Array.Empty<string>();
 
         /// <summary>
         /// BOOTHのID
         /// </summary>
-        [JsonProperty("BoothId")]
         public int BoothId { get; set; } = -1;
 
         /// <summary>
         /// アイテムのタイプ
         /// </summary>
-        [JsonProperty("Type")]
-        public string Type { get; set; } = "";
+        public int Type { get; set; } = 0;
 
         /// <summary>
         /// カスタムカテゴリー
         /// </summary>
-        [JsonProperty("CustomCategory")]
         public string CustomCategory { get; set; } = "";
 
         /// <summary>
         /// 作者のID
         /// </summary>
-        [JsonProperty("AuthorId")]
         public string AuthorId { get; set; } = "";
 
         /// <summary>
         /// サムネイル画像のURL
         /// </summary>
-        [JsonProperty("ThumbnailUrl")]
         public string ThumbnailUrl { get; set; } = "";
 
         /// <summary>
         /// 作成日時
         /// </summary>
-        [JsonProperty("CreatedDate")]
         public DateTime CreatedDate { get; set; } = DateTime.MinValue;
 
-        /// <summary>
-        /// アイテムのカテゴリー
-        /// </summary>
-        [JsonIgnore]
-        public string Category => GetAECategoryName();
+        public string GetTitle()
+            => Title;
+        public string GetAuthor()
+            => AuthorName;
+        public string GetMemo()
+            => ItemMemo;
+        public string GetItemPath()
+        {
+            if (ItemPath.StartsWith("Datas\\"))
+            {
+                return Path.GetFullPath(Path.Combine(DatabaseService.GetAEDatabasePath(), ItemPath.Replace("Datas\\", "")));
+            }
 
-        /// <summary>
-        /// 対応アバターのリスト（エイリアス）
-        /// </summary>
-        [JsonIgnore]
-        public string[] SupportedAvatars => SupportedAvatar;
-
-        /// <summary>
-        /// タグのリスト（現在は空配列）
-        /// </summary>
-        [JsonIgnore]
-        public string[] Tags => Array.Empty<string>();
-
-        /// <summary>
-        /// アイテムのメモ（エイリアス）
-        /// </summary>
-        [JsonIgnore]
-        public string Memo => ItemMemo;
+            return Path.GetFullPath(ItemPath);
+        }
+        public string GetImagePath()
+            => Path.GetFullPath(Path.Combine(DatabaseService.GetAEDatabasePath(), ImagePath.Replace("Datas\\", "")));
+        public string[] GetSupportedAvatars()
+            => SupportedAvatar;
+        public int GetBoothId()
+            => BoothId;
+        public string GetCategory()
+            => GetAECategoryName();
+        public string[] GetTags()
+            => Array.Empty<string>();
+        public DateTime GetCreatedDate()
+            => TimeZoneInfo.ConvertTimeToUtc(CreatedDate, TimeZoneInfo.Local);
 
         /// <summary>
         /// AEアイテムのカテゴリー名を取得
@@ -218,22 +205,7 @@ namespace UnityEditorAssetBrowser.Models
         /// </summary>
         /// <returns>アイテムのカテゴリー名</returns>
         public string GetAECategoryName()
-        {
-            // Typeが数値として保存されている場合の処理
-            if (int.TryParse(Type, out int typeValue))
-            {
-                return GetCategoryNameByType((AvatarExplorerItemType)typeValue);
-            }
-
-            // Typeが文字列として保存されている場合の処理
-            if (Enum.TryParse(Type, true, out AvatarExplorerItemType itemType))
-            {
-                return GetCategoryNameByType(itemType);
-            }
-
-            // デフォルトはカスタムカテゴリー
-            return CustomCategory;
-        }
+            => GetCategoryNameByType((AvatarExplorerItemType)Type);
 
         /// <summary>
         /// タイプに基づいてカテゴリー名を取得
@@ -254,7 +226,7 @@ namespace UnityEditorAssetBrowser.Models
                 AvatarExplorerItemType.Tool => "ツール",
                 AvatarExplorerItemType.Shader => "シェーダー",
                 AvatarExplorerItemType.Custom => CustomCategory,
-                _ => "不明",
+                _ => "不明"
             };
         }
     }

@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEditor;
@@ -16,8 +15,7 @@ namespace UnityEditorAssetBrowser.Services
     public static class ExcludeFolderService
     {
         private const string PREFS_KEY_EXCLUDE_FOLDERS = "UnityEditorAssetBrowser_ExcludeFolders";
-        private const string PREFS_KEY_EXCLUDE_FOLDERS_COMBINED =
-            "UnityEditorAssetBrowser_ExcludeFolders_Combined";
+        private const string PREFS_KEY_EXCLUDE_FOLDERS_COMBINED = "UnityEditorAssetBrowser_ExcludeFolders_Combined";
 
         // デフォルト除外フォルダ（s?付き正規表現）
         private static readonly List<string> DefaultExcludePatterns = new List<string>
@@ -49,69 +47,65 @@ namespace UnityEditorAssetBrowser.Services
         public static bool IsExcludedFolder(string folderName)
         {
             var patterns = GetCombinedExcludePatterns();
-            string normFolderName = Normalize(folderName);
+            string normalizedFolderName = Normalize(folderName);
+
             foreach (var pattern in patterns)
             {
-                if (string.IsNullOrEmpty(pattern))
-                    continue;
-                string normPattern = Normalize(pattern);
+                if (string.IsNullOrEmpty(pattern)) continue;
+
+                string normalizedPattern = Normalize(pattern);
+
                 try
                 {
-                    if (IsRegexPattern(normPattern))
+                    if (IsRegexPattern(normalizedPattern) && Regex.IsMatch(normalizedFolderName, normalizedPattern, RegexOptions.IgnoreCase))
                     {
-                        if (Regex.IsMatch(normFolderName, normPattern, RegexOptions.IgnoreCase))
-                            return true;
+                        return true;
                     }
-                    else
+                    else if (string.Equals(normalizedFolderName, normalizedPattern, StringComparison.OrdinalIgnoreCase))
                     {
-                        if (
-                            string.Equals(
-                                normFolderName,
-                                normPattern,
-                                StringComparison.OrdinalIgnoreCase
-                            )
-                        )
-                            return true;
+                        return true;
                     }
                 }
                 catch
-                { /* 無効な正規表現は無視 */
+                {
+                    // 無効な正規表現は無視
                 }
             }
+
             return false;
         }
 
         /// <summary>
-        /// 除外判定用の合成リスト（ユーザー追加分＋ONの初期設定分）
+        /// 除外判定用の合成リスト（ユーザー追加分 + ONの初期設定分）
         /// </summary>
         public static List<string> GetExcludeFolderPatterns()
         {
-            var prefs = LoadPrefs();
             var result = new List<string>();
+
+            var prefs = LoadPrefs();
             if (prefs != null)
             {
                 result.AddRange(prefs.userFolders);
                 result.AddRange(prefs.enabledDefaults);
             }
+
             return result;
         }
+
+        private const string RegexChars = @".*+?^${}()|[]\\";
 
         /// <summary>
         /// 正規表現かどうかを判定する（特殊文字が含まれていれば正規表現とみなす）
         /// </summary>
         public static bool IsRegexPattern(string pattern)
-        {
-            string regexChars = @".*+?^${}()|[]\\";
-            return pattern.IndexOfAny(regexChars.ToCharArray()) >= 0;
-        }
+            => pattern.IndexOfAny(RegexChars.ToCharArray()) >= 0;
 
         /// <summary>
         /// 除外判定用に空白・全角空白・アンダースコアを除去
         /// </summary>
         private static string Normalize(string s)
         {
-            if (s == null)
-                return "";
+            if (s == null) return "";
             return s.Replace(" ", "").Replace("　", "").Replace("_", "");
         }
 
@@ -119,9 +113,7 @@ namespace UnityEditorAssetBrowser.Services
         /// 除外フォルダの初期設定リスト（s?付き正規表現、abc順でUIに表示）を取得
         /// </summary>
         public static List<string> GetAllDefaultExcludeFolders()
-        {
-            return new List<string>(DefaultExcludePatterns);
-        }
+            => DefaultExcludePatterns;
 
         /// <summary>
         /// 除外フォルダ設定を初期化（EditorPrefsに値がなければデフォルト値を登録）
@@ -131,35 +123,38 @@ namespace UnityEditorAssetBrowser.Services
             string excludeFoldersJson = EditorPrefs.GetString(PREFS_KEY_EXCLUDE_FOLDERS, "");
             if (string.IsNullOrEmpty(excludeFoldersJson))
             {
-                var data = new ExcludeFoldersPrefsData
+                string json = JsonUtility.ToJson(new ExcludeFoldersPrefsData
                 {
                     userFolders = new List<string>(),
-                    enabledDefaults = new List<string>(DefaultExcludePatterns),
-                };
-                string json = JsonUtility.ToJson(data);
+                    enabledDefaults = new List<string>(DefaultExcludePatterns)
+                });
+
                 EditorPrefs.SetString(PREFS_KEY_EXCLUDE_FOLDERS, json);
             }
             else
             {
                 // マイグレーション: 新しいデフォルト項目があればONで追加、不要な項目は削除
                 var data = JsonUtility.FromJson<ExcludeFoldersPrefsData>(excludeFoldersJson);
+
                 bool updated = false;
                 foreach (var def in DefaultExcludePatterns)
                 {
-                    if (!data.enabledDefaults.Contains(def))
-                    {
-                        data.enabledDefaults.Add(def);
-                        updated = true;
-                    }
+                    if (data.enabledDefaults.Contains(def)) continue;
+
+                    data.enabledDefaults.Add(def);
+                    updated = true;
                 }
-                var toRemove = data
-                    .enabledDefaults.Where(x => !DefaultExcludePatterns.Contains(x))
+
+                var toRemove = data.enabledDefaults
+                    .Where(x => !DefaultExcludePatterns.Contains(x))
                     .ToList();
+
                 foreach (var rem in toRemove)
                 {
                     data.enabledDefaults.Remove(rem);
                     updated = true;
                 }
+
                 if (updated)
                 {
                     string json = JsonUtility.ToJson(data);
@@ -174,20 +169,16 @@ namespace UnityEditorAssetBrowser.Services
         public static ExcludeFoldersPrefsData LoadPrefs()
         {
             string json = EditorPrefs.GetString(PREFS_KEY_EXCLUDE_FOLDERS, "");
-            if (string.IsNullOrEmpty(json))
-            {
-                return null;
-            }
+            if (string.IsNullOrEmpty(json)) return null;
+
             try
             {
                 var data = JsonUtility.FromJson<ExcludeFoldersPrefsData>(json);
-                if (
-                    data != null
-                    && (data.enabledDefaults == null || data.enabledDefaults.Count == 0)
-                )
+                if (data != null && (data.enabledDefaults == null || data.enabledDefaults.Count == 0))
                 {
                     data.enabledDefaults = new List<string>(DefaultExcludePatterns);
                 }
+
                 return data;
             }
             catch
@@ -204,17 +195,17 @@ namespace UnityEditorAssetBrowser.Services
             List<string> enabledDefaults
         )
         {
-            var data = new ExcludeFoldersPrefsData
+            string jsonString = JsonUtility.ToJson(new ExcludeFoldersPrefsData
             {
                 userFolders = userFolders,
-                enabledDefaults = enabledDefaults,
-            };
-            string json = JsonUtility.ToJson(data);
-            EditorPrefs.SetString(PREFS_KEY_EXCLUDE_FOLDERS, json);
+                enabledDefaults = enabledDefaults
+            });
+
+            EditorPrefs.SetString(PREFS_KEY_EXCLUDE_FOLDERS, jsonString);
         }
 
         /// <summary>
-        /// 判定用の合成済みリスト（ユーザー追加分＋ONの初期設定分）を保存
+        /// 判定用の合成済みリスト（ユーザー追加分 + ONの初期設定分）を保存
         /// </summary>
         public static void SaveCombinedExcludePatterns(List<string> combined)
         {
@@ -228,8 +219,8 @@ namespace UnityEditorAssetBrowser.Services
         public static List<string> GetCombinedExcludePatterns()
         {
             string json = EditorPrefs.GetString(PREFS_KEY_EXCLUDE_FOLDERS_COMBINED, "");
-            if (string.IsNullOrEmpty(json))
-                return new List<string>();
+            if (string.IsNullOrEmpty(json)) return new List<string>();
+
             try
             {
                 var data = JsonUtility.FromJson<StringListWrapper>(json);

@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditorAssetBrowser.Interfaces;
 using UnityEngine;
 
 namespace UnityEditorAssetBrowser.Models
@@ -47,7 +48,7 @@ namespace UnityEditorAssetBrowser.Models
         /// </summary>
         /// <param name="items">全アイテムのリスト</param>
         /// <returns>計算された総ページ数（最小値は1）</returns>
-        public int GetTotalPages(List<object> items)
+        public int GetTotalPages(List<IDatabaseItem> items)
         {
             int totalItems = items.Count;
             return Mathf.Max(1, Mathf.CeilToInt((float)totalItems / ItemsPerPage));
@@ -58,10 +59,9 @@ namespace UnityEditorAssetBrowser.Models
         /// </summary>
         /// <param name="items">全アイテムのリスト</param>
         /// <returns>現在のページに表示するアイテムの列挙</returns>
-        public IEnumerable<object> GetCurrentPageItems(List<object> items)
+        public IEnumerable<IDatabaseItem> GetCurrentPageItems(List<IDatabaseItem> items)
         {
             int startIndex = CurrentPage * ItemsPerPage;
-            int endIndex = Mathf.Min(startIndex + ItemsPerPage, items.Count);
             return items.Skip(startIndex).Take(ItemsPerPage);
         }
 
@@ -69,9 +69,7 @@ namespace UnityEditorAssetBrowser.Models
         /// ページ番号を0にリセット
         /// </summary>
         public void ResetPage()
-        {
-            CurrentPage = 0;
-        }
+            => CurrentPage = 0;
 
         /// <summary>
         /// 次のページに移動
@@ -85,6 +83,7 @@ namespace UnityEditorAssetBrowser.Models
                 CurrentPage++;
                 return true;
             }
+
             return false;
         }
 
@@ -99,6 +98,7 @@ namespace UnityEditorAssetBrowser.Models
                 CurrentPage--;
                 return true;
             }
+
             return false;
         }
 
@@ -115,6 +115,7 @@ namespace UnityEditorAssetBrowser.Models
                 CurrentPage = page;
                 return true;
             }
+            
             return false;
         }
     }

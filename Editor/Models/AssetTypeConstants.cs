@@ -8,18 +8,18 @@ namespace UnityEditorAssetBrowser.Models
     /// アセットタイプの定数定義クラス
     /// EditorPrefsで使用するアセットタイプの値を統一管理する
     /// </summary>
-    public static class AssetTypeConstants
+    public enum AssetTypeConstants
     {
         /// <summary>アバタータイプ</summary>
-        public const int AVATAR = 0;
+        Avatar,
         
         /// <summary>アバター関連タイプ</summary>
-        public const int AVATAR_RELATED = 1;
+        AvatarRelated,
         
         /// <summary>ワールドタイプ</summary>
-        public const int WORLD = 2;
+        World,
         
         /// <summary>その他タイプ</summary>
-        public const int OTHER = 3;
+        Other
     }
 }

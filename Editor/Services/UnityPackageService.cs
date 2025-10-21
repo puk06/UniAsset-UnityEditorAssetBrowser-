@@ -5,13 +5,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEditor;
-using UnityEditorAssetBrowser.Services;
-using UnityEditorAssetBrowser.Views;
 using UnityEngine;
 
 namespace UnityEditorAssetBrowser.Services
@@ -54,8 +49,7 @@ namespace UnityEditorAssetBrowser.Services
             {
                 return Directory.GetFiles(directory, "*.unitypackage", SearchOption.AllDirectories);
             }
-            catch (Exception ex)
-                when (ex is UnauthorizedAccessException || ex is PathTooLongException)
+            catch (Exception ex) when (ex is UnauthorizedAccessException || ex is PathTooLongException)
             {
                 Debug.LogError($"UnityPackageファイルの検索中にエラーが発生しました: {ex.Message}");
                 return Array.Empty<string>();
@@ -68,7 +62,7 @@ namespace UnityEditorAssetBrowser.Services
         /// <param name="packagePath">パッケージパス</param>
         /// <param name="imagePath">サムネイル画像パス</param>
         /// <param name="category">カテゴリ</param>
-        public static void ImportPackageAndSetThumbnails(string packagePath, string imagePath, string? category)
+        public static void ImportPackageAndSetThumbnails(string packagePath, string imagePath, string category)
         {
             var beforeFolders = GetAssetFolders();
 
@@ -131,12 +125,17 @@ namespace UnityEditorAssetBrowser.Services
                                     Debug.LogError($"[UnityPackageService] カテゴリフォルダの作成に失敗しました: {categoryPath}");
                                     return;
                                 }
+
                                 AssetDatabase.Refresh();
                             }
 
                             // 新しいフォルダをカテゴリフォルダに移動
                             foreach (var folder in newFolders)
                             {
+                                // フォルダがカテゴリフォルダの配下または親にカテゴリフォルダを含む場合はスキップ
+                                if (folder.StartsWith(categoryPath + "/") || folder.Contains($"/{category}/"))
+                                    continue;
+
                                 if (Directory.Exists(folder))
                                 {
                                     string folderName = Path.GetFileName(folder);
@@ -147,7 +146,7 @@ namespace UnityEditorAssetBrowser.Services
                                     {
                                         // フォルダ内の全アセットを移動
                                         string[] assets = Directory.GetFiles(folder, "*.*", SearchOption.AllDirectories);
-                                        
+
                                         foreach (var asset in assets)
                                         {
                                             if (Path.GetExtension(asset) != ".meta")
@@ -155,19 +154,14 @@ namespace UnityEditorAssetBrowser.Services
                                                 string relativePath = Path.GetRelativePath(folder, asset);
                                                 string targetPath = Path.Combine(newPath, relativePath);
                                                 string targetDir = Path.GetDirectoryName(targetPath);
-                                                
-                                                if (!string.IsNullOrEmpty(targetDir) && !Directory.Exists(targetDir))
-                                                {
-                                                    Directory.CreateDirectory(targetDir);
-                                                }
-                                                
+
+                                                if (!string.IsNullOrEmpty(targetDir) && !Directory.Exists(targetDir)) Directory.CreateDirectory(targetDir);
+
                                                 string result = AssetDatabase.MoveAsset(asset, targetPath);
-                                                if (!string.IsNullOrEmpty(result))
-                                                {
-                                                    Debug.LogError($"[UnityPackageService] アセット移動エラー: {result}");
-                                                }
+                                                if (!string.IsNullOrEmpty(result)) Debug.LogError($"[UnityPackageService] アセット移動エラー: {result}");
                                             }
                                         }
+                                        
                                         // 空になったフォルダを削除
                                         AssetDatabase.DeleteAsset(folder);
                                     }
@@ -175,10 +169,7 @@ namespace UnityEditorAssetBrowser.Services
                                     {
                                         // フォルダを移動
                                         string result = AssetDatabase.MoveAsset(folder, newPath);
-                                        if (!string.IsNullOrEmpty(result))
-                                        {
-                                            Debug.LogError($"[UnityPackageService] フォルダ移動エラー: {result}");
-                                        }
+                                        if (!string.IsNullOrEmpty(result)) Debug.LogError($"[UnityPackageService] フォルダ移動エラー: {result}");
                                     }
                                 }
                             }
@@ -279,22 +270,19 @@ namespace UnityEditorAssetBrowser.Services
         /// </summary>
         private static string GetValidatedImagePath(string imagePath)
         {
-            var assetItemView = new AssetItemView(null);
-            string fullImagePath = assetItemView.GetFullImagePath(imagePath);
-
-            if (string.IsNullOrEmpty(fullImagePath))
+            if (string.IsNullOrEmpty(imagePath))
             {
                 Debug.LogWarning("[UnityPackageService] 完全な画像パスを取得できませんでした");
                 return string.Empty;
             }
 
-            if (!File.Exists(fullImagePath))
+            if (!File.Exists(imagePath))
             {
-                Debug.LogWarning($"[UnityPackageService] サムネイル画像が見つかりません: {fullImagePath}");
+                Debug.LogWarning($"[UnityPackageService] サムネイル画像が見つかりません: {imagePath}");
                 return string.Empty;
             }
 
-            return fullImagePath;
+            return imagePath;
         }
 
         /// <summary>
@@ -323,7 +311,7 @@ namespace UnityEditorAssetBrowser.Services
         private static List<string> GetExcludedFolders(List<string> folders)
         {
             return folders
-                .Where(f => ExcludeFolderService.IsExcludedFolder(f.Split('/').Last()))
+                .Where(f => ExcludeFolderService.IsExcludedFolder(f.Split(Path.DirectorySeparatorChar).Last()))
                 .ToList();
         }
 
@@ -332,13 +320,13 @@ namespace UnityEditorAssetBrowser.Services
         /// </summary>
         private static void ProcessExcludedFolders(List<string> excludedFolders, HashSet<string> targetFolders)
         {
-            var shallowest = excludedFolders.OrderBy(f => f.Count(c => c == '/')).First();
-            var parts = shallowest.Split('/');
+            var shallowest = excludedFolders.OrderBy(f => f.Count(c => c == Path.DirectorySeparatorChar)).First();
+
+            var parts = shallowest.Split(Path.DirectorySeparatorChar);
             if (parts.Length > 1)
             {
-                string parent = string.Join("/", parts.Take(parts.Length - 1));
-                if (!string.IsNullOrEmpty(parent) && !IsRootFolderIcon(parent))
-                    targetFolders.Add(parent);
+                string parent = string.Join(Path.DirectorySeparatorChar, parts.Take(parts.Length - 1));
+                if (!string.IsNullOrEmpty(parent) && !IsRootFolderIcon(parent)) targetFolders.Add(parent);
             }
         }
 
@@ -387,7 +375,8 @@ namespace UnityEditorAssetBrowser.Services
         /// </summary>
         private static string FindBestThumbnailFolder(string folder)
         {
-            string[] parts = folder.Split('/');
+            string[] parts = folder.Split(Path.DirectorySeparatorChar);
+            
             // 除外フォルダがパスに含まれる場合は、最初の除外フォルダの1つ上を返す
             for (int i = 1; i < parts.Length; i++)
             {
@@ -431,19 +420,20 @@ namespace UnityEditorAssetBrowser.Services
         /// <returns>Assets直下のFolderIcon.jpgならtrue</returns>
         private static bool IsRootFolderIcon(string folderPath)
         {
-            if (string.IsNullOrEmpty(folderPath))
-                return false;
-            var parts = folderPath.Split('/');
+            if (string.IsNullOrEmpty(folderPath)) return false;
+
+            var parts = folderPath.Split(Path.DirectorySeparatorChar);
             return parts.Length == 2 && parts[0] == "Assets" && parts[1] == "FolderIcon.jpg";
         }
 
         // 複数パスの最も深い共通の親ディレクトリを求める
         private static string GetDeepestCommonParent(IEnumerable<string> paths)
         {
-            if (paths == null || !paths.Any())
-                return string.Empty;
-            var splitPaths = paths.Select(p => p.Split('/')).ToList();
+            if (paths == null || !paths.Any()) return string.Empty;
+
+            var splitPaths = paths.Select(p => p.Split(Path.DirectorySeparatorChar)).ToList();
             int minLen = splitPaths.Min(arr => arr.Length);
+
             List<string> common = new List<string>();
             for (int i = 0; i < minLen; i++)
             {
@@ -457,7 +447,8 @@ namespace UnityEditorAssetBrowser.Services
                     break;
                 }
             }
-            return common.Count > 0 ? string.Join("/", common) : string.Empty;
+
+            return common.Count > 0 ? string.Join(Path.DirectorySeparatorChar, common) : string.Empty;
         }
 
         [Serializable]

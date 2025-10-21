@@ -24,14 +24,12 @@ namespace UnityEditorAssetBrowser.Helper
         {
             get
             {
-                if (_titleStyle == null)
+                _titleStyle ??= new GUIStyle(EditorStyles.boldLabel)
                 {
-                    _titleStyle = new GUIStyle(EditorStyles.boldLabel)
-                    {
-                        fontSize = 14,
-                        margin = new RectOffset(4, 4, 4, 4),
-                    };
-                }
+                    fontSize = 14,
+                    margin = new RectOffset(4, 4, 4, 4),
+                };
+                
                 return _titleStyle;
             }
         }
@@ -44,14 +42,12 @@ namespace UnityEditorAssetBrowser.Helper
         {
             get
             {
-                if (_boxStyle == null)
+                _boxStyle ??= new GUIStyle(EditorStyles.helpBox)
                 {
-                    _boxStyle = new GUIStyle(EditorStyles.helpBox)
-                    {
-                        padding = new RectOffset(10, 10, 10, 10),
-                        margin = new RectOffset(0, 0, 5, 5),
-                    };
-                }
+                    padding = new RectOffset(10, 10, 10, 10),
+                    margin = new RectOffset(0, 0, 5, 5),
+                };
+                
                 return _boxStyle;
             }
         }

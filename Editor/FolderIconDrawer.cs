@@ -1,9 +1,9 @@
 // Copyright (c) 2025 sakurayuki
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEditorAssetBrowser.Services;
 using UnityEngine;
@@ -17,25 +17,24 @@ namespace UnityEditorAssetBrowser
     public static class FolderIconDrawer
     {
         // EditorPrefsのキー：フォルダアイコン表示設定
-        private const string PREFS_KEY_SHOW_FOLDER_THUMBNAIL =
-            "UnityEditorAssetBrowser_ShowFolderThumbnail";
+        private const string PREFS_KEY_SHOW_FOLDER_THUMBNAIL = "UnityEditorAssetBrowser_ShowFolderThumbnail";
         private const string PREFS_KEY_EXCLUDE_FOLDERS = "UnityEditorAssetBrowser_ExcludeFolders";
 
         // 現在イベントが登録されているかどうかのフラグ
         private static bool _isRegistered = false;
 
         // キャッシュシステム
-        private static Dictionary<string, FolderIconCache> _folderCache = new Dictionary<string, FolderIconCache>();
-        private static Dictionary<string, Texture2D> _textureCache = new Dictionary<string, Texture2D>();
-        private static Dictionary<string, bool> _directoryCache = new Dictionary<string, bool>();
+        private static readonly Dictionary<string, FolderIconCache> _folderCache = new Dictionary<string, FolderIconCache>();
+        private static readonly Dictionary<string, Texture2D> _textureCache = new Dictionary<string, Texture2D>();
+        private static readonly Dictionary<string, bool> _directoryCache = new Dictionary<string, bool>();
         private const int MAX_CACHE_SIZE = 1000;
         private static int _cacheAccessCounter = 0;
 
         private struct FolderIconCache
         {
-            public List<string> iconPaths;
-            public long lastWriteTime;
-            public bool isValid;
+            public List<string> IconPaths;
+            public long LastWriteTime;
+            public bool IsValid;
         }
 
         // 静的コンストラクタ：エディタ起動時に呼ばれる
@@ -73,31 +72,25 @@ namespace UnityEditorAssetBrowser
         /// </summary>
         private static void OnProjectWindowItemGUI(string guid, Rect rect)
         {
-            if (Event.current.type != EventType.Repaint)
-                return;
+            if (Event.current.type != EventType.Repaint) return;
 
             string path = AssetDatabase.GUIDToAssetPath(guid);
-            if (string.IsNullOrEmpty(path))
-                return;
+            if (string.IsNullOrEmpty(path)) return;
 
             // ディレクトリチェック（キャッシュ使用）
-            if (!IsDirectoryCached(path))
-                return;
+            if (!IsDirectoryCached(path)) return;
 
             // 除外フォルダ名判定
             string folderName = Path.GetFileName(path);
-            if (ExcludeFolderService.IsExcludedFolder(folderName))
-                return;
+            if (ExcludeFolderService.IsExcludedFolder(folderName)) return;
 
             // キャッシュからアイコンパスを取得
             var iconPaths = GetIconPathsCached(path);
-            if (iconPaths == null || iconPaths.Count == 0)
-                return;
+            if (iconPaths == null || iconPaths.Count == 0) return;
 
             // テクスチャをキャッシュから取得
             var textures = GetTexturesCached(iconPaths);
-            if (textures.Count == 0)
-                return;
+            if (textures.Count == 0) return;
 
             // アイコン領域に合わせて描画矩形を計算
             Rect imageRect;
@@ -163,35 +156,32 @@ namespace UnityEditorAssetBrowser
         )
         {
             var result = new List<string>();
-            if (currentDepth >= maxDepth)
-                return result;
+            if (currentDepth >= maxDepth) return result;
+
             try
             {
                 foreach (var dir in Directory.GetDirectories(root))
                 {
-                    if (result.Count >= maxCount)
-                        break;
+                    if (result.Count >= maxCount) break;
+
                     string folderName = Path.GetFileName(dir);
-                    if (ExcludeFolderService.IsExcludedFolder(folderName))
-                        continue;
-                    string iconPath = Path.Combine(dir, "FolderIcon.jpg").Replace("\\", "/");
-                    if (File.Exists(iconPath))
-                        result.Add(iconPath);
-                    if (result.Count >= maxCount)
-                        break;
+                    if (ExcludeFolderService.IsExcludedFolder(folderName)) continue;
+
+                    string iconPath = Path.GetFullPath(Path.Combine(dir, "FolderIcon.jpg"));
+                    if (File.Exists(iconPath)) result.Add(iconPath);
+
+                    if (result.Count >= maxCount) break;
+
                     // 再帰探索
-                    var found = FindFolderIconsRecursive(
-                        dir,
-                        currentDepth + 1,
-                        maxDepth,
-                        maxCount - result.Count
-                    );
+                    var found = FindFolderIconsRecursive(dir, currentDepth + 1, maxDepth, maxCount - result.Count);
                     result.AddRange(found);
-                    if (result.Count >= maxCount)
-                        break;
                 }
             }
-            catch { }
+            catch
+            {
+                // Ignored
+            }
+
             return result;
         }
 
@@ -200,8 +190,7 @@ namespace UnityEditorAssetBrowser
         /// </summary>
         private static bool IsDirectoryCached(string path)
         {
-            if (_directoryCache.TryGetValue(path, out bool isDirectory))
-                return isDirectory;
+            if (_directoryCache.TryGetValue(path, out bool isDirectory)) return isDirectory;
 
             try
             {
@@ -225,14 +214,13 @@ namespace UnityEditorAssetBrowser
             {
                 long currentWriteTime = Directory.GetLastWriteTime(path).ToBinary();
                 
-                if (_folderCache.TryGetValue(path, out var cache) && 
-                    cache.isValid && cache.lastWriteTime == currentWriteTime)
+                if (_folderCache.TryGetValue(path, out var cache) && cache.IsValid && cache.LastWriteTime == currentWriteTime)
                 {
-                    return cache.iconPaths;
+                    return cache.IconPaths;
                 }
 
                 // 自フォルダ内のFolderIcon.jpgを最優先で取得
-                string selfIconPath = Path.Combine(path, "FolderIcon.jpg").Replace("\\", "/");
+                string selfIconPath = Path.GetFullPath(Path.Combine(path, "FolderIcon.jpg"));
                 List<string> iconPaths;
                 
                 if (File.Exists(selfIconPath))
@@ -247,9 +235,9 @@ namespace UnityEditorAssetBrowser
                 // キャッシュに保存
                 _folderCache[path] = new FolderIconCache
                 {
-                    iconPaths = iconPaths,
-                    lastWriteTime = currentWriteTime,
-                    isValid = true
+                    IconPaths = iconPaths,
+                    LastWriteTime = currentWriteTime,
+                    IsValid = true
                 };
 
                 return iconPaths;
@@ -337,10 +325,10 @@ namespace UnityEditorAssetBrowser
             }
         }
 
-        [System.Serializable]
+        [Serializable]
         private class ExcludeFoldersData
         {
-            public List<string> folders = new List<string>();
+            public List<string> Folders = new List<string>();
         }
     }
 }

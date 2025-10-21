@@ -4,11 +4,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using Newtonsoft.Json;
 using UnityEditor;
-using UnityEditorAssetBrowser.Helper;
 using UnityEditorAssetBrowser.Models;
 using UnityEditorAssetBrowser.Services;
 using UnityEditorAssetBrowser.ViewModels;
@@ -26,18 +23,6 @@ namespace UnityEditorAssetBrowser
         #region Constants
         /// <summary>ウィンドウのタイトル</summary>
         private const string WINDOW_TITLE = "Asset Browser";
-
-        /// <summary>AEデータベースパスのEditorPrefsキー</summary>
-        private const string AE_DATABASE_PATH_KEY = "UnityEditorAssetBrowser_AEDatabasePath";
-
-        /// <summary>KAデータベースパスのEditorPrefsキー</summary>
-        private const string KA_DATABASE_PATH_KEY = "UnityEditorAssetBrowser_KADatabasePath";
-
-        /// <summary>ワールドカテゴリーの日本語キーワード</summary>
-        private const string WORLD_CATEGORY_JP = "ワールド";
-
-        /// <summary>ワールドカテゴリーの英語キーワード</summary>
-        private const string WORLD_CATEGORY_EN = "world";
         #endregion
 
         #region Fields
@@ -62,40 +47,8 @@ namespace UnityEditorAssetBrowser
         /// <summary>メインビュー</summary>
         private MainView _mainView = null!;
 
-        /// <summary>アイテム検索サービス</summary>
-        private ItemSearchService _itemSearchService = null!;
-
-        /// <summary>スクロールビューの位置</summary>
-        private Vector2 scrollPosition;
-
-        /// <summary>詳細検索の表示状態</summary>
-        private bool showAdvancedSearch => _searchViewModel.SearchCriteria.ShowAdvancedSearch;
-
-        /// <summary>タブのラベル</summary>
-        private readonly string[] tabs = { "アバター", "アバター関連", "ワールド", "その他" };
-
-        /// <summary>フォールドアウト状態の管理</summary>
-        private readonly Dictionary<string, bool> foldouts = new();
-
-        /// <summary>画像のキャッシュ</summary>
-        private Dictionary<string, Texture2D> imageCache => ImageServices.Instance.imageCache;
-
-        /// <summary>メモのフォールドアウト状態の管理</summary>
-        private readonly Dictionary<string, bool> memoFoldouts = new();
-
-        /// <summary>UnityPackageのフォールドアウト状態の管理</summary>
-        private readonly Dictionary<string, bool> unityPackageFoldouts = new();
-
-        /// <summary>ソート方法のラベル</summary>
-        private readonly string[] sortLabels =
-        {
-            "追加順（新しい順）",
-            "追加順（古い順）",
-            "アセット名（A-Z順）",
-            "アセット名（Z-A順）",
-            "ショップ名（A-Z順）",
-            "ショップ名（Z-A順）",
-        };
+        /// <summary>アセットアイテムビュー</summary>
+        private AssetItemView _assetItemView = null!;
         #endregion
 
         #region Unity Editor Window Methods
@@ -115,13 +68,16 @@ namespace UnityEditorAssetBrowser
         {
             // 除外フォルダ初期化と合成済みリスト保存
             ExcludeFolderService.InitializeDefaultExcludeFolders();
-            var prefs = ExcludeFolderService.LoadPrefs();
+
             var combined = new List<string>();
+
+            var prefs = ExcludeFolderService.LoadPrefs();
             if (prefs != null)
             {
                 combined.AddRange(prefs.userFolders);
                 combined.AddRange(prefs.enabledDefaults);
             }
+            
             ExcludeFolderService.SaveCombinedExcludePatterns(combined);
 
             InitializeCategoryAssetTypes();
@@ -147,7 +103,6 @@ namespace UnityEditorAssetBrowser
         private void InitializeServices()
         {
             DatabaseService.LoadSettings();
-            _itemSearchService = new ItemSearchService(DatabaseService.GetAEDatabase());
         }
 
         /// <summary>
@@ -166,6 +121,7 @@ namespace UnityEditorAssetBrowser
                 _paginationInfo,
                 _searchViewModel
             );
+            _assetItemView = new AssetItemView();
         }
 
         /// <summary>
@@ -176,16 +132,17 @@ namespace UnityEditorAssetBrowser
             _searchView = new SearchView(
                 _searchViewModel,
                 _assetBrowserViewModel,
-                _paginationViewModel
+                _paginationViewModel,
+                _assetItemView
             );
             _paginationView = new PaginationView(_paginationViewModel, _assetBrowserViewModel);
             _mainView = new MainView(
-                _assetBrowserViewModel,
                 _searchViewModel,
                 _paginationViewModel,
                 _searchView,
                 _paginationView,
-                DatabaseService.GetAEDatabase()
+                _assetItemView,
+                _assetBrowserViewModel
             );
         }
 
@@ -218,9 +175,6 @@ namespace UnityEditorAssetBrowser
         /// </summary>
         private void OnHierarchyChanged()
         {
-            string aeDatabasePath = DatabaseService.GetAEDatabasePath();
-            string kaDatabasePath = DatabaseService.GetKADatabasePath();
-
             // 画像キャッシュをクリア
             ImageServices.Instance.ClearCache();
 
@@ -230,14 +184,8 @@ namespace UnityEditorAssetBrowser
             _searchViewModel.SetCurrentTab(_paginationViewModel.SelectedTab);
 
             // 現在表示中のアイテムの画像を再読み込み
-            var currentItems = _assetBrowserViewModel.GetCurrentTabItems(
-                _paginationViewModel.SelectedTab
-            );
-            ImageServices.Instance.ReloadCurrentItemsImages(
-                currentItems,
-                aeDatabasePath,
-                kaDatabasePath
-            );
+            var currentItems = _assetBrowserViewModel.GetCurrentTabItems(_paginationViewModel.SelectedTab);
+            ImageServices.Instance.ReloadCurrentItemsImages(currentItems);
         }
 
         /// <summary>
@@ -268,15 +216,15 @@ namespace UnityEditorAssetBrowser
             // 初期値の設定
             var defaultTypes = new Dictionary<string, int>
             {
-                { "アバター", AssetTypeConstants.AVATAR },
-                { "衣装", AssetTypeConstants.AVATAR_RELATED },
-                { "テクスチャ", AssetTypeConstants.AVATAR_RELATED },
-                { "ギミック", AssetTypeConstants.AVATAR_RELATED },
-                { "アクセサリー", AssetTypeConstants.AVATAR_RELATED },
-                { "髪型", AssetTypeConstants.AVATAR_RELATED },
-                { "アニメーション", AssetTypeConstants.AVATAR_RELATED },
-                { "ツール", AssetTypeConstants.OTHER },
-                { "シェーダー", AssetTypeConstants.OTHER },
+                { "アバター", (int)AssetTypeConstants.Avatar },
+                { "衣装", (int)AssetTypeConstants.AvatarRelated },
+                { "テクスチャ", (int)AssetTypeConstants.AvatarRelated },
+                { "ギミック", (int)AssetTypeConstants.AvatarRelated },
+                { "アクセサリー", (int)AssetTypeConstants.AvatarRelated },
+                { "髪型", (int)AssetTypeConstants.AvatarRelated },
+                { "アニメーション", (int)AssetTypeConstants.AvatarRelated },
+                { "ツール", (int)AssetTypeConstants.Other },
+                { "シェーダー", (int)AssetTypeConstants.Other },
             };
 
             // 指定された順序のカテゴリの初期化
@@ -306,8 +254,8 @@ namespace UnityEditorAssetBrowser
             var aeDatabase = DatabaseService.GetAEDatabase();
             if (aeDatabase != null)
             {
-                var otherCategories = aeDatabase
-                    .Items.Select(item => item.GetAECategoryName())
+                var otherCategories = aeDatabase.Items
+                    .Select(item => item.GetAECategoryName())
                     .Distinct()
                     .Where(category => !orderedCategories.Contains(category))
                     .OrderBy(category => category);
@@ -331,11 +279,7 @@ namespace UnityEditorAssetBrowser
         /// <returns>デフォルトのアセットタイプのインデックス</returns>
         private int GetDefaultAssetTypeForCategory(string category)
         {
-            if (category.Contains("ワールド") || category.Contains("world"))
-            {
-                return AssetTypeConstants.WORLD;
-            }
-            return AssetTypeConstants.OTHER;
+            return IsWorldCategory(category) ? (int)AssetTypeConstants.World : (int)AssetTypeConstants.Other;
         }
         #endregion
 
@@ -347,7 +291,7 @@ namespace UnityEditorAssetBrowser
         /// <returns>ワールド関連の場合true</returns>
         private bool IsWorldCategory(string category)
         {
-            return _itemSearchService.IsWorldCategory(category);
+            return AssetItem.IsWorldCategory(category);
         }
         #endregion
     }
