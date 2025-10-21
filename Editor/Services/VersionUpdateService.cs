@@ -91,21 +91,15 @@ namespace UnityEditorAssetBrowser.Services
         private static string TryFindInPackagesDirectory(string sourceFilePath)
         {
             var normalizedPath = Path.GetFullPath(sourceFilePath);
+            
             var packagesIndex = normalizedPath.ToLower().IndexOf(PackagesPathString);
-
-            if (packagesIndex < 0)
-            {
-                return "";
-            }
+            if (packagesIndex < 0) return "";
 
             var packagesPath = normalizedPath.Substring(0, packagesIndex + PackagesPathString.Length);
             var remainingPath = normalizedPath.Substring(packagesIndex + PackagesPathString.Length);
+            
             var pathParts = remainingPath.Split(Path.DirectorySeparatorChar);
-
-            if (pathParts.Length == 0)
-            {
-                return "";
-            }
+            if (pathParts.Length == 0) return "";
 
             var packageName = pathParts[0];
             var packageJsonPath = Path.GetFullPath(Path.Combine(packagesPath, packageName, "package.json"));
