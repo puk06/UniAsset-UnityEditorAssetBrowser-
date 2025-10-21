@@ -77,7 +77,7 @@ namespace UnityEditorAssetBrowser.Views
             _assetBrowserViewModel.SortMethodChanged += () =>
             {
                 if (_cachedItems == null) return;
-                _assetBrowserViewModel.SortItems(_cachedItems);
+                _cachedItems = _assetBrowserViewModel.SortItems(_cachedItems);
             };
         }
 
