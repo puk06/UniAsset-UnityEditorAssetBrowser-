@@ -132,6 +132,10 @@ namespace UnityEditorAssetBrowser.Services
                             // 新しいフォルダをカテゴリフォルダに移動
                             foreach (var folder in newFolders)
                             {
+                                // フォルダがカテゴリフォルダの配下または親にカテゴリフォルダを含む場合はスキップ
+                                if (folder.StartsWith(categoryPath + "/") || folder.Contains($"/{category}/"))
+                                    continue;
+
                                 if (Directory.Exists(folder))
                                 {
                                     string folderName = Path.GetFileName(folder);
