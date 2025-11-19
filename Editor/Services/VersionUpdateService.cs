@@ -223,6 +223,27 @@ namespace UnityEditorAssetBrowser.Services
             => PackageJsonReader.GetVersion();
 
         /// <summary>
+        /// AboutWindow など外部から現在のパッケージ情報を取得するための公開メソッド
+        /// </summary>
+        public static class External
+        {
+            /// <summary>
+            /// 現在のバージョンを取得（外部用）
+            /// </summary>
+            public static string GetVersion() => PackageJsonReader.GetVersion();
+
+            /// <summary>
+            /// 現在のパッケージのリポジトリ URL を取得（外部用）
+            /// </summary>
+            public static string GetRepoUrl() => PackageJsonReader.GetRepoUrl();
+
+            /// <summary>
+            /// 現在のパッケージの表示名を取得（外部用）
+            /// </summary>
+            public static string GetDisplayName() => PackageJsonReader.GetDisplayName();
+        }
+
+        /// <summary>
         /// リモートのバージョン情報取得URLを取得
         /// </summary>
         private static string GetRemoteVersionUrl()
