@@ -263,7 +263,44 @@ namespace UnityEditorAssetBrowser
                 }
                 else
                 {
-                    var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(iconPath);
+                    // フルパス -> プロジェクト相対パス ("Assets/...") に変換
+                    string assetPath = null;
+                    try
+                    {
+                        if (string.IsNullOrEmpty(iconPath)) continue;
+                        string normalized = iconPath.Replace('\\', '/');
+                        string dataPath = Application.dataPath.Replace('\\', '/').TrimEnd('/');
+                        if (normalized.StartsWith(dataPath, StringComparison.OrdinalIgnoreCase))
+                        {
+                            assetPath = "Assets" + normalized.Substring(dataPath.Length);
+                        }
+                        else
+                        {
+                            // 既に "Assets/..." の形式で渡されている場合はそのまま使う
+                            if (normalized.IndexOf("/Assets/", StringComparison.OrdinalIgnoreCase) >= 0)
+                            {
+                                int idx = normalized.IndexOf("/Assets/", StringComparison.OrdinalIgnoreCase);
+                                assetPath = normalized.Substring(idx + 1); // remove leading '/'
+                            }
+                            else if (normalized.StartsWith("Assets/", StringComparison.OrdinalIgnoreCase))
+                            {
+                                assetPath = normalized;
+                            }
+                            else
+                            {
+                                // プロジェクト外パスなどはスキップ
+                                assetPath = null;
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        assetPath = null;
+                    }
+
+                    if (string.IsNullOrEmpty(assetPath)) continue;
+
+                    var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(assetPath);
                     if (texture != null)
                     {
                         _textureCache[iconPath] = texture;
