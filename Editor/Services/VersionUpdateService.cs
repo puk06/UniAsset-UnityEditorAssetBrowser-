@@ -77,28 +77,33 @@ namespace UnityEditorAssetBrowser.Services
             }
         }
 
-        private static readonly string PackagesPathString = Path.DirectorySeparatorChar + "packages" + Path.DirectorySeparatorChar;
-
         /// <summary>
         /// Unityパッケージ構造でのpackage.json検索
         /// </summary>
         private static string TryFindInPackagesDirectory(string sourceFilePath)
         {
-            var normalizedPath = Path.GetFullPath(sourceFilePath);
-
-            var packagesIndex = normalizedPath.ToLower().IndexOf(PackagesPathString);
-            if (packagesIndex < 0) return "";
-
-            var packagesPath = normalizedPath.Substring(0, packagesIndex + PackagesPathString.Length);
-            var remainingPath = normalizedPath.Substring(packagesIndex + PackagesPathString.Length);
+            var normalizedPath = sourceFilePath.Replace('\\', '/');
+            var packagesIndex = normalizedPath.ToLower().IndexOf("/packages/");
             
-            var pathParts = remainingPath.Split(Path.DirectorySeparatorChar);
-            if (pathParts.Length == 0) return "";
+            if (packagesIndex < 0)
+            {
+                return "";
+            }
+
+            var packagesPath = normalizedPath.Substring(0, packagesIndex + "/packages/".Length);
+            var remainingPath = normalizedPath.Substring(packagesIndex + "/packages/".Length);
+            var pathParts = remainingPath.Split('/');
+            
+            if (pathParts.Length == 0)
+            {
+                return "";
+            }
 
             var packageName = pathParts[0];
-            var packageJsonPath = Path.GetFullPath(Path.Combine(packagesPath, packageName, "package.json"));
-
-            return File.Exists(packageJsonPath) ? packageJsonPath : "";
+            var packageJsonPath = System.IO.Path.Combine(packagesPath, packageName, "package.json")
+                .Replace('/', System.IO.Path.DirectorySeparatorChar);
+            
+            return System.IO.File.Exists(packageJsonPath) ? packageJsonPath : "";
         }
 
         /// <summary>
@@ -221,6 +226,27 @@ namespace UnityEditorAssetBrowser.Services
         /// </summary>
         private static string GetCurrentVersion()
             => PackageJsonReader.GetVersion();
+
+        /// <summary>
+        /// AboutWindow など外部から現在のパッケージ情報を取得するための公開メソッド
+        /// </summary>
+        public static class External
+        {
+            /// <summary>
+            /// 現在のバージョンを取得（外部用）
+            /// </summary>
+            public static string GetVersion() => PackageJsonReader.GetVersion();
+
+            /// <summary>
+            /// 現在のパッケージのリポジトリ URL を取得（外部用）
+            /// </summary>
+            public static string GetRepoUrl() => PackageJsonReader.GetRepoUrl();
+
+            /// <summary>
+            /// 現在のパッケージの表示名を取得（外部用）
+            /// </summary>
+            public static string GetDisplayName() => PackageJsonReader.GetDisplayName();
+        }
 
         /// <summary>
         /// リモートのバージョン情報取得URLを取得

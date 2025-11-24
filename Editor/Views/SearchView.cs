@@ -286,6 +286,12 @@ namespace UnityEditorAssetBrowser.Views
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
 
+            // 追加: このソフトについてボタン
+            if (GUILayout.Button("このソフトについて", GUILayout.Width(140)))
+            {
+                AboutWindow.ShowWindow();
+            }
+
             if (GUILayout.Button("設定", GUILayout.Width(100)))
             {
                 SettingsWindow.ShowWindow(
